@@ -1,0 +1,10 @@
+/bin/
+# The server's runtime state directory (SQLite database and friends). Anchored
+# to the repo root on purpose: an unanchored "data/" would also match
+# internal/conformance/data/, whose generated indexes MUST be committed — the
+# loader embeds them, so a build without them fails.
+/data/
+
+# Vendored conformance packages: fetched by `make vendor`, pinned by
+# third_party/packages.lock. Not committed — they are large and reproducible.
+third_party/packages/

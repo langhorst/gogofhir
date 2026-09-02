@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: lint + race tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+      # The compiled conformance indexes are committed, so this needs neither
+      # the published packages nor network access to them.
+      - run: make check
+
+  generated:
+    name: conformance indexes are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+      # Refetches the pinned packages and recompiles, failing if the committed
+      # indexes drift. Separate from `check` because it is the only job that
+      # needs the package mirrors, so a mirror outage cannot block ordinary PRs.
+      - run: make vendor
+      - run: make gen-check

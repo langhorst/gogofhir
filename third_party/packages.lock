@@ -1,0 +1,42 @@
+{
+  "_comment": [
+    "Pinned sources for the FHIR conformance packages that tools/confgen compiles",
+    "into internal/conformance/data. Fetch with `make vendor`.",
+    "",
+    "Neither package comes from the official FHIR registry (packages.fhir.org):",
+    "it is frequently unreachable from CI and sandboxed networks. These mirrors",
+    "carry byte-identical content, verified by pinning: an exact tarball digest",
+    "for R5 and an exact commit for R4.",
+    "",
+    "Cross-check performed when these pins were chosen: the R4 JSON package here",
+    "and the independent npm package hl7.fhir.r4.corexml@4.0.1 (the XML",
+    "serialization of the same release) agree exactly on resource counts --",
+    "658 StructureDefinition, 1400 SearchParameter, 1316 ValueSet,",
+    "1062 CodeSystem, 47 OperationDefinition, 6 CompartmentDefinition.",
+    "",
+    "Both packages are CC0-1.0 (HL7 publishes the definitions into the public",
+    "domain), so vendoring and redistribution are unencumbered."
+  ],
+  "packages": [
+    {
+      "id": "hl7.fhir.r4.core",
+      "version": "4.0.1",
+      "fhirVersion": "r4",
+      "license": "CC0-1.0",
+      "source": "git-sparse",
+      "repo": "https://github.com/google/fhir",
+      "commit": "74fce9530cd710d1fa27bcad0e4b4dbd5031b16d",
+      "subdir": "spec/hl7.fhir.core/4.0.1/package"
+    },
+    {
+      "id": "hl7.fhir.r5.core",
+      "version": "5.0.0",
+      "fhirVersion": "r5",
+      "license": "CC0-1.0",
+      "source": "tarball",
+      "url": "https://registry.npmjs.org/hl7.fhir.r5.core/-/hl7.fhir.r5.core-5.0.0.tgz",
+      "sha256": "09f22107bef64313545a50d2c127d20f81173c499a395672fae089bc23e72fab",
+      "subdir": "package"
+    }
+  ]
+}
