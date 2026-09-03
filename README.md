@@ -7,10 +7,11 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M1 complete.** The FHIRPath engine passes **1966 of 1998** official
-> HL7 conformance tests, with every remaining case individually documented. The
-> conformance pipeline and both wire-format readers are done. There is no HTTP
-> server yet; the REST layer is M2. See [Milestones](#milestones).
+> **Status: M2 complete.** The server runs: `gogofhir serve` gives you CRUD,
+> versioning, history, conditional operations, optimistic concurrency, indexed
+> search, and a generated CapabilityStatement over 158 resource types, in JSON
+> and XML. The FHIRPath engine passes **1966 of 1998** official HL7 conformance
+> tests. See [Milestones](#milestones).
 
 ## Why
 
@@ -51,9 +52,21 @@ code outside `internal/conformance` knows which release it is serving.
 ## Quick start
 
 ```sh
-make build                  # no network, no vendored packages needed
-./bin/gogofhir conformance -fhir r5
+make build                            # no network, no vendored packages needed
+./bin/gogofhir serve -db :memory:     # or -db fhir.db to keep the data
 ```
+
+```sh
+curl -X POST localhost:8080/Patient -H 'Content-Type: application/fhir+json' \
+  -d '{"resourceType":"Patient","name":[{"family":"Chalmers"}],"birthDate":"1974-12-25"}'
+# 201 Created, ETag: W/"1", Location: .../Patient/<id>/_history/1
+
+curl 'localhost:8080/Patient?family=chal&birthdate=1974'   # searchset Bundle
+curl -H 'Accept: application/fhir+xml' localhost:8080/Patient/<id>
+curl localhost:8080/metadata                               # CapabilityStatement
+```
+
+`./bin/gogofhir conformance -fhir r5` summarizes the embedded index instead:
 
 ```
 release        r5 (5.0.0)
@@ -64,6 +77,71 @@ search params  1988 bindings
 invariants     383
 compartments   Device, Encounter, Patient, Practitioner, RelatedPerson
 ```
+
+## The REST API
+
+Every resource type in the release is served, with no per-type code:
+
+```
+GET    /metadata                          generated CapabilityStatement
+GET    /{type}/{id}                       read, with ETag and If-None-Match
+GET    /{type}/{id}/_history/{vid}        vread
+POST   /{type}                            create (server assigns the id)
+PUT    /{type}/{id}                       update, or create at a chosen id
+DELETE /{type}/{id}                       delete
+GET    /{type}?...                        search
+POST   /{type}/_search                    search with criteria in the body
+GET    /{type}/{id}/_history              history, per resource
+GET    /{type}/_history  ·  GET /_history history, per type and system-wide
+POST   /{type}   If-None-Exist: ...       conditional create
+PUT    /{type}?...  ·  DELETE /{type}?... conditional update and delete
+```
+
+Behaviours worth stating, because each is easy to get subtly wrong:
+
+- **A delete is a version, not an erasure.** Reading a deleted resource is
+  `410 Gone`, not `404` — the client is entitled to know it existed — and the
+  prior versions stay reachable through `vread`. Delete is idempotent, so
+  repeating one, or deleting something absent, still succeeds.
+- **Optimistic concurrency.** `If-Match` with a stale version is `412`, not a
+  silent overwrite. `If-None-Match` on a read gives `304` with no body.
+- **A conditional operation matching several resources is an error** (`412`),
+  never a guess at which one was meant.
+- **Every error carries an OperationOutcome.** There are no bare status codes.
+- **JSON and XML are the same server.** Both are read and written by one pair
+  of codecs over one document model, so a resource created as XML reads back
+  identically as JSON.
+
+Search covers the seven indexed parameter types with token systems
+(`identifier=system|code`), comparison prefixes (`birthdate=ge1974`),
+comma-separated alternatives, and the `:exact` and `:missing` modifiers.
+Chaining, `_has`, `_include`, and composite parameters arrive with M4;
+parameters that are declared but not yet indexed are deliberately absent from
+the CapabilityStatement rather than advertised and broken.
+
+## Storage
+
+One `Backend` interface, and no SQL outside its implementations. The query
+surface is a typed plan rather than a string, so the search layer never writes
+SQL and the backend never parses FHIR syntax — which is what should make the
+PostgreSQL port a translation rather than a rewrite.
+
+The schema is ordinary relational tables with B-tree indexes, not
+engine-specific JSON indexing: a `resource` table, a `resource_history` table,
+and one index table per search parameter type. Two details carry most of the
+correctness:
+
+- **Dates are indexed as intervals**, because `2024` denotes a year and not an
+  instant. The search prefixes are then interval algebra over those bounds.
+  Storing a point instead is the most common way FHIR date search goes quietly
+  wrong. Numbers work the same way: `1.1` means anything that would round to it.
+- **The logical id is separate from the surrogate key.** Clients choose
+  arbitrary ids and those ids appear in references, but joins want an integer.
+
+Indexes are written in the same transaction as the resource, so an index can
+never describe a version that is not stored, and they follow the current
+version: an updated resource stops matching its old values, a deleted one stops
+matching at all.
 
 ## Conformance data
 
@@ -195,7 +273,10 @@ cmd/gogofhir/            daemon
 internal/conformance/    embedded compiled index + loader
 internal/conformance/model/  index types, importable by the generator
 internal/fhirpath/       lexer, parser, evaluator, function library
-internal/resource/       untyped documents; JSON and XML readers
+internal/resource/       untyped documents; JSON and XML readers and writers
+internal/storage/        backend interface, query plan, index extraction
+internal/storage/sqlite/ SQLite backend and schema
+internal/rest/           routing, interactions, bundles, CapabilityStatement
 tools/confgen/           build-time conformance compiler
 tools/vendorpkg/         pinned package and test-suite fetcher
 third_party/             package pins (packages.lock); fetched packages are ignored
@@ -212,10 +293,11 @@ regenerate it.
 - [x] **M1 — FHIRPath.** Full engine: lexer, parser, evaluator, function
       library, and both document readers. 1966 of 1998 official conformance
       tests pass; the rest are enumerated above.
-- [ ] **M2 — Storage + REST core.** CRUD, versioning, history, conditional
-      operations, ETag concurrency, CapabilityStatement.
-- [ ] **M3 — Search fundamentals.** All nine parameter types, modifiers,
-      prefixes, sorting, cursor paging.
+- [x] **M2 — Storage + REST core.** CRUD, versioning, history, conditional
+      operations, ETag concurrency, CapabilityStatement, JSON and XML.
+- [ ] **M3 — Search fundamentals.** The remaining modifiers, `_summary`,
+      `_elements`, `_total`, and cursor-stable paging (M2 pages by offset,
+      which is honest but shifts under concurrent writes).
 - [ ] **M4 — Search advanced.** Chaining, `_has`, `_include`/`_revinclude`,
       composites, `_filter`.
 - [ ] **M5 — Transactions & batch.** v1 complete.

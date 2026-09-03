@@ -45,6 +45,19 @@ func FromJSON(idx *conformance.Index, data []byte) (*Node, error) {
 	return newRoot(idx, convertNumbers(obj))
 }
 
+// New wraps a document the server built itself -- a Bundle, an
+// OperationOutcome, a CapabilityStatement -- so it serializes through the same
+// path as a stored resource and comes out in element order, in either format.
+//
+// Numbers must be jsonNumber or a Go scalar; see Number.
+func New(idx *conformance.Index, obj map[string]any) (*Node, error) {
+	return newRoot(idx, obj)
+}
+
+// Number wraps a numeric literal for a document built with New, keeping the
+// spelling the caller chose rather than routing it through a float.
+func Number(text string) any { return jsonNumber(text) }
+
 // newRoot wraps an already-decoded document, resolving its resourceType.
 func newRoot(idx *conformance.Index, value any) (*Node, error) {
 	obj, ok := value.(map[string]any)
@@ -61,6 +74,11 @@ func newRoot(idx *conformance.Index, value any) (*Node, error) {
 	}
 	return &Node{idx: idx, def: def, path: "", name: typeName, fhirType: typeName, value: obj}, nil
 }
+
+// ConvertNumbers converts a document decoded elsewhere into the representation
+// this package uses, so callers embedding stored JSON in a Bundle keep decimal
+// precision.
+func ConvertNumbers(v any) any { return convertNumbers(v) }
 
 // convertNumbers replaces json.Number with jsonNumber throughout, so the rest
 // of the package sees one number representation regardless of wire format.

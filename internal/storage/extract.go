@@ -529,3 +529,36 @@ func firstNonEmpty(values ...string) string {
 	}
 	return ""
 }
+
+// DateRange converts a FHIR date, dateTime, or instant written at any precision
+// into the instant range it denotes, for building a query.
+//
+// It is the same conversion extraction uses, exported so the search layer can
+// turn a query value into bounds without duplicating the precision rules.
+func DateRange(value string) (low, high int64, err error) {
+	t, err := fhirpath.ParseFHIRTemporal("dateTime", value)
+	if err != nil {
+		return 0, 0, err
+	}
+	low, high = temporalRange(t)
+	return low, high, nil
+}
+
+// NumberRange converts a written number into the interval it denotes, so a
+// query for 1.1 matches a stored 1.10001 but not 1.2.
+func NumberRange(text string) (low, high float64, err error) {
+	value, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+	scale := 0
+	if i := strings.IndexByte(text, '.'); i >= 0 {
+		scale = len(text) - i - 1
+	}
+	low, high = implicitRange(value, scale)
+	return low, high, nil
+}
+
+// Normalize folds a string the way the index does, so a query value and a
+// stored value are compared on equal terms.
+func Normalize(s string) string { return normalize(s) }
