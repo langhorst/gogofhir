@@ -13,7 +13,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -183,7 +183,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -268,7 +268,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -349,7 +349,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -859,7 +859,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1028,7 +1028,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1092,7 +1092,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1226,7 +1226,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -1530,7 +1530,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1589,7 +1589,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1723,7 +1723,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -1811,7 +1811,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -2110,7 +2110,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -2240,7 +2240,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -2310,7 +2310,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -2636,7 +2636,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -2779,7 +2779,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -2975,7 +2975,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3095,7 +3095,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -3287,7 +3287,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3432,7 +3432,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3506,7 +3506,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3585,7 +3585,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3717,7 +3717,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3765,8 +3765,8 @@
      ],
      "choice": true,
      "expansions": [
-      "entity.detail.valueString",
-      "entity.detail.valueBase64Binary"
+      "valueString",
+      "valueBase64Binary"
      ]
     }
    ],
@@ -3791,7 +3791,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -3827,7 +3827,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -3981,7 +3981,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -4069,7 +4069,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -4237,7 +4237,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4300,8 +4300,8 @@
      ],
      "choice": true,
      "expansions": [
-      "collection.collectedDateTime",
-      "collection.collectedPeriod"
+      "collectedDateTime",
+      "collectedPeriod"
      ]
     },
     {
@@ -4318,7 +4318,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4389,8 +4389,8 @@
      ],
      "choice": true,
      "expansions": [
-      "processing.timeDateTime",
-      "processing.timePeriod"
+      "timeDateTime",
+      "timePeriod"
      ]
     },
     {
@@ -4407,7 +4407,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4453,8 +4453,8 @@
      ],
      "choice": true,
      "expansions": [
-      "manipulation.timeDateTime",
-      "manipulation.timePeriod"
+      "timeDateTime",
+      "timePeriod"
      ]
     },
     {
@@ -4471,7 +4471,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4547,7 +4547,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -4730,7 +4730,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -4829,7 +4829,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4890,7 +4890,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -4955,7 +4955,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5018,7 +5018,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5123,7 +5123,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5290,7 +5290,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -5570,7 +5570,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5640,7 +5640,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5770,7 +5770,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5833,7 +5833,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5905,7 +5905,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -5993,7 +5993,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6160,7 +6160,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6244,7 +6244,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6316,7 +6316,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6401,7 +6401,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6439,7 +6439,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6520,7 +6520,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6588,7 +6588,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -6726,7 +6726,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -7092,7 +7092,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -7184,7 +7184,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -7349,9 +7349,9 @@
      ],
      "choice": true,
      "expansions": [
-      "activity.detail.scheduledTiming",
-      "activity.detail.scheduledPeriod",
-      "activity.detail.scheduledString"
+      "scheduledTiming",
+      "scheduledPeriod",
+      "scheduledString"
      ]
     },
     {
@@ -7402,8 +7402,8 @@
      ],
      "choice": true,
      "expansions": [
-      "activity.detail.productCodeableConcept",
-      "activity.detail.productReference"
+      "productCodeableConcept",
+      "productReference"
      ],
      "binding": {
       "strength": "example",
@@ -7467,7 +7467,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -7643,7 +7643,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -7798,7 +7798,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -8018,7 +8018,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -8081,7 +8081,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -8296,7 +8296,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -8571,7 +8571,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -8893,7 +8893,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -8958,7 +8958,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9001,7 +9001,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9086,7 +9086,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -9349,7 +9349,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9449,7 +9449,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9541,7 +9541,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9639,7 +9639,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9713,8 +9713,8 @@
      ],
      "choice": true,
      "expansions": [
-      "supportingInfo.timingDate",
-      "supportingInfo.timingPeriod"
+      "timingDate",
+      "timingPeriod"
      ]
     },
     {
@@ -9742,11 +9742,11 @@
      ],
      "choice": true,
      "expansions": [
-      "supportingInfo.valueBoolean",
-      "supportingInfo.valueString",
-      "supportingInfo.valueQuantity",
-      "supportingInfo.valueAttachment",
-      "supportingInfo.valueReference"
+      "valueBoolean",
+      "valueString",
+      "valueQuantity",
+      "valueAttachment",
+      "valueReference"
      ]
     },
     {
@@ -9776,7 +9776,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9827,8 +9827,8 @@
      ],
      "choice": true,
      "expansions": [
-      "diagnosis.diagnosisCodeableConcept",
-      "diagnosis.diagnosisReference"
+      "diagnosisCodeableConcept",
+      "diagnosisReference"
      ],
      "binding": {
       "strength": "example",
@@ -9888,7 +9888,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -9961,8 +9961,8 @@
      ],
      "choice": true,
      "expansions": [
-      "procedure.procedureCodeableConcept",
-      "procedure.procedureReference"
+      "procedureCodeableConcept",
+      "procedureReference"
      ],
      "binding": {
       "strength": "example",
@@ -9997,7 +9997,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -10110,7 +10110,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -10173,8 +10173,8 @@
      ],
      "choice": true,
      "expansions": [
-      "accident.locationAddress",
-      "accident.locationReference"
+      "locationAddress",
+      "locationReference"
      ]
     },
     {
@@ -10191,7 +10191,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -10340,8 +10340,8 @@
      ],
      "choice": true,
      "expansions": [
-      "item.servicedDate",
-      "item.servicedPeriod"
+      "servicedDate",
+      "servicedPeriod"
      ]
     },
     {
@@ -10363,9 +10363,9 @@
      ],
      "choice": true,
      "expansions": [
-      "item.locationCodeableConcept",
-      "item.locationAddress",
-      "item.locationReference"
+      "locationCodeableConcept",
+      "locationAddress",
+      "locationReference"
      ],
      "binding": {
       "strength": "example",
@@ -10472,7 +10472,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -10634,7 +10634,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -10803,7 +10803,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -11082,7 +11082,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11140,7 +11140,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11223,7 +11223,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11286,7 +11286,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11348,7 +11348,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11466,8 +11466,8 @@
      ],
      "choice": true,
      "expansions": [
-      "addItem.servicedDate",
-      "addItem.servicedPeriod"
+      "servicedDate",
+      "servicedPeriod"
      ]
     },
     {
@@ -11489,9 +11489,9 @@
      ],
      "choice": true,
      "expansions": [
-      "addItem.locationCodeableConcept",
-      "addItem.locationAddress",
-      "addItem.locationReference"
+      "locationCodeableConcept",
+      "locationAddress",
+      "locationReference"
      ],
      "binding": {
       "strength": "example",
@@ -11589,7 +11589,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11705,7 +11705,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11827,7 +11827,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -11891,7 +11891,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12028,7 +12028,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12123,7 +12123,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12215,7 +12215,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12292,7 +12292,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -12533,7 +12533,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12621,7 +12621,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -12739,7 +12739,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -13082,7 +13082,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13168,7 +13168,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13252,7 +13252,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13318,7 +13318,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13392,7 +13392,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13455,13 +13455,13 @@
      ],
      "choice": true,
      "expansions": [
-      "concept.property.valueCode",
-      "concept.property.valueCoding",
-      "concept.property.valueString",
-      "concept.property.valueInteger",
-      "concept.property.valueBoolean",
-      "concept.property.valueDateTime",
-      "concept.property.valueDecimal"
+      "valueCode",
+      "valueCoding",
+      "valueString",
+      "valueInteger",
+      "valueBoolean",
+      "valueDateTime",
+      "valueDecimal"
      ]
     },
     {
@@ -13495,7 +13495,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13540,7 +13540,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -13615,7 +13615,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -13988,7 +13988,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -14032,9 +14032,9 @@
      ],
      "choice": true,
      "expansions": [
-      "payload.contentString",
-      "payload.contentAttachment",
-      "payload.contentReference"
+      "contentString",
+      "contentAttachment",
+      "contentReference"
      ]
     },
     {
@@ -14058,7 +14058,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -14308,7 +14308,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -14352,9 +14352,9 @@
      ],
      "choice": true,
      "expansions": [
-      "payload.contentString",
-      "payload.contentAttachment",
-      "payload.contentReference"
+      "contentString",
+      "contentAttachment",
+      "contentReference"
      ]
     },
     {
@@ -14493,7 +14493,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -14726,7 +14726,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -14804,7 +14804,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -15030,7 +15030,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15120,7 +15120,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15175,8 +15175,8 @@
      ],
      "choice": true,
      "expansions": [
-      "relatesTo.targetIdentifier",
-      "relatesTo.targetReference"
+      "targetIdentifier",
+      "targetReference"
      ]
     },
     {
@@ -15194,7 +15194,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15269,7 +15269,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15437,7 +15437,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -15726,7 +15726,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15801,7 +15801,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15857,7 +15857,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -15937,7 +15937,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16021,7 +16021,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16130,7 +16130,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -16443,7 +16443,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16521,7 +16521,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16627,7 +16627,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -16851,7 +16851,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16922,7 +16922,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -16994,7 +16994,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17056,7 +17056,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17209,7 +17209,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17311,7 +17311,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17356,7 +17356,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17448,7 +17448,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -17825,7 +17825,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -17936,7 +17936,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18006,8 +18006,8 @@
      ],
      "choice": true,
      "expansions": [
-      "term.topicCodeableConcept",
-      "term.topicReference"
+      "topicCodeableConcept",
+      "topicReference"
      ]
     },
     {
@@ -18060,7 +18060,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18148,7 +18148,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18195,7 +18195,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18318,7 +18318,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18389,18 +18389,18 @@
      ],
      "choice": true,
      "expansions": [
-      "term.offer.answer.valueBoolean",
-      "term.offer.answer.valueDecimal",
-      "term.offer.answer.valueInteger",
-      "term.offer.answer.valueDate",
-      "term.offer.answer.valueDateTime",
-      "term.offer.answer.valueTime",
-      "term.offer.answer.valueString",
-      "term.offer.answer.valueUri",
-      "term.offer.answer.valueAttachment",
-      "term.offer.answer.valueCoding",
-      "term.offer.answer.valueQuantity",
-      "term.offer.answer.valueReference"
+      "valueBoolean",
+      "valueDecimal",
+      "valueInteger",
+      "valueDate",
+      "valueDateTime",
+      "valueTime",
+      "valueString",
+      "valueUri",
+      "valueAttachment",
+      "valueCoding",
+      "valueQuantity",
+      "valueReference"
      ]
     },
     {
@@ -18444,7 +18444,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18546,7 +18546,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18690,7 +18690,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18730,8 +18730,8 @@
      ],
      "choice": true,
      "expansions": [
-      "term.asset.valuedItem.entityCodeableConcept",
-      "term.asset.valuedItem.entityReference"
+      "entityCodeableConcept",
+      "entityReference"
      ]
     },
     {
@@ -18879,7 +18879,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -18941,7 +18941,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19072,9 +19072,9 @@
      ],
      "choice": true,
      "expansions": [
-      "term.action.occurrenceDateTime",
-      "term.action.occurrencePeriod",
-      "term.action.occurrenceTiming"
+      "occurrenceDateTime",
+      "occurrencePeriod",
+      "occurrenceTiming"
      ]
     },
     {
@@ -19268,7 +19268,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19347,7 +19347,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19390,8 +19390,8 @@
      ],
      "choice": true,
      "expansions": [
-      "friendly.contentAttachment",
-      "friendly.contentReference"
+      "contentAttachment",
+      "contentReference"
      ]
     },
     {
@@ -19408,7 +19408,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19451,8 +19451,8 @@
      ],
      "choice": true,
      "expansions": [
-      "legal.contentAttachment",
-      "legal.contentReference"
+      "contentAttachment",
+      "contentReference"
      ]
     },
     {
@@ -19469,7 +19469,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19510,8 +19510,8 @@
      ],
      "choice": true,
      "expansions": [
-      "rule.contentAttachment",
-      "rule.contentReference"
+      "contentAttachment",
+      "contentReference"
      ]
     },
     {
@@ -19549,7 +19549,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19610,7 +19610,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -19698,7 +19698,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -19930,7 +19930,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20024,7 +20024,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20076,8 +20076,8 @@
      ],
      "choice": true,
      "expansions": [
-      "costToBeneficiary.valueQuantity",
-      "costToBeneficiary.valueMoney"
+      "valueQuantity",
+      "valueMoney"
      ],
      "summary": true
     },
@@ -20095,7 +20095,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20177,7 +20177,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -20415,7 +20415,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20485,7 +20485,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20554,7 +20554,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20684,7 +20684,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -20724,8 +20724,8 @@
      ],
      "choice": true,
      "expansions": [
-      "item.diagnosis.diagnosisCodeableConcept",
-      "item.diagnosis.diagnosisReference"
+      "diagnosisCodeableConcept",
+      "diagnosisReference"
      ],
      "binding": {
       "strength": "example",
@@ -20756,7 +20756,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -20994,7 +20994,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21064,7 +21064,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21220,7 +21220,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21274,9 +21274,9 @@
      ],
      "choice": true,
      "expansions": [
-      "insurance.item.benefit.allowedUnsignedInt",
-      "insurance.item.benefit.allowedString",
-      "insurance.item.benefit.allowedMoney"
+      "allowedUnsignedInt",
+      "allowedString",
+      "allowedMoney"
      ]
     },
     {
@@ -21295,9 +21295,9 @@
      ],
      "choice": true,
      "expansions": [
-      "insurance.item.benefit.usedUnsignedInt",
-      "insurance.item.benefit.usedString",
-      "insurance.item.benefit.usedMoney"
+      "usedUnsignedInt",
+      "usedString",
+      "usedMoney"
      ]
     },
     {
@@ -21367,7 +21367,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21426,7 +21426,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21517,7 +21517,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21588,7 +21588,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21637,9 +21637,9 @@
      ],
      "choice": true,
      "expansions": [
-      "dateFilter.valueDateTime",
-      "dateFilter.valuePeriod",
-      "dateFilter.valueDuration"
+      "valueDateTime",
+      "valuePeriod",
+      "valueDuration"
      ],
      "summary": true
     },
@@ -21668,7 +21668,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -21735,7 +21735,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -21938,7 +21938,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22019,7 +22019,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22091,7 +22091,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -22203,7 +22203,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22384,7 +22384,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22477,7 +22477,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22534,7 +22534,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22600,7 +22600,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22749,7 +22749,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -22848,7 +22848,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -22936,7 +22936,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23020,7 +23020,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23127,7 +23127,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23184,7 +23184,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23320,7 +23320,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23384,7 +23384,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -23593,7 +23593,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23667,7 +23667,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -23898,7 +23898,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -23950,10 +23950,10 @@
      ],
      "choice": true,
      "expansions": [
-      "parameter.valueCodeableConcept",
-      "parameter.valueQuantity",
-      "parameter.valueRange",
-      "parameter.valueBoolean"
+      "valueCodeableConcept",
+      "valueQuantity",
+      "valueRange",
+      "valueBoolean"
      ]
     },
     {
@@ -24156,7 +24156,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -24428,7 +24428,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -24715,7 +24715,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -24805,7 +24805,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -24893,7 +24893,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -25125,7 +25125,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -25182,7 +25182,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -25421,7 +25421,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -25514,7 +25514,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -25578,7 +25578,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -25701,7 +25701,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -25821,7 +25821,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -25978,7 +25978,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26018,8 +26018,8 @@
      ],
      "choice": true,
      "expansions": [
-      "doseAndRate.doseRange",
-      "doseAndRate.doseQuantity"
+      "doseRange",
+      "doseQuantity"
      ],
      "summary": true
     },
@@ -26039,9 +26039,9 @@
      ],
      "choice": true,
      "expansions": [
-      "doseAndRate.rateRatio",
-      "doseAndRate.rateRange",
-      "doseAndRate.rateQuantity"
+      "rateRatio",
+      "rateRange",
+      "rateQuantity"
      ],
      "summary": true
     },
@@ -26087,7 +26087,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26175,7 +26175,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -26581,7 +26581,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26646,7 +26646,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26733,7 +26733,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26828,7 +26828,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26906,7 +26906,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -26966,7 +26966,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27045,7 +27045,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27085,7 +27085,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27193,7 +27193,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27221,7 +27221,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27380,7 +27380,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -27451,7 +27451,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -28200,7 +28200,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -28382,56 +28382,56 @@
      ],
      "choice": true,
      "expansions": [
-      "example.valueBase64Binary",
-      "example.valueBoolean",
-      "example.valueCanonical",
-      "example.valueCode",
-      "example.valueDate",
-      "example.valueDateTime",
-      "example.valueDecimal",
-      "example.valueId",
-      "example.valueInstant",
-      "example.valueInteger",
-      "example.valueMarkdown",
-      "example.valueOid",
-      "example.valuePositiveInt",
-      "example.valueString",
-      "example.valueTime",
-      "example.valueUnsignedInt",
-      "example.valueUri",
-      "example.valueUrl",
-      "example.valueUuid",
-      "example.valueAddress",
-      "example.valueAge",
-      "example.valueAnnotation",
-      "example.valueAttachment",
-      "example.valueCodeableConcept",
-      "example.valueCoding",
-      "example.valueContactPoint",
-      "example.valueCount",
-      "example.valueDistance",
-      "example.valueDuration",
-      "example.valueHumanName",
-      "example.valueIdentifier",
-      "example.valueMoney",
-      "example.valuePeriod",
-      "example.valueQuantity",
-      "example.valueRange",
-      "example.valueRatio",
-      "example.valueReference",
-      "example.valueSampledData",
-      "example.valueSignature",
-      "example.valueTiming",
-      "example.valueContactDetail",
-      "example.valueContributor",
-      "example.valueDataRequirement",
-      "example.valueExpression",
-      "example.valueParameterDefinition",
-      "example.valueRelatedArtifact",
-      "example.valueTriggerDefinition",
-      "example.valueUsageContext",
-      "example.valueDosage",
-      "example.valueMeta"
+      "valueBase64Binary",
+      "valueBoolean",
+      "valueCanonical",
+      "valueCode",
+      "valueDate",
+      "valueDateTime",
+      "valueDecimal",
+      "valueId",
+      "valueInstant",
+      "valueInteger",
+      "valueMarkdown",
+      "valueOid",
+      "valuePositiveInt",
+      "valueString",
+      "valueTime",
+      "valueUnsignedInt",
+      "valueUri",
+      "valueUrl",
+      "valueUuid",
+      "valueAddress",
+      "valueAge",
+      "valueAnnotation",
+      "valueAttachment",
+      "valueCodeableConcept",
+      "valueCoding",
+      "valueContactPoint",
+      "valueCount",
+      "valueDistance",
+      "valueDuration",
+      "valueHumanName",
+      "valueIdentifier",
+      "valueMoney",
+      "valuePeriod",
+      "valueQuantity",
+      "valueRange",
+      "valueRatio",
+      "valueReference",
+      "valueSampledData",
+      "valueSignature",
+      "valueTiming",
+      "valueContactDetail",
+      "valueContributor",
+      "valueDataRequirement",
+      "valueExpression",
+      "valueParameterDefinition",
+      "valueRelatedArtifact",
+      "valueTriggerDefinition",
+      "valueUsageContext",
+      "valueDosage",
+      "valueMeta"
      ],
      "summary": true
     },
@@ -28562,7 +28562,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -28710,7 +28710,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -28776,7 +28776,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -28975,7 +28975,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -29091,7 +29091,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29168,7 +29168,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29311,7 +29311,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29449,7 +29449,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29536,7 +29536,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29687,7 +29687,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -29795,7 +29795,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -30015,7 +30015,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -30186,7 +30186,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -30367,7 +30367,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -30482,7 +30482,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -30559,7 +30559,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -30719,7 +30719,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -31113,7 +31113,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -31501,7 +31501,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -31860,7 +31860,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -31925,12 +31925,12 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.definitionReference",
-      "characteristic.definitionCanonical",
-      "characteristic.definitionCodeableConcept",
-      "characteristic.definitionExpression",
-      "characteristic.definitionDataRequirement",
-      "characteristic.definitionTriggerDefinition"
+      "definitionReference",
+      "definitionCanonical",
+      "definitionCodeableConcept",
+      "definitionExpression",
+      "definitionDataRequirement",
+      "definitionTriggerDefinition"
      ],
      "summary": true
     },
@@ -31971,10 +31971,10 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.participantEffectiveDateTime",
-      "characteristic.participantEffectivePeriod",
-      "characteristic.participantEffectiveDuration",
-      "characteristic.participantEffectiveTiming"
+      "participantEffectiveDateTime",
+      "participantEffectivePeriod",
+      "participantEffectiveDuration",
+      "participantEffectiveTiming"
      ]
     },
     {
@@ -32019,7 +32019,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -32247,7 +32247,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32327,7 +32327,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32407,7 +32407,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32465,7 +32465,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32522,7 +32522,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32598,7 +32598,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32650,7 +32650,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32771,7 +32771,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -32851,7 +32851,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -33126,7 +33126,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33223,7 +33223,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33380,7 +33380,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33478,7 +33478,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33552,8 +33552,8 @@
      ],
      "choice": true,
      "expansions": [
-      "supportingInfo.timingDate",
-      "supportingInfo.timingPeriod"
+      "timingDate",
+      "timingPeriod"
      ]
     },
     {
@@ -33581,11 +33581,11 @@
      ],
      "choice": true,
      "expansions": [
-      "supportingInfo.valueBoolean",
-      "supportingInfo.valueString",
-      "supportingInfo.valueQuantity",
-      "supportingInfo.valueAttachment",
-      "supportingInfo.valueReference"
+      "valueBoolean",
+      "valueString",
+      "valueQuantity",
+      "valueAttachment",
+      "valueReference"
      ]
     },
     {
@@ -33615,7 +33615,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33666,8 +33666,8 @@
      ],
      "choice": true,
      "expansions": [
-      "diagnosis.diagnosisCodeableConcept",
-      "diagnosis.diagnosisReference"
+      "diagnosisCodeableConcept",
+      "diagnosisReference"
      ],
      "binding": {
       "strength": "example",
@@ -33727,7 +33727,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33800,8 +33800,8 @@
      ],
      "choice": true,
      "expansions": [
-      "procedure.procedureCodeableConcept",
-      "procedure.procedureReference"
+      "procedureCodeableConcept",
+      "procedureReference"
      ],
      "binding": {
       "strength": "example",
@@ -33845,7 +33845,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33917,7 +33917,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -33979,8 +33979,8 @@
      ],
      "choice": true,
      "expansions": [
-      "accident.locationAddress",
-      "accident.locationReference"
+      "locationAddress",
+      "locationReference"
      ]
     },
     {
@@ -33997,7 +33997,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -34146,8 +34146,8 @@
      ],
      "choice": true,
      "expansions": [
-      "item.servicedDate",
-      "item.servicedPeriod"
+      "servicedDate",
+      "servicedPeriod"
      ]
     },
     {
@@ -34169,9 +34169,9 @@
      ],
      "choice": true,
      "expansions": [
-      "item.locationCodeableConcept",
-      "item.locationAddress",
-      "item.locationReference"
+      "locationCodeableConcept",
+      "locationAddress",
+      "locationReference"
      ],
      "binding": {
       "strength": "example",
@@ -34287,7 +34287,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -34370,7 +34370,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -34546,7 +34546,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -34722,7 +34722,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -34840,8 +34840,8 @@
      ],
      "choice": true,
      "expansions": [
-      "addItem.servicedDate",
-      "addItem.servicedPeriod"
+      "servicedDate",
+      "servicedPeriod"
      ]
     },
     {
@@ -34863,9 +34863,9 @@
      ],
      "choice": true,
      "expansions": [
-      "addItem.locationCodeableConcept",
-      "addItem.locationAddress",
-      "addItem.locationReference"
+      "locationCodeableConcept",
+      "locationAddress",
+      "locationReference"
      ],
      "binding": {
       "strength": "example",
@@ -34962,7 +34962,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35077,7 +35077,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35198,7 +35198,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35262,7 +35262,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35384,7 +35384,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35475,7 +35475,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35593,7 +35593,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35647,9 +35647,9 @@
      ],
      "choice": true,
      "expansions": [
-      "benefitBalance.financial.allowedUnsignedInt",
-      "benefitBalance.financial.allowedString",
-      "benefitBalance.financial.allowedMoney"
+      "allowedUnsignedInt",
+      "allowedString",
+      "allowedMoney"
      ]
     },
     {
@@ -35665,8 +35665,8 @@
      ],
      "choice": true,
      "expansions": [
-      "benefitBalance.financial.usedUnsignedInt",
-      "benefitBalance.financial.usedMoney"
+      "usedUnsignedInt",
+      "usedMoney"
      ]
     }
    ]
@@ -35681,7 +35681,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35769,7 +35769,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -35788,7 +35788,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -36028,7 +36028,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -36372,7 +36372,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -36451,10 +36451,10 @@
      ],
      "choice": true,
      "expansions": [
-      "condition.onsetAge",
-      "condition.onsetRange",
-      "condition.onsetPeriod",
-      "condition.onsetString"
+      "onsetAge",
+      "onsetRange",
+      "onsetPeriod",
+      "onsetString"
      ]
     },
     {
@@ -36492,7 +36492,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -36696,7 +36696,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -36906,7 +36906,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -36972,13 +36972,13 @@
      ],
      "choice": true,
      "expansions": [
-      "target.detailQuantity",
-      "target.detailRange",
-      "target.detailCodeableConcept",
-      "target.detailString",
-      "target.detailBoolean",
-      "target.detailInteger",
-      "target.detailRatio"
+      "detailQuantity",
+      "detailRange",
+      "detailCodeableConcept",
+      "detailString",
+      "detailBoolean",
+      "detailInteger",
+      "detailRatio"
      ],
      "summary": true
     },
@@ -36995,8 +36995,8 @@
      ],
      "choice": true,
      "expansions": [
-      "target.dueDate",
-      "target.dueDuration"
+      "dueDate",
+      "dueDuration"
      ],
      "summary": true
     },
@@ -37107,7 +37107,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -37353,7 +37353,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -37436,7 +37436,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -37509,7 +37509,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -37618,7 +37618,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -37800,7 +37800,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -37857,11 +37857,11 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.valueCodeableConcept",
-      "characteristic.valueBoolean",
-      "characteristic.valueQuantity",
-      "characteristic.valueRange",
-      "characteristic.valueReference"
+      "valueCodeableConcept",
+      "valueBoolean",
+      "valueQuantity",
+      "valueRange",
+      "valueReference"
      ]
     },
     {
@@ -37897,7 +37897,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -37978,7 +37978,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -38250,7 +38250,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -38502,7 +38502,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -38615,7 +38615,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -38693,7 +38693,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -38769,7 +38769,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -38869,7 +38869,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -38966,7 +38966,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -39305,7 +39305,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -39464,7 +39464,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -39536,7 +39536,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -39614,7 +39614,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -39912,7 +39912,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40041,7 +40041,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40141,7 +40141,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40209,7 +40209,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40281,8 +40281,8 @@
      ],
      "choice": true,
      "expansions": [
-      "protocolApplied.doseNumberPositiveInt",
-      "protocolApplied.doseNumberString"
+      "doseNumberPositiveInt",
+      "doseNumberString"
      ]
     },
     {
@@ -40298,8 +40298,8 @@
      ],
      "choice": true,
      "expansions": [
-      "protocolApplied.seriesDosesPositiveInt",
-      "protocolApplied.seriesDosesString"
+      "seriesDosesPositiveInt",
+      "seriesDosesString"
      ]
     }
    ],
@@ -40323,7 +40323,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -40580,7 +40580,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -40719,7 +40719,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40829,7 +40829,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -40908,8 +40908,8 @@
      ],
      "choice": true,
      "expansions": [
-      "recommendation.doseNumberPositiveInt",
-      "recommendation.doseNumberString"
+      "doseNumberPositiveInt",
+      "doseNumberString"
      ],
      "summary": true
     },
@@ -40926,8 +40926,8 @@
      ],
      "choice": true,
      "expansions": [
-      "recommendation.seriesDosesPositiveInt",
-      "recommendation.seriesDosesString"
+      "seriesDosesPositiveInt",
+      "seriesDosesString"
      ]
     },
     {
@@ -40976,7 +40976,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -41247,7 +41247,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41320,7 +41320,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41387,7 +41387,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41425,7 +41425,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41483,7 +41483,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41567,8 +41567,8 @@
      ],
      "choice": true,
      "expansions": [
-      "definition.resource.exampleBoolean",
-      "definition.resource.exampleCanonical"
+      "exampleBoolean",
+      "exampleCanonical"
      ]
     },
     {
@@ -41594,7 +41594,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41635,8 +41635,8 @@
      ],
      "choice": true,
      "expansions": [
-      "definition.page.nameUrl",
-      "definition.page.nameReference"
+      "nameUrl",
+      "nameReference"
      ]
     },
     {
@@ -41682,7 +41682,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41744,7 +41744,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41811,7 +41811,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41861,7 +41861,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -41915,8 +41915,8 @@
      ],
      "choice": true,
      "expansions": [
-      "manifest.resource.exampleBoolean",
-      "manifest.resource.exampleCanonical"
+      "exampleBoolean",
+      "exampleCanonical"
      ]
     },
     {
@@ -41942,7 +41942,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42045,7 +42045,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -42241,7 +42241,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42343,7 +42343,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42404,7 +42404,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42461,7 +42461,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42517,7 +42517,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42599,7 +42599,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42673,7 +42673,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42721,7 +42721,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42769,7 +42769,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -42854,7 +42854,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -43028,7 +43028,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -43117,7 +43117,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -43167,8 +43167,8 @@
      ],
      "choice": true,
      "expansions": [
-      "lineItem.chargeItemReference",
-      "lineItem.chargeItemCodeableConcept"
+      "chargeItemReference",
+      "chargeItemCodeableConcept"
      ]
     },
     {
@@ -43185,7 +43185,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -43305,7 +43305,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -43730,7 +43730,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -43847,7 +43847,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -43920,7 +43920,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -44151,7 +44151,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -44265,7 +44265,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -44483,7 +44483,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -44575,7 +44575,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -44672,7 +44672,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -44761,7 +44761,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -45275,7 +45275,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45331,7 +45331,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45401,7 +45401,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45466,7 +45466,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45532,7 +45532,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45623,7 +45623,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -45839,7 +45839,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45887,7 +45887,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -45970,7 +45970,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46017,7 +46017,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46064,7 +46064,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46122,7 +46122,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46227,7 +46227,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -46602,7 +46602,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -46767,7 +46767,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46809,8 +46809,8 @@
      ],
      "choice": true,
      "expansions": [
-      "ingredient.itemCodeableConcept",
-      "ingredient.itemReference"
+      "itemCodeableConcept",
+      "itemReference"
      ]
     },
     {
@@ -46845,7 +46845,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -46899,7 +46899,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -47150,7 +47150,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -47279,7 +47279,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -47373,8 +47373,8 @@
      ],
      "choice": true,
      "expansions": [
-      "dosage.rateRatio",
-      "dosage.rateQuantity"
+      "rateRatio",
+      "rateQuantity"
      ]
     },
     {
@@ -47410,7 +47410,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -47639,7 +47639,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -47825,7 +47825,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -47942,7 +47942,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -48107,7 +48107,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48189,7 +48189,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48249,7 +48249,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48290,8 +48290,8 @@
      ],
      "choice": true,
      "expansions": [
-      "ingredient.itemCodeableConcept",
-      "ingredient.itemReference"
+      "itemCodeableConcept",
+      "itemReference"
      ]
     },
     {
@@ -48348,7 +48348,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48415,7 +48415,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48471,7 +48471,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48509,7 +48509,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48569,8 +48569,8 @@
      ],
      "choice": true,
      "expansions": [
-      "administrationGuidelines.indicationCodeableConcept",
-      "administrationGuidelines.indicationReference"
+      "indicationCodeableConcept",
+      "indicationReference"
      ]
     },
     {
@@ -48587,7 +48587,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48625,8 +48625,8 @@
      ],
      "choice": true,
      "expansions": [
-      "administrationGuidelines.patientCharacteristics.characteristicCodeableConcept",
-      "administrationGuidelines.patientCharacteristics.characteristicQuantity"
+      "characteristicCodeableConcept",
+      "characteristicQuantity"
      ]
     },
     {
@@ -48652,7 +48652,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48709,7 +48709,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48769,7 +48769,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48825,10 +48825,10 @@
      ],
      "choice": true,
      "expansions": [
-      "drugCharacteristic.valueCodeableConcept",
-      "drugCharacteristic.valueString",
-      "drugCharacteristic.valueQuantity",
-      "drugCharacteristic.valueBase64Binary"
+      "valueCodeableConcept",
+      "valueString",
+      "valueQuantity",
+      "valueBase64Binary"
      ]
     },
     {
@@ -48857,7 +48857,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48908,7 +48908,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -48966,7 +48966,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49014,7 +49014,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49071,7 +49071,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49134,7 +49134,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -49595,7 +49595,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49633,7 +49633,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49746,7 +49746,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -49784,8 +49784,8 @@
      ],
      "choice": true,
      "expansions": [
-      "substitution.allowedBoolean",
-      "substitution.allowedCodeableConcept"
+      "allowedBoolean",
+      "allowedCodeableConcept"
      ],
      "binding": {
       "strength": "example",
@@ -49853,7 +49853,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -50182,7 +50182,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -50453,7 +50453,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -50503,7 +50503,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -50564,7 +50564,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -50645,7 +50645,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -50750,7 +50750,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -50820,8 +50820,8 @@
      ],
      "choice": true,
      "expansions": [
-      "specialDesignation.indicationCodeableConcept",
-      "specialDesignation.indicationReference"
+      "indicationCodeableConcept",
+      "indicationReference"
      ],
      "summary": true
     },
@@ -50867,7 +50867,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -51082,7 +51082,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -51197,7 +51197,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -51255,8 +51255,8 @@
      ],
      "choice": true,
      "expansions": [
-      "procedure.datePeriod",
-      "procedure.dateDateTime"
+      "datePeriod",
+      "dateDateTime"
      ],
      "summary": true
     },
@@ -51278,7 +51278,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -51426,7 +51426,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -51481,8 +51481,8 @@
      ],
      "choice": true,
      "expansions": [
-      "otherTherapy.medicationCodeableConcept",
-      "otherTherapy.medicationReference"
+      "medicationCodeableConcept",
+      "medicationReference"
      ],
      "summary": true
     },
@@ -51508,7 +51508,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -51663,7 +51663,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -51718,8 +51718,8 @@
      ],
      "choice": true,
      "expansions": [
-      "otherTherapy.medicationCodeableConcept",
-      "otherTherapy.medicationReference"
+      "medicationCodeableConcept",
+      "medicationReference"
      ],
      "summary": true
     },
@@ -51758,7 +51758,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -51893,7 +51893,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -51964,7 +51964,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52066,7 +52066,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52156,7 +52156,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52209,7 +52209,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -52325,7 +52325,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52369,8 +52369,8 @@
      ],
      "choice": true,
      "expansions": [
-      "interactant.itemReference",
-      "interactant.itemCodeableConcept"
+      "itemReference",
+      "itemCodeableConcept"
      ],
      "summary": true
     },
@@ -52426,7 +52426,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -52592,7 +52592,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -52762,7 +52762,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52823,7 +52823,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -52986,7 +52986,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -53134,7 +53134,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -53195,7 +53195,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -53295,7 +53295,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -53345,7 +53345,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -53413,7 +53413,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -53555,7 +53555,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -53883,7 +53883,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -53981,7 +53981,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54066,7 +54066,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -54180,7 +54180,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54312,7 +54312,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54431,7 +54431,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54532,7 +54532,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54628,7 +54628,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -54816,7 +54816,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -54964,7 +54964,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55076,7 +55076,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55268,7 +55268,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55387,7 +55387,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55504,7 +55504,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55577,7 +55577,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55636,7 +55636,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55714,7 +55714,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -55763,7 +55763,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -55992,7 +55992,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56101,7 +56101,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56166,7 +56166,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -56419,7 +56419,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56480,7 +56480,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56540,7 +56540,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56627,7 +56627,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56716,7 +56716,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56821,7 +56821,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -56876,8 +56876,8 @@
      ],
      "choice": true,
      "expansions": [
-      "enteralFormula.administration.rateQuantity",
-      "enteralFormula.administration.rateRatio"
+      "rateQuantity",
+      "rateRatio"
      ]
     },
     {
@@ -56928,7 +56928,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -57344,7 +57344,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -57478,7 +57478,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -57557,17 +57557,17 @@
      ],
      "choice": true,
      "expansions": [
-      "component.valueQuantity",
-      "component.valueCodeableConcept",
-      "component.valueString",
-      "component.valueBoolean",
-      "component.valueInteger",
-      "component.valueRange",
-      "component.valueRatio",
-      "component.valueSampledData",
-      "component.valueTime",
-      "component.valueDateTime",
-      "component.valuePeriod"
+      "valueQuantity",
+      "valueCodeableConcept",
+      "valueString",
+      "valueBoolean",
+      "valueInteger",
+      "valueRange",
+      "valueRatio",
+      "valueSampledData",
+      "valueTime",
+      "valueDateTime",
+      "valuePeriod"
      ],
      "summary": true
     },
@@ -57635,7 +57635,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -57808,7 +57808,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -57890,7 +57890,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58062,7 +58062,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -58420,7 +58420,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58549,7 +58549,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58614,7 +58614,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58676,7 +58676,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58759,7 +58759,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -58851,7 +58851,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -58961,7 +58961,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -59136,7 +59136,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -59246,7 +59246,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -59478,7 +59478,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -59586,7 +59586,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -59640,7 +59640,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -59832,56 +59832,56 @@
      ],
      "choice": true,
      "expansions": [
-      "parameter.valueBase64Binary",
-      "parameter.valueBoolean",
-      "parameter.valueCanonical",
-      "parameter.valueCode",
-      "parameter.valueDate",
-      "parameter.valueDateTime",
-      "parameter.valueDecimal",
-      "parameter.valueId",
-      "parameter.valueInstant",
-      "parameter.valueInteger",
-      "parameter.valueMarkdown",
-      "parameter.valueOid",
-      "parameter.valuePositiveInt",
-      "parameter.valueString",
-      "parameter.valueTime",
-      "parameter.valueUnsignedInt",
-      "parameter.valueUri",
-      "parameter.valueUrl",
-      "parameter.valueUuid",
-      "parameter.valueAddress",
-      "parameter.valueAge",
-      "parameter.valueAnnotation",
-      "parameter.valueAttachment",
-      "parameter.valueCodeableConcept",
-      "parameter.valueCoding",
-      "parameter.valueContactPoint",
-      "parameter.valueCount",
-      "parameter.valueDistance",
-      "parameter.valueDuration",
-      "parameter.valueHumanName",
-      "parameter.valueIdentifier",
-      "parameter.valueMoney",
-      "parameter.valuePeriod",
-      "parameter.valueQuantity",
-      "parameter.valueRange",
-      "parameter.valueRatio",
-      "parameter.valueReference",
-      "parameter.valueSampledData",
-      "parameter.valueSignature",
-      "parameter.valueTiming",
-      "parameter.valueContactDetail",
-      "parameter.valueContributor",
-      "parameter.valueDataRequirement",
-      "parameter.valueExpression",
-      "parameter.valueParameterDefinition",
-      "parameter.valueRelatedArtifact",
-      "parameter.valueTriggerDefinition",
-      "parameter.valueUsageContext",
-      "parameter.valueDosage",
-      "parameter.valueMeta"
+      "valueBase64Binary",
+      "valueBoolean",
+      "valueCanonical",
+      "valueCode",
+      "valueDate",
+      "valueDateTime",
+      "valueDecimal",
+      "valueId",
+      "valueInstant",
+      "valueInteger",
+      "valueMarkdown",
+      "valueOid",
+      "valuePositiveInt",
+      "valueString",
+      "valueTime",
+      "valueUnsignedInt",
+      "valueUri",
+      "valueUrl",
+      "valueUuid",
+      "valueAddress",
+      "valueAge",
+      "valueAnnotation",
+      "valueAttachment",
+      "valueCodeableConcept",
+      "valueCoding",
+      "valueContactPoint",
+      "valueCount",
+      "valueDistance",
+      "valueDuration",
+      "valueHumanName",
+      "valueIdentifier",
+      "valueMoney",
+      "valuePeriod",
+      "valueQuantity",
+      "valueRange",
+      "valueRatio",
+      "valueReference",
+      "valueSampledData",
+      "valueSignature",
+      "valueTiming",
+      "valueContactDetail",
+      "valueContributor",
+      "valueDataRequirement",
+      "valueExpression",
+      "valueParameterDefinition",
+      "valueRelatedArtifact",
+      "valueTriggerDefinition",
+      "valueUsageContext",
+      "valueDosage",
+      "valueMeta"
      ],
      "summary": true
     },
@@ -59922,7 +59922,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -60145,7 +60145,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -60257,7 +60257,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -60347,7 +60347,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -60422,7 +60422,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -60659,7 +60659,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -60887,7 +60887,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61052,7 +61052,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61110,7 +61110,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61163,7 +61163,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -61348,7 +61348,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61413,7 +61413,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -61815,7 +61815,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61928,7 +61928,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -61981,9 +61981,9 @@
      ],
      "choice": true,
      "expansions": [
-      "goal.target.detailQuantity",
-      "goal.target.detailRange",
-      "goal.target.detailCodeableConcept"
+      "detailQuantity",
+      "detailRange",
+      "detailCodeableConcept"
      ]
     },
     {
@@ -62009,7 +62009,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62134,8 +62134,8 @@
      ],
      "choice": true,
      "expansions": [
-      "action.subjectCodeableConcept",
-      "action.subjectReference"
+      "subjectCodeableConcept",
+      "subjectReference"
      ],
      "binding": {
       "strength": "extensible",
@@ -62165,7 +62165,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62244,7 +62244,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62305,8 +62305,8 @@
      ],
      "choice": true,
      "expansions": [
-      "action.relatedAction.offsetDuration",
-      "action.relatedAction.offsetRange"
+      "offsetDuration",
+      "offsetRange"
      ]
     },
     {
@@ -62334,12 +62334,12 @@
      ],
      "choice": true,
      "expansions": [
-      "action.timingDateTime",
-      "action.timingAge",
-      "action.timingPeriod",
-      "action.timingDuration",
-      "action.timingRange",
-      "action.timingTiming"
+      "timingDateTime",
+      "timingAge",
+      "timingPeriod",
+      "timingDuration",
+      "timingRange",
+      "timingTiming"
      ]
     },
     {
@@ -62356,7 +62356,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62503,8 +62503,8 @@
      ],
      "choice": true,
      "expansions": [
-      "action.definitionCanonical",
-      "action.definitionUri"
+      "definitionCanonical",
+      "definitionUri"
      ]
     },
     {
@@ -62533,7 +62533,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62600,7 +62600,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62684,7 +62684,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -62857,7 +62857,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -62950,7 +62950,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -63159,7 +63159,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -63237,7 +63237,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -63313,7 +63313,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -63618,7 +63618,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -63834,7 +63834,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -63923,7 +63923,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -64069,7 +64069,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -64147,7 +64147,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -64327,7 +64327,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -64428,7 +64428,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -64507,7 +64507,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -64595,7 +64595,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -64910,7 +64910,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65013,7 +65013,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65102,16 +65102,16 @@
      ],
      "choice": true,
      "expansions": [
-      "item.enableWhen.answerBoolean",
-      "item.enableWhen.answerDecimal",
-      "item.enableWhen.answerInteger",
-      "item.enableWhen.answerDate",
-      "item.enableWhen.answerDateTime",
-      "item.enableWhen.answerTime",
-      "item.enableWhen.answerString",
-      "item.enableWhen.answerCoding",
-      "item.enableWhen.answerQuantity",
-      "item.enableWhen.answerReference"
+      "answerBoolean",
+      "answerDecimal",
+      "answerInteger",
+      "answerDate",
+      "answerDateTime",
+      "answerTime",
+      "answerString",
+      "answerCoding",
+      "answerQuantity",
+      "answerReference"
      ],
      "binding": {
       "strength": "example",
@@ -65193,7 +65193,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65246,12 +65246,12 @@
      ],
      "choice": true,
      "expansions": [
-      "item.answerOption.valueInteger",
-      "item.answerOption.valueDate",
-      "item.answerOption.valueTime",
-      "item.answerOption.valueString",
-      "item.answerOption.valueCoding",
-      "item.answerOption.valueReference"
+      "valueInteger",
+      "valueDate",
+      "valueTime",
+      "valueString",
+      "valueCoding",
+      "valueReference"
      ],
      "binding": {
       "strength": "example",
@@ -65281,7 +65281,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65352,18 +65352,18 @@
      ],
      "choice": true,
      "expansions": [
-      "item.initial.valueBoolean",
-      "item.initial.valueDecimal",
-      "item.initial.valueInteger",
-      "item.initial.valueDate",
-      "item.initial.valueDateTime",
-      "item.initial.valueTime",
-      "item.initial.valueString",
-      "item.initial.valueUri",
-      "item.initial.valueAttachment",
-      "item.initial.valueCoding",
-      "item.initial.valueQuantity",
-      "item.initial.valueReference"
+      "valueBoolean",
+      "valueDecimal",
+      "valueInteger",
+      "valueDate",
+      "valueDateTime",
+      "valueTime",
+      "valueString",
+      "valueUri",
+      "valueAttachment",
+      "valueCoding",
+      "valueQuantity",
+      "valueReference"
      ],
      "binding": {
       "strength": "example",
@@ -65485,7 +65485,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -65712,7 +65712,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65778,7 +65778,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65848,18 +65848,18 @@
      ],
      "choice": true,
      "expansions": [
-      "item.answer.valueBoolean",
-      "item.answer.valueDecimal",
-      "item.answer.valueInteger",
-      "item.answer.valueDate",
-      "item.answer.valueDateTime",
-      "item.answer.valueTime",
-      "item.answer.valueString",
-      "item.answer.valueUri",
-      "item.answer.valueAttachment",
-      "item.answer.valueCoding",
-      "item.answer.valueQuantity",
-      "item.answer.valueReference"
+      "valueBoolean",
+      "valueDecimal",
+      "valueInteger",
+      "valueDate",
+      "valueDateTime",
+      "valueTime",
+      "valueString",
+      "valueUri",
+      "valueAttachment",
+      "valueCoding",
+      "valueQuantity",
+      "valueReference"
      ],
      "binding": {
       "strength": "example",
@@ -65897,7 +65897,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -65950,7 +65950,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66003,7 +66003,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66080,7 +66080,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66183,7 +66183,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -66394,7 +66394,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66453,7 +66453,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -66744,7 +66744,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66851,7 +66851,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66912,7 +66912,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -66973,8 +66973,8 @@
      ],
      "choice": true,
      "expansions": [
-      "action.relatedAction.offsetDuration",
-      "action.relatedAction.offsetRange"
+      "offsetDuration",
+      "offsetRange"
      ]
     },
     {
@@ -67002,12 +67002,12 @@
      ],
      "choice": true,
      "expansions": [
-      "action.timingDateTime",
-      "action.timingAge",
-      "action.timingPeriod",
-      "action.timingDuration",
-      "action.timingRange",
-      "action.timingTiming"
+      "timingDateTime",
+      "timingAge",
+      "timingPeriod",
+      "timingDuration",
+      "timingRange",
+      "timingTiming"
      ]
     },
     {
@@ -67142,7 +67142,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -67607,7 +67607,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -68044,7 +68044,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -68091,10 +68091,10 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.definitionCodeableConcept",
-      "characteristic.definitionCanonical",
-      "characteristic.definitionExpression",
-      "characteristic.definitionDataRequirement"
+      "definitionCodeableConcept",
+      "definitionCanonical",
+      "definitionExpression",
+      "definitionDataRequirement"
      ],
      "summary": true
     },
@@ -68157,10 +68157,10 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.studyEffectiveDateTime",
-      "characteristic.studyEffectivePeriod",
-      "characteristic.studyEffectiveDuration",
-      "characteristic.studyEffectiveTiming"
+      "studyEffectiveDateTime",
+      "studyEffectivePeriod",
+      "studyEffectiveDuration",
+      "studyEffectiveTiming"
      ]
     },
     {
@@ -68213,10 +68213,10 @@
      ],
      "choice": true,
      "expansions": [
-      "characteristic.participantEffectiveDateTime",
-      "characteristic.participantEffectivePeriod",
-      "characteristic.participantEffectiveDuration",
-      "characteristic.participantEffectiveTiming"
+      "participantEffectiveDateTime",
+      "participantEffectivePeriod",
+      "participantEffectiveDuration",
+      "participantEffectiveTiming"
      ]
     },
     {
@@ -68261,7 +68261,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -68613,7 +68613,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -68679,7 +68679,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -68737,7 +68737,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -68919,7 +68919,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -68970,7 +68970,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -69239,7 +69239,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -69285,8 +69285,8 @@
      ],
      "choice": true,
      "expansions": [
-      "prediction.probabilityDecimal",
-      "prediction.probabilityRange"
+      "probabilityDecimal",
+      "probabilityRange"
      ]
     },
     {
@@ -69324,8 +69324,8 @@
      ],
      "choice": true,
      "expansions": [
-      "prediction.whenPeriod",
-      "prediction.whenRange"
+      "whenPeriod",
+      "whenRange"
      ]
     },
     {
@@ -69383,7 +69383,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -69774,7 +69774,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -69840,7 +69840,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -69940,7 +69940,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -70018,7 +70018,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -70078,7 +70078,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -70157,7 +70157,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -70254,7 +70254,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -70444,7 +70444,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -70816,7 +70816,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -70895,7 +70895,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -71460,7 +71460,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -71583,7 +71583,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -71806,7 +71806,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -71996,7 +71996,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72047,8 +72047,8 @@
      ],
      "choice": true,
      "expansions": [
-      "collection.collectedDateTime",
-      "collection.collectedPeriod"
+      "collectedDateTime",
+      "collectedPeriod"
      ],
      "summary": true
     },
@@ -72110,8 +72110,8 @@
      ],
      "choice": true,
      "expansions": [
-      "collection.fastingStatusCodeableConcept",
-      "collection.fastingStatusDuration"
+      "fastingStatusCodeableConcept",
+      "fastingStatusDuration"
      ],
      "binding": {
       "strength": "extensible",
@@ -72133,7 +72133,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72204,8 +72204,8 @@
      ],
      "choice": true,
      "expansions": [
-      "processing.timeDateTime",
-      "processing.timePeriod"
+      "timeDateTime",
+      "timePeriod"
      ]
     },
     {
@@ -72222,7 +72222,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72312,8 +72312,8 @@
      ],
      "choice": true,
      "expansions": [
-      "container.additiveCodeableConcept",
-      "container.additiveReference"
+      "additiveCodeableConcept",
+      "additiveReference"
      ],
      "binding": {
       "strength": "example",
@@ -72355,7 +72355,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -72507,7 +72507,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72581,7 +72581,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72675,8 +72675,8 @@
      ],
      "choice": true,
      "expansions": [
-      "typeTested.container.minimumVolumeQuantity",
-      "typeTested.container.minimumVolumeString"
+      "minimumVolumeQuantity",
+      "minimumVolumeString"
      ]
     },
     {
@@ -72693,7 +72693,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72734,8 +72734,8 @@
      ],
      "choice": true,
      "expansions": [
-      "typeTested.container.additive.additiveCodeableConcept",
-      "typeTested.container.additive.additiveReference"
+      "additiveCodeableConcept",
+      "additiveReference"
      ],
      "binding": {
       "strength": "example",
@@ -72796,7 +72796,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -72872,7 +72872,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -73149,7 +73149,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -73251,7 +73251,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -73367,7 +73367,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -73415,7 +73415,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -73614,7 +73614,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -73864,7 +73864,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -73965,7 +73965,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74051,7 +74051,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74136,7 +74136,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74187,7 +74187,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74409,56 +74409,56 @@
      ],
      "choice": true,
      "expansions": [
-      "group.rule.source.defaultValueBase64Binary",
-      "group.rule.source.defaultValueBoolean",
-      "group.rule.source.defaultValueCanonical",
-      "group.rule.source.defaultValueCode",
-      "group.rule.source.defaultValueDate",
-      "group.rule.source.defaultValueDateTime",
-      "group.rule.source.defaultValueDecimal",
-      "group.rule.source.defaultValueId",
-      "group.rule.source.defaultValueInstant",
-      "group.rule.source.defaultValueInteger",
-      "group.rule.source.defaultValueMarkdown",
-      "group.rule.source.defaultValueOid",
-      "group.rule.source.defaultValuePositiveInt",
-      "group.rule.source.defaultValueString",
-      "group.rule.source.defaultValueTime",
-      "group.rule.source.defaultValueUnsignedInt",
-      "group.rule.source.defaultValueUri",
-      "group.rule.source.defaultValueUrl",
-      "group.rule.source.defaultValueUuid",
-      "group.rule.source.defaultValueAddress",
-      "group.rule.source.defaultValueAge",
-      "group.rule.source.defaultValueAnnotation",
-      "group.rule.source.defaultValueAttachment",
-      "group.rule.source.defaultValueCodeableConcept",
-      "group.rule.source.defaultValueCoding",
-      "group.rule.source.defaultValueContactPoint",
-      "group.rule.source.defaultValueCount",
-      "group.rule.source.defaultValueDistance",
-      "group.rule.source.defaultValueDuration",
-      "group.rule.source.defaultValueHumanName",
-      "group.rule.source.defaultValueIdentifier",
-      "group.rule.source.defaultValueMoney",
-      "group.rule.source.defaultValuePeriod",
-      "group.rule.source.defaultValueQuantity",
-      "group.rule.source.defaultValueRange",
-      "group.rule.source.defaultValueRatio",
-      "group.rule.source.defaultValueReference",
-      "group.rule.source.defaultValueSampledData",
-      "group.rule.source.defaultValueSignature",
-      "group.rule.source.defaultValueTiming",
-      "group.rule.source.defaultValueContactDetail",
-      "group.rule.source.defaultValueContributor",
-      "group.rule.source.defaultValueDataRequirement",
-      "group.rule.source.defaultValueExpression",
-      "group.rule.source.defaultValueParameterDefinition",
-      "group.rule.source.defaultValueRelatedArtifact",
-      "group.rule.source.defaultValueTriggerDefinition",
-      "group.rule.source.defaultValueUsageContext",
-      "group.rule.source.defaultValueDosage",
-      "group.rule.source.defaultValueMeta"
+      "defaultValueBase64Binary",
+      "defaultValueBoolean",
+      "defaultValueCanonical",
+      "defaultValueCode",
+      "defaultValueDate",
+      "defaultValueDateTime",
+      "defaultValueDecimal",
+      "defaultValueId",
+      "defaultValueInstant",
+      "defaultValueInteger",
+      "defaultValueMarkdown",
+      "defaultValueOid",
+      "defaultValuePositiveInt",
+      "defaultValueString",
+      "defaultValueTime",
+      "defaultValueUnsignedInt",
+      "defaultValueUri",
+      "defaultValueUrl",
+      "defaultValueUuid",
+      "defaultValueAddress",
+      "defaultValueAge",
+      "defaultValueAnnotation",
+      "defaultValueAttachment",
+      "defaultValueCodeableConcept",
+      "defaultValueCoding",
+      "defaultValueContactPoint",
+      "defaultValueCount",
+      "defaultValueDistance",
+      "defaultValueDuration",
+      "defaultValueHumanName",
+      "defaultValueIdentifier",
+      "defaultValueMoney",
+      "defaultValuePeriod",
+      "defaultValueQuantity",
+      "defaultValueRange",
+      "defaultValueRatio",
+      "defaultValueReference",
+      "defaultValueSampledData",
+      "defaultValueSignature",
+      "defaultValueTiming",
+      "defaultValueContactDetail",
+      "defaultValueContributor",
+      "defaultValueDataRequirement",
+      "defaultValueExpression",
+      "defaultValueParameterDefinition",
+      "defaultValueRelatedArtifact",
+      "defaultValueTriggerDefinition",
+      "defaultValueUsageContext",
+      "defaultValueDosage",
+      "defaultValueMeta"
      ],
      "summary": true
     },
@@ -74541,7 +74541,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74662,7 +74662,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74709,11 +74709,11 @@
      ],
      "choice": true,
      "expansions": [
-      "group.rule.target.parameter.valueId",
-      "group.rule.target.parameter.valueString",
-      "group.rule.target.parameter.valueBoolean",
-      "group.rule.target.parameter.valueInteger",
-      "group.rule.target.parameter.valueDecimal"
+      "valueId",
+      "valueString",
+      "valueBoolean",
+      "valueInteger",
+      "valueDecimal"
      ],
      "summary": true
     },
@@ -74738,7 +74738,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -74827,7 +74827,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -74987,7 +74987,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75072,7 +75072,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -75227,7 +75227,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75296,7 +75296,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75347,8 +75347,8 @@
      ],
      "choice": true,
      "expansions": [
-      "ingredient.substanceCodeableConcept",
-      "ingredient.substanceReference"
+      "substanceCodeableConcept",
+      "substanceReference"
      ],
      "binding": {
       "strength": "example",
@@ -75368,7 +75368,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75449,7 +75449,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75494,7 +75494,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -75625,7 +75625,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75724,7 +75724,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75803,7 +75803,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -75869,7 +75869,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -76000,7 +76000,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76049,7 +76049,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76128,7 +76128,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76197,7 +76197,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76266,7 +76266,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76325,7 +76325,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76391,7 +76391,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -76512,7 +76512,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76628,7 +76628,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -76729,7 +76729,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76801,7 +76801,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76873,7 +76873,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -76955,7 +76955,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77045,9 +77045,9 @@
      ],
      "choice": true,
      "expansions": [
-      "target.amountQuantity",
-      "target.amountRange",
-      "target.amountString"
+      "amountQuantity",
+      "amountRange",
+      "amountString"
      ],
      "summary": true
     },
@@ -77086,7 +77086,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -77277,7 +77277,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77336,7 +77336,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77425,7 +77425,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77484,7 +77484,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77573,7 +77573,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77652,7 +77652,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77708,7 +77708,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -77872,7 +77872,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -77969,8 +77969,8 @@
      ],
      "choice": true,
      "expansions": [
-      "moiety.amountQuantity",
-      "moiety.amountString"
+      "amountQuantity",
+      "amountString"
      ],
      "summary": true
     },
@@ -77989,7 +77989,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78060,8 +78060,8 @@
      ],
      "choice": true,
      "expansions": [
-      "property.definingSubstanceReference",
-      "property.definingSubstanceCodeableConcept"
+      "definingSubstanceReference",
+      "definingSubstanceCodeableConcept"
      ],
      "summary": true
     },
@@ -78078,8 +78078,8 @@
      ],
      "choice": true,
      "expansions": [
-      "property.amountQuantity",
-      "property.amountString"
+      "amountQuantity",
+      "amountString"
      ],
      "summary": true
     },
@@ -78111,7 +78111,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78190,7 +78190,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78269,7 +78269,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78357,7 +78357,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78426,7 +78426,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78518,7 +78518,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78640,7 +78640,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78728,7 +78728,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -78768,8 +78768,8 @@
      ],
      "choice": true,
      "expansions": [
-      "relationship.substanceReference",
-      "relationship.substanceCodeableConcept"
+      "substanceReference",
+      "substanceCodeableConcept"
      ],
      "summary": true
     },
@@ -78812,10 +78812,10 @@
      ],
      "choice": true,
      "expansions": [
-      "relationship.amountQuantity",
-      "relationship.amountRange",
-      "relationship.amountRatio",
-      "relationship.amountString"
+      "amountQuantity",
+      "amountRange",
+      "amountRatio",
+      "amountString"
      ],
      "summary": true
     },
@@ -78916,7 +78916,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -79082,7 +79082,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -79133,8 +79133,8 @@
      ],
      "choice": true,
      "expansions": [
-      "suppliedItem.itemCodeableConcept",
-      "suppliedItem.itemReference"
+      "itemCodeableConcept",
+      "itemReference"
      ],
      "binding": {
       "strength": "example",
@@ -79214,7 +79214,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -79396,7 +79396,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -79448,10 +79448,10 @@
      ],
      "choice": true,
      "expansions": [
-      "parameter.valueCodeableConcept",
-      "parameter.valueQuantity",
-      "parameter.valueRange",
-      "parameter.valueBoolean"
+      "valueCodeableConcept",
+      "valueQuantity",
+      "valueRange",
+      "valueBoolean"
      ]
     },
     {
@@ -79585,7 +79585,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -80018,7 +80018,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -80091,7 +80091,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -80283,56 +80283,56 @@
      ],
      "choice": true,
      "expansions": [
-      "input.valueBase64Binary",
-      "input.valueBoolean",
-      "input.valueCanonical",
-      "input.valueCode",
-      "input.valueDate",
-      "input.valueDateTime",
-      "input.valueDecimal",
-      "input.valueId",
-      "input.valueInstant",
-      "input.valueInteger",
-      "input.valueMarkdown",
-      "input.valueOid",
-      "input.valuePositiveInt",
-      "input.valueString",
-      "input.valueTime",
-      "input.valueUnsignedInt",
-      "input.valueUri",
-      "input.valueUrl",
-      "input.valueUuid",
-      "input.valueAddress",
-      "input.valueAge",
-      "input.valueAnnotation",
-      "input.valueAttachment",
-      "input.valueCodeableConcept",
-      "input.valueCoding",
-      "input.valueContactPoint",
-      "input.valueCount",
-      "input.valueDistance",
-      "input.valueDuration",
-      "input.valueHumanName",
-      "input.valueIdentifier",
-      "input.valueMoney",
-      "input.valuePeriod",
-      "input.valueQuantity",
-      "input.valueRange",
-      "input.valueRatio",
-      "input.valueReference",
-      "input.valueSampledData",
-      "input.valueSignature",
-      "input.valueTiming",
-      "input.valueContactDetail",
-      "input.valueContributor",
-      "input.valueDataRequirement",
-      "input.valueExpression",
-      "input.valueParameterDefinition",
-      "input.valueRelatedArtifact",
-      "input.valueTriggerDefinition",
-      "input.valueUsageContext",
-      "input.valueDosage",
-      "input.valueMeta"
+      "valueBase64Binary",
+      "valueBoolean",
+      "valueCanonical",
+      "valueCode",
+      "valueDate",
+      "valueDateTime",
+      "valueDecimal",
+      "valueId",
+      "valueInstant",
+      "valueInteger",
+      "valueMarkdown",
+      "valueOid",
+      "valuePositiveInt",
+      "valueString",
+      "valueTime",
+      "valueUnsignedInt",
+      "valueUri",
+      "valueUrl",
+      "valueUuid",
+      "valueAddress",
+      "valueAge",
+      "valueAnnotation",
+      "valueAttachment",
+      "valueCodeableConcept",
+      "valueCoding",
+      "valueContactPoint",
+      "valueCount",
+      "valueDistance",
+      "valueDuration",
+      "valueHumanName",
+      "valueIdentifier",
+      "valueMoney",
+      "valuePeriod",
+      "valueQuantity",
+      "valueRange",
+      "valueRatio",
+      "valueReference",
+      "valueSampledData",
+      "valueSignature",
+      "valueTiming",
+      "valueContactDetail",
+      "valueContributor",
+      "valueDataRequirement",
+      "valueExpression",
+      "valueParameterDefinition",
+      "valueRelatedArtifact",
+      "valueTriggerDefinition",
+      "valueUsageContext",
+      "valueDosage",
+      "valueMeta"
      ]
     },
     {
@@ -80349,7 +80349,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -80541,56 +80541,56 @@
      ],
      "choice": true,
      "expansions": [
-      "output.valueBase64Binary",
-      "output.valueBoolean",
-      "output.valueCanonical",
-      "output.valueCode",
-      "output.valueDate",
-      "output.valueDateTime",
-      "output.valueDecimal",
-      "output.valueId",
-      "output.valueInstant",
-      "output.valueInteger",
-      "output.valueMarkdown",
-      "output.valueOid",
-      "output.valuePositiveInt",
-      "output.valueString",
-      "output.valueTime",
-      "output.valueUnsignedInt",
-      "output.valueUri",
-      "output.valueUrl",
-      "output.valueUuid",
-      "output.valueAddress",
-      "output.valueAge",
-      "output.valueAnnotation",
-      "output.valueAttachment",
-      "output.valueCodeableConcept",
-      "output.valueCoding",
-      "output.valueContactPoint",
-      "output.valueCount",
-      "output.valueDistance",
-      "output.valueDuration",
-      "output.valueHumanName",
-      "output.valueIdentifier",
-      "output.valueMoney",
-      "output.valuePeriod",
-      "output.valueQuantity",
-      "output.valueRange",
-      "output.valueRatio",
-      "output.valueReference",
-      "output.valueSampledData",
-      "output.valueSignature",
-      "output.valueTiming",
-      "output.valueContactDetail",
-      "output.valueContributor",
-      "output.valueDataRequirement",
-      "output.valueExpression",
-      "output.valueParameterDefinition",
-      "output.valueRelatedArtifact",
-      "output.valueTriggerDefinition",
-      "output.valueUsageContext",
-      "output.valueDosage",
-      "output.valueMeta"
+      "valueBase64Binary",
+      "valueBoolean",
+      "valueCanonical",
+      "valueCode",
+      "valueDate",
+      "valueDateTime",
+      "valueDecimal",
+      "valueId",
+      "valueInstant",
+      "valueInteger",
+      "valueMarkdown",
+      "valueOid",
+      "valuePositiveInt",
+      "valueString",
+      "valueTime",
+      "valueUnsignedInt",
+      "valueUri",
+      "valueUrl",
+      "valueUuid",
+      "valueAddress",
+      "valueAge",
+      "valueAnnotation",
+      "valueAttachment",
+      "valueCodeableConcept",
+      "valueCoding",
+      "valueContactPoint",
+      "valueCount",
+      "valueDistance",
+      "valueDuration",
+      "valueHumanName",
+      "valueIdentifier",
+      "valueMoney",
+      "valuePeriod",
+      "valueQuantity",
+      "valueRange",
+      "valueRatio",
+      "valueReference",
+      "valueSampledData",
+      "valueSignature",
+      "valueTiming",
+      "valueContactDetail",
+      "valueContributor",
+      "valueDataRequirement",
+      "valueExpression",
+      "valueParameterDefinition",
+      "valueRelatedArtifact",
+      "valueTriggerDefinition",
+      "valueUsageContext",
+      "valueDosage",
+      "valueMeta"
      ]
     }
    ],
@@ -80613,7 +80613,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -80868,7 +80868,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -80928,7 +80928,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -80997,7 +80997,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81047,7 +81047,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81123,7 +81123,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81199,7 +81199,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81264,7 +81264,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81343,7 +81343,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81391,7 +81391,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81439,7 +81439,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81523,7 +81523,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -81708,7 +81708,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81779,7 +81779,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81818,7 +81818,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81856,7 +81856,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81926,7 +81926,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -81996,7 +81996,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82053,7 +82053,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82101,7 +82101,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82140,7 +82140,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82198,7 +82198,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -82447,7 +82447,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82509,7 +82509,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82571,7 +82571,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82609,7 +82609,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82667,7 +82667,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82774,7 +82774,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82856,7 +82856,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -82967,7 +82967,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83006,7 +83006,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83044,7 +83044,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83202,7 +83202,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83305,7 +83305,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83566,7 +83566,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83623,7 +83623,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83671,7 +83671,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83710,7 +83710,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83851,7 +83851,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83900,7 +83900,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -83929,9 +83929,9 @@
      ],
      "choice": true,
      "expansions": [
-      "repeat.boundsDuration",
-      "repeat.boundsRange",
-      "repeat.boundsPeriod"
+      "boundsDuration",
+      "boundsRange",
+      "boundsPeriod"
      ],
      "summary": true
     },
@@ -84182,7 +84182,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84301,7 +84301,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84381,7 +84381,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -84638,7 +84638,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84698,7 +84698,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84756,7 +84756,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84813,7 +84813,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84888,7 +84888,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -84981,7 +84981,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85056,7 +85056,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85118,13 +85118,13 @@
      ],
      "choice": true,
      "expansions": [
-      "expansion.parameter.valueString",
-      "expansion.parameter.valueBoolean",
-      "expansion.parameter.valueInteger",
-      "expansion.parameter.valueDecimal",
-      "expansion.parameter.valueUri",
-      "expansion.parameter.valueCode",
-      "expansion.parameter.valueDateTime"
+      "valueString",
+      "valueBoolean",
+      "valueInteger",
+      "valueDecimal",
+      "valueUri",
+      "valueCode",
+      "valueDateTime"
      ]
     },
     {
@@ -85141,7 +85141,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85291,7 +85291,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -85512,7 +85512,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85641,7 +85641,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85769,7 +85769,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -85836,7 +85836,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ],
      "summary": true
@@ -86016,7 +86016,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86111,7 +86111,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86243,7 +86243,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86261,7 +86261,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86277,7 +86277,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86295,7 +86295,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.Boolean"
+       "code": "boolean"
       }
      ]
     }
@@ -86311,7 +86311,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86329,7 +86329,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86345,7 +86345,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86363,7 +86363,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86379,7 +86379,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86397,7 +86397,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.Date"
+       "code": "date"
       }
      ]
     }
@@ -86413,7 +86413,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86431,7 +86431,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.DateTime"
+       "code": "dateTime"
       }
      ]
     }
@@ -86447,7 +86447,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86465,7 +86465,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.Decimal"
+       "code": "decimal"
       }
      ]
     }
@@ -86481,7 +86481,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86499,7 +86499,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86515,7 +86515,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86533,7 +86533,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.DateTime"
+       "code": "dateTime"
       }
      ]
     }
@@ -86549,7 +86549,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86567,7 +86567,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.Integer"
+       "code": "integer"
       }
      ]
     }
@@ -86583,7 +86583,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86601,7 +86601,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86617,7 +86617,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86635,7 +86635,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86651,7 +86651,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86669,7 +86669,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86685,7 +86685,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86703,7 +86703,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86719,7 +86719,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86737,7 +86737,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.Time"
+       "code": "time"
       }
      ]
     }
@@ -86753,7 +86753,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86771,7 +86771,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86787,7 +86787,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86805,7 +86805,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86821,7 +86821,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86839,7 +86839,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86855,7 +86855,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86873,7 +86873,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }
@@ -86889,7 +86889,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     },
@@ -86908,7 +86908,7 @@
      "max": "1",
      "types": [
       {
-       "code": "http://hl7.org/fhirpath/System.String"
+       "code": "string"
       }
      ]
     }

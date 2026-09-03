@@ -25,11 +25,14 @@ type lexer struct {
 	src  string
 	pos  int
 	toks []Token
+	// unterminatedComment records where an unclosed block comment started, or
+	// -1. skipSpaceAndComments cannot return an error, so it parks it here.
+	unterminatedComment int
 }
 
 // lex tokenizes a FHIRPath expression.
 func lex(src string) ([]Token, error) {
-	l := &lexer{src: src}
+	l := &lexer{src: src, unterminatedComment: -1}
 	if err := l.run(); err != nil {
 		return nil, err
 	}
@@ -43,6 +46,9 @@ func (l *lexer) errorf(pos int, format string, args ...any) error {
 func (l *lexer) run() error {
 	for {
 		l.skipSpaceAndComments()
+		if l.unterminatedComment >= 0 {
+			return l.errorf(l.unterminatedComment, "unterminated block comment")
+		}
 		if l.pos >= len(l.src) {
 			l.emit(Token{Kind: EOF, Pos: l.pos})
 			return nil
@@ -86,10 +92,7 @@ func (l *lexer) run() error {
 
 		case c == '@':
 			l.pos++
-			for l.pos < len(l.src) && isDateTimeByte(l.src[l.pos]) {
-				l.pos++
-			}
-			if l.pos == start+1 {
+			if !l.scanDateTime() {
 				return l.errorf(start, "'@' must be followed by a date or time literal")
 			}
 			l.emit(Token{Kind: DateTime, Text: l.src[start+1 : l.pos], Pos: start})
@@ -314,17 +317,21 @@ func (l *lexer) skipSpaceAndComments() {
 				l.pos++
 			}
 		case c == '/' && l.pos+1 < len(l.src) && l.src[l.pos+1] == '*':
+			start := l.pos
 			l.pos += 2
 			for l.pos+1 < len(l.src) && !(l.src[l.pos] == '*' && l.src[l.pos+1] == '/') {
 				l.pos++
 			}
-			// An unterminated block comment simply runs to end of input; the
-			// parser reports the resulting truncation.
-			if l.pos+1 < len(l.src) {
-				l.pos += 2
-			} else {
+			if l.pos+1 >= len(l.src) {
+				// Running off the end means the comment was never closed. That
+				// is a syntax error: silently treating the rest of the
+				// expression as commented out would evaluate something the
+				// author did not write.
+				l.unterminatedComment = start
 				l.pos = len(l.src)
+				return
 			}
+			l.pos += 2
 		default:
 			return
 		}
@@ -348,9 +355,86 @@ func isIdentStart(c byte) bool {
 
 func isIdentByte(c byte) bool { return isIdentStart(c) || isDigit(c) }
 
-// isDateTimeByte reports whether c can appear in an @-literal: dates, times,
-// fractional seconds, and timezone offsets.
-func isDateTimeByte(c byte) bool {
-	return isDigit(c) || c == '-' || c == ':' || c == '.' ||
-		c == 'T' || c == 'Z' || c == '+'
+// scanDateTime consumes an @-literal following the grammar rather than a
+// permissive character set, and reports whether one was found.
+//
+// The precision matters for one character: a dot. "@2014.highBoundary(6)" is a
+// year literal followed by a member access, while "@T08:30:00.5" ends in a
+// fractional second. A scanner that simply accepts dots swallows the invocation
+// and turns a valid expression into a parse error, which is exactly what the
+// conformance suite's boundary tests catch.
+func (l *lexer) scanDateTime() bool {
+	start := l.pos
+	if l.pos < len(l.src) && l.src[l.pos] == 'T' {
+		l.pos++
+		l.scanTime()
+		return l.pos > start
+	}
+	if !l.scanDigits() {
+		return false
+	}
+	// -MM and -DD
+	for i := 0; i < 2; i++ {
+		if l.pos < len(l.src) && l.src[l.pos] == '-' &&
+			l.pos+1 < len(l.src) && isDigit(l.src[l.pos+1]) {
+			l.pos++
+			l.scanDigits()
+		}
+	}
+	if l.pos < len(l.src) && l.src[l.pos] == 'T' {
+		l.pos++
+		l.scanTime()
+	}
+	return true
+}
+
+// scanTime consumes HH[:MM[:SS[.fff]]] plus any timezone. A dot is taken only
+// when digits follow it, so it can never absorb a member access.
+func (l *lexer) scanTime() {
+	if !l.scanDigits() {
+		return
+	}
+	for i := 0; i < 2; i++ {
+		if l.pos < len(l.src) && l.src[l.pos] == ':' &&
+			l.pos+1 < len(l.src) && isDigit(l.src[l.pos+1]) {
+			l.pos++
+			l.scanDigits()
+		}
+	}
+	if l.pos < len(l.src) && l.src[l.pos] == '.' &&
+		l.pos+1 < len(l.src) && isDigit(l.src[l.pos+1]) {
+		l.pos++
+		l.scanDigits()
+	}
+	l.scanZone()
+}
+
+// scanZone consumes "Z" or a signed offset.
+func (l *lexer) scanZone() {
+	if l.pos >= len(l.src) {
+		return
+	}
+	if c := l.src[l.pos]; c == 'Z' || c == 'z' {
+		l.pos++
+		return
+	}
+	// An offset needs a digit after the sign; otherwise the sign is an
+	// arithmetic operator applied to the literal.
+	if c := l.src[l.pos]; (c == '+' || c == '-') &&
+		l.pos+1 < len(l.src) && isDigit(l.src[l.pos+1]) {
+		l.pos++
+		l.scanDigits()
+		if l.pos < len(l.src) && l.src[l.pos] == ':' {
+			l.pos++
+			l.scanDigits()
+		}
+	}
+}
+
+func (l *lexer) scanDigits() bool {
+	start := l.pos
+	for l.pos < len(l.src) && isDigit(l.src[l.pos]) {
+		l.pos++
+	}
+	return l.pos > start
 }

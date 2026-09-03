@@ -31,6 +31,8 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -38,7 +40,8 @@ import (
 // lockFile is the pinned package set. Fields prefixed with "_" are commentary
 // for human readers and are ignored here.
 type lockFile struct {
-	Packages []pkg `json:"packages"`
+	Packages   []pkg       `json:"packages"`
+	TestSuites []testSuite `json:"testSuites"`
 }
 
 // pkg is one pinned conformance package.
@@ -65,16 +68,17 @@ type pkg struct {
 func main() {
 	lockPath := flag.String("lock", "third_party/packages.lock", "path to the package lock file")
 	dest := flag.String("dest", "third_party/packages", "directory to vendor packages into")
+	testdata := flag.String("testdata", "internal/fhirpath/testdata", "directory to vendor the FHIRPath conformance suites into")
 	only := flag.String("only", "", "fetch just this FHIR version (r4, r5); empty means all")
 	flag.Parse()
 
-	if err := run(*lockPath, *dest, *only); err != nil {
+	if err := run(*lockPath, *dest, *testdata, *only); err != nil {
 		fmt.Fprintf(os.Stderr, "vendorpkg: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(lockPath, dest, only string) error {
+func run(lockPath, dest, testdata, only string) error {
 	raw, err := os.ReadFile(lockPath)
 	if err != nil {
 		return err
@@ -104,7 +108,17 @@ func run(lockPath, dest, only string) error {
 			return fmt.Errorf("%s: %w", p.ID, err)
 		}
 	}
-	return nil
+
+	suites := lock.TestSuites
+	if only != "" {
+		suites = nil
+		for _, s := range lock.TestSuites {
+			if s.Release == only {
+				suites = append(suites, s)
+			}
+		}
+	}
+	return fetchTestSuites(suites, testdata)
 }
 
 // isPopulated reports whether dir already holds a vendored package. Fetching is
@@ -300,4 +314,94 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return out.Close()
+}
+
+// ---- FHIRPath conformance suites ----
+
+// testSuite is one pinned HL7 FHIRPath conformance suite.
+type testSuite struct {
+	ID      string `json:"id"`
+	Release string `json:"release"`
+	License string `json:"license"`
+	// RawBase is a raw-content URL prefix that already includes the pinned
+	// commit, so every fetch below is immutable without needing a digest each.
+	RawBase string `json:"rawBase"`
+	Suite   string `json:"suite"`
+	// InputDir is the directory the suite's inputfile names resolve against.
+	InputDir string `json:"inputDir"`
+}
+
+// fetchTestSuites downloads each suite and the example resources it references.
+// The input list is read out of the suite rather than configured: every test
+// carries an inputfile attribute, so the suite is its own manifest and cannot
+// drift from a list we maintain by hand.
+func fetchTestSuites(suites []testSuite, dest string) error {
+	client := &http.Client{Timeout: 5 * time.Minute}
+	for _, s := range suites {
+		dir := filepath.Join(dest, s.Release)
+		if isPopulated(dir) {
+			fmt.Printf("%s: already vendored at %s\n", s.ID, dir)
+			continue
+		}
+		fmt.Printf("%s -> %s\n", s.ID, dir)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+		body, err := get(client, s.RawBase+s.Suite)
+		if err != nil {
+			os.RemoveAll(dir)
+			return fmt.Errorf("%s: %w", s.ID, err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "tests.xml"), body, 0o644); err != nil {
+			return err
+		}
+		inputs := referencedInputs(body)
+		for _, name := range inputs {
+			data, err := get(client, s.RawBase+s.InputDir+"/"+name)
+			if err != nil {
+				os.RemoveAll(dir)
+				return fmt.Errorf("%s input %s: %w", s.ID, name, err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, name), data, 0o644); err != nil {
+				return err
+			}
+		}
+		fmt.Printf("  suite + %d input resources\n", len(inputs))
+	}
+	return nil
+}
+
+// referencedInputs returns the distinct inputfile names a suite mentions,
+// sorted. It scans attributes directly rather than unmarshalling, because the
+// R4 and R5 suites differ in XML namespace and the attribute is all we need.
+func referencedInputs(suite []byte) []string {
+	var names []string
+	seen := map[string]bool{}
+	for _, m := range inputFileRE.FindAllSubmatch(suite, -1) {
+		name := string(m[1])
+		// Reject any name that could escape the destination directory.
+		if name == "" || strings.ContainsAny(name, `/\`) || strings.Contains(name, "..") {
+			continue
+		}
+		if !seen[name] {
+			seen[name] = true
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	return names
+}
+
+var inputFileRE = regexp.MustCompile(`inputfile="([^"]+)"`)
+
+func get(client *http.Client, url string) ([]byte, error) {
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("GET %s: %s", url, resp.Status)
+	}
+	return io.ReadAll(resp.Body)
 }

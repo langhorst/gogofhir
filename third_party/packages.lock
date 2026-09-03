@@ -38,5 +38,35 @@
       "sha256": "09f22107bef64313545a50d2c127d20f81173c499a395672fae089bc23e72fab",
       "subdir": "package"
     }
+  ],
+  "_testSuiteComment": [
+    "The official HL7 FHIRPath conformance suites and the example resources they",
+    "evaluate against, pinned to one commit of FHIR/fhir-test-cases. The repo",
+    "states its contents are Creative Commons Public Domain.",
+    "",
+    "The input files are NOT listed here: vendorpkg reads them out of each suite's",
+    "inputfile attributes and fetches exactly those. A hardcoded list would drift",
+    "as the suite grows.",
+    "",
+    "Fetched files are committed under internal/fhirpath/testdata so `make check`",
+    "runs the conformance suites offline."
+  ],
+  "testSuites": [
+    {
+      "id": "fhirpath-r4",
+      "release": "r4",
+      "license": "CC0-1.0",
+      "rawBase": "https://raw.githubusercontent.com/FHIR/fhir-test-cases/f5ecfeaba378754c8ce06822f1eee081248efb31/",
+      "suite": "r4/fhirpath/tests-fhir-r4.xml",
+      "inputDir": "r4"
+    },
+    {
+      "id": "fhirpath-r5",
+      "release": "r5",
+      "license": "CC0-1.0",
+      "rawBase": "https://raw.githubusercontent.com/FHIR/fhir-test-cases/f5ecfeaba378754c8ce06822f1eee081248efb31/",
+      "suite": "r5/fhirpath/tests-fhir-r5.xml",
+      "inputDir": "r5"
+    }
   ]
 }

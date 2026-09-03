@@ -228,7 +228,12 @@ func compileElement(el map[string]any, rel string) *model.ElementDef {
 	if base, found := strings.CutSuffix(rel, "[x]"); found {
 		e.Choice = true
 		e.Path = base
-		e.Expansions = model.ExpandChoice(base, e.Types)
+		// Expansions are element names as they appear in a document, so they
+		// are built from the final path segment only. Building them from the
+		// full relative path yields "parameter.valueString" where the document
+		// says "valueString", which silently breaks every nested choice element
+		// while leaving top-level ones like Patient.deceased[x] working.
+		e.Expansions = model.ExpandChoice(lastPathSegment(base), e.Types)
 	}
 	if b, ok := el["binding"].(map[string]any); ok {
 		if vs := str(b, "valueSet"); vs != "" {
@@ -258,7 +263,7 @@ func compileTypes(el map[string]any) []model.TypeRef {
 		if code == "" {
 			continue
 		}
-		ref := model.TypeRef{Code: code}
+		ref := model.TypeRef{Code: normalizeTypeCode(code)}
 		for _, tp := range strSlice(t, "targetProfile") {
 			ref.Targets = append(ref.Targets, lastURLSegment(tp))
 		}
@@ -421,6 +426,38 @@ func strSlice(m map[string]any, key string) []string {
 		}
 	}
 	return out
+}
+
+// lastPathSegment returns the final dot-separated component of an element path.
+func lastPathSegment(path string) string {
+	if i := strings.LastIndex(path, "."); i >= 0 {
+		return path[i+1:]
+	}
+	return path
+}
+
+// systemTypeCodes maps the FHIRPath System type URLs that appear as type codes
+// on a few elements -- Element.id and Extension.url among them -- onto the
+// equivalent FHIR primitive.
+//
+// The specification uses those URLs to say "this is a System type, not a FHIR
+// one". Carrying the URL through would leave those elements with a type no
+// lookup can resolve, so they would stop behaving as primitives at all.
+var systemTypeCodes = map[string]string{
+	"http://hl7.org/fhirpath/System.String":   "string",
+	"http://hl7.org/fhirpath/System.Boolean":  "boolean",
+	"http://hl7.org/fhirpath/System.Integer":  "integer",
+	"http://hl7.org/fhirpath/System.Decimal":  "decimal",
+	"http://hl7.org/fhirpath/System.Date":     "date",
+	"http://hl7.org/fhirpath/System.DateTime": "dateTime",
+	"http://hl7.org/fhirpath/System.Time":     "time",
+}
+
+func normalizeTypeCode(code string) string {
+	if mapped, ok := systemTypeCodes[code]; ok {
+		return mapped
+	}
+	return code
 }
 
 // lastURLSegment reduces a canonical URL to the type name it ends with:

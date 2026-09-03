@@ -7,10 +7,10 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M1 (FHIRPath), in progress.** The conformance pipeline is complete,
-> and the FHIRPath lexer and parser are done — proven against every expression
-> the specification publishes. The evaluator is next. There is no HTTP server
-> yet; the REST layer is M2. See [Milestones](#milestones).
+> **Status: M1 complete.** The FHIRPath engine passes **1966 of 1998** official
+> HL7 conformance tests, with every remaining case individually documented. The
+> conformance pipeline and both wire-format readers are done. There is no HTTP
+> server yet; the REST layer is M2. See [Milestones](#milestones).
 
 ## Why
 
@@ -117,14 +117,87 @@ across a release's snapshots. `Index.Invariants` reassembles them by walking the
 base chain. Search parameters work the same way: `_id` lives on `Resource`, not
 on all 158 concrete types.
 
+## FHIRPath
+
+The engine is the keystone: because resources are untyped documents, every
+question the server asks about their contents is asked in FHIRPath — search
+parameter extraction, invariants, `_filter`, subscription criteria. It is built
+as a standalone package with no dependency on the storage or conformance layers,
+so it can be developed and proven on its own.
+
+### Conformance
+
+HL7 publishes a test suite for FHIRPath. It is vendored (see
+`third_party/packages.lock`) and runs offline as part of `make check`.
+
+| Suite | Passing | Known divergences | Skipped |
+|---|---|---|---|
+| R4 | 924 / 935 | 11 | 0 |
+| R5 | 1042 / 1063 | 11 | 10 |
+
+Every non-passing case is enumerated with its reason in `knownDivergences`
+(`internal/fhirpath/suite_test.go`). The list is kept honest in both directions:
+an unlisted failure fails the build, and a listed case that *starts* passing also
+fails it, so a fixed divergence cannot linger. The divergences fall into four
+groups:
+
+- **Static type checking (10).** Cases expecting an error for navigating an
+  element a type does not define. At runtime that is a no-op yielding empty;
+  diagnosing it needs the expression checked against a type before evaluation.
+  Worth building — it would catch typos in stored search parameters and
+  invariants — but it is a separate component from the evaluator.
+- **Decimal boundary rounding (6).** The reference implementation is not
+  self-consistent when rounding a boundary to a precision coarser than the
+  value's own: it wants `1.587.highBoundary(2)` = 1.59, rounding away from the
+  value, but `0.0034.highBoundary(1)` = 0.0, rounding toward it. No single rule
+  yields both. We implement the rule that actually bounds the interval.
+- **UCUM dimensional algebra (2).** `2.0 'cm' * 2.0 'm' = 0.040 'm2'` requires
+  deriving new dimensions from unit products. The unit table here converts
+  within a dimension but does not derive across them.
+- **Suite disagreement (1).** R4 expects `+ 0.1 's'` to truncate to zero; R5
+  expects it to add 100 milliseconds. We follow R5, which is the maintained
+  suite — the repository marks `r4` as no longer maintained.
+
+Ten R5 cases are skipped rather than diverged: they exercise CDA documents,
+a terminology server, and the `htmlChecks()` hook, none of which are FHIRPath.
+
+Set `GOGOFHIR_SUITE_ALL=1` to print every failure instead of the first forty.
+
+### Beyond the suite
+
+The compiled indexes carry 4636 FHIRPath expressions published by the
+specification — every search parameter, composite component, and invariant across
+both releases. All 4636 parse, and all render back to source that reparses
+identically; a mis-associated operator generally shows up as a round-trip
+mismatch.
+
+## Documents
+
+Resources are decoded JSON — maps, slices, and scalars — with all meaning
+supplied by the conformance index. Two readers produce the same in-memory shape:
+
+- **JSON**, including the parallel `_name` objects that carry a primitive's
+  extensions, and numbers preserved in their source spelling. FHIR decimals are
+  exact: 1.10 asserts a precision 1.1 does not, and `float64` would destroy the
+  distinction before anything else could go wrong.
+- **XML**, where primitives carry a `value` attribute, repetition is repeated
+  elements, and a primitive's extensions are children. Converting it to the same
+  shape means navigation, evaluation, and validation are written once — and
+  yields an XML-to-JSON converter for M2's content negotiation as a side effect.
+
+A cross-format test asserts the two navigate identically; that equivalence is
+what the design rests on.
+
 ## Layout
 
 ```
 cmd/gogofhir/            daemon
 internal/conformance/    embedded compiled index + loader
 internal/conformance/model/  index types, importable by the generator
+internal/fhirpath/       lexer, parser, evaluator, function library
+internal/resource/       untyped documents; JSON and XML readers
 tools/confgen/           build-time conformance compiler
-tools/vendorpkg/         pinned package fetcher
+tools/vendorpkg/         pinned package and test-suite fetcher
 third_party/             package pins (packages.lock); fetched packages are ignored
 ```
 
@@ -136,9 +209,9 @@ regenerate it.
 ## Milestones
 
 - [x] **M0 — Foundation.** Module, build, CI, vendoring, conformance compiler.
-- [ ] **M1 — FHIRPath.** Full engine. Done when the official R4 and R5 test
-      suites pass. *Lexer and parser complete: all 4636 FHIRPath expressions
-      published across both releases parse and round-trip. Evaluator next.*
+- [x] **M1 — FHIRPath.** Full engine: lexer, parser, evaluator, function
+      library, and both document readers. 1966 of 1998 official conformance
+      tests pass; the rest are enumerated above.
 - [ ] **M2 — Storage + REST core.** CRUD, versioning, history, conditional
       operations, ETag concurrency, CapabilityStatement.
 - [ ] **M3 — Search fundamentals.** All nine parameter types, modifiers,
