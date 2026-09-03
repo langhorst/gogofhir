@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	severityError   = "error"
-	severityWarning = "warning"
+	severityError       = "error"
+	severityWarning     = "warning"
+	severityInformation = "information"
 )
 
 // Issue is one problem in an OperationOutcome.

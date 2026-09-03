@@ -14,6 +14,7 @@ import (
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/validate"
 )
 
 const (
@@ -32,6 +33,20 @@ type Server struct {
 	// headers. Empty means derive it from each request.
 	BaseURL string
 	Log     *slog.Logger
+
+	// StrictTerminology promotes a binding this server cannot check offline
+	// from a warning to an error.
+	StrictTerminology bool
+	// ValidateWrites rejects a create or update whose resource has validation
+	// errors. Off by default: a developer building up a resource wants it to
+	// round-trip, and a server that refuses half-finished data is one they work
+	// around rather than with.
+	ValidateWrites bool
+
+	// validator is built by Handler and shared by every request, including the
+	// scoped servers a transaction runs its entries through -- it caches
+	// compiled expressions and patterns, and is safe for concurrent use.
+	validator *validate.Validator
 }
 
 // Handler builds the route table.
@@ -42,6 +57,10 @@ type Server struct {
 func (s *Server) Handler() http.Handler {
 	if s.Log == nil {
 		s.Log = slog.Default()
+	}
+	if s.validator == nil {
+		s.validator = validate.New(s.Index)
+		s.validator.StrictTerminology = s.StrictTerminology
 	}
 	mux := http.NewServeMux()
 
@@ -58,12 +77,14 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /{type}/_history", s.handleTypeHistory)
 	mux.HandleFunc("GET /{type}/_search", s.handleSearch)
 	mux.HandleFunc("POST /{type}/_search", s.handleSearchPost)
+	mux.HandleFunc("POST /{type}/$validate", s.handleValidateType)
 
 	mux.HandleFunc("GET /{type}/{id}", s.handleRead)
 	mux.HandleFunc("PUT /{type}/{id}", s.handleUpdate)
 	mux.HandleFunc("DELETE /{type}/{id}", s.handleDelete)
 	mux.HandleFunc("GET /{type}/{id}/_history", s.handleInstanceHistory)
 	mux.HandleFunc("GET /{type}/{id}/_history/{vid}", s.handleVRead)
+	mux.HandleFunc("POST /{type}/{id}/$validate", s.handleValidateInstance)
 
 	// Anything unmatched. Without it the mux answers with Go's plain-text 404,
 	// and a FHIR client is entitled to an OperationOutcome on every error --

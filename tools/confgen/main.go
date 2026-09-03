@@ -49,15 +49,47 @@ func run(release model.Release, src, out string) error {
 	if err != nil {
 		return fmt.Errorf("reading package %s (run `make vendor`): %w", pkgDir, err)
 	}
+	// The terminology package alongside it, if vendored. R5 moved most of its
+	// code systems out of core and into THO, so without it two thirds of R5's
+	// required bindings would be uncheckable only because the codes live in a
+	// package that was not read.
+	termDir := filepath.Join(src, string(release)+"-terminology")
+	termEntries, _ := os.ReadDir(termDir)
 
 	idx := &model.Index{
 		Release:      release,
 		Types:        map[string]*model.TypeDef{},
 		SearchParams: map[string][]*model.SearchParam{},
 		Compartments: map[string]*model.Compartment{},
+		Profiles:     map[string]*model.Profile{},
 	}
 
-	var stats struct{ types, params, compartments, invariants, skipped int }
+	terms := newTerminology()
+	var pending []map[string]any
+	var stats struct {
+		types, params, compartments, invariants, profiles, valueSets, unresolvable, skipped int
+	}
+
+	// Terminology is read first so a core definition of the same URL wins: the
+	// release's own value sets are authoritative for the release.
+	for _, e := range termEntries {
+		name := e.Name()
+		if e.IsDir() || !strings.HasSuffix(name, ".json") {
+			continue
+		}
+		if !strings.HasPrefix(name, "ValueSet-") && !strings.HasPrefix(name, "CodeSystem-") {
+			continue
+		}
+		raw, err := os.ReadFile(filepath.Join(termDir, name))
+		if err != nil {
+			return err
+		}
+		var res map[string]any
+		if err := json.Unmarshal(raw, &res); err != nil {
+			return fmt.Errorf("parsing %s: %w", name, err)
+		}
+		terms.add(res)
+	}
 
 	for _, e := range entries {
 		name := e.Name()
@@ -69,7 +101,9 @@ func run(release model.Release, src, out string) error {
 		switch {
 		case strings.HasPrefix(name, "StructureDefinition-"),
 			strings.HasPrefix(name, "SearchParameter-"),
-			strings.HasPrefix(name, "CompartmentDefinition-"):
+			strings.HasPrefix(name, "CompartmentDefinition-"),
+			strings.HasPrefix(name, "ValueSet-"),
+			strings.HasPrefix(name, "CodeSystem-"):
 		default:
 			continue
 		}
@@ -84,7 +118,18 @@ func run(release model.Release, src, out string) error {
 		}
 
 		switch str(res, "resourceType") {
+		case "ValueSet", "CodeSystem":
+			// Terminology is held aside: which value sets are worth expanding
+			// is only known once every binding has been seen.
+			terms.add(res)
 		case "StructureDefinition":
+			if str(res, "derivation") == "constraint" {
+				// Profiles are held until the type system is complete: what a
+				// profile constrains is only visible against the type it
+				// constrains.
+				pending = append(pending, res)
+				continue
+			}
 			td, keep := compileType(res)
 			if !keep {
 				stats.skipped++
@@ -124,6 +169,26 @@ func run(release model.Release, src, out string) error {
 	if stats.types == 0 {
 		return fmt.Errorf("no type definitions found in %s", pkgDir)
 	}
+	for _, res := range pending {
+		profile, keep := compileProfile(res, idx)
+		if !keep {
+			stats.skipped++
+			continue
+		}
+		if _, dup := idx.Profiles[profile.URL]; dup {
+			return fmt.Errorf("duplicate profile %q", profile.URL)
+		}
+		idx.Profiles[profile.URL] = profile
+		stats.profiles++
+	}
+
+	idx.ValueSets = terms.compile(boundValueSets(idx))
+	stats.valueSets = len(idx.ValueSets)
+	for _, vs := range idx.ValueSets {
+		if vs.Unresolvable != "" {
+			stats.unresolvable++
+		}
+	}
 	idx.FHIRVersion, idx.PackageID = packageMeta(pkgDir, idx)
 
 	// Sort every slice so the committed output is byte-stable across runs and
@@ -149,10 +214,46 @@ func run(release model.Release, src, out string) error {
 		return err
 	}
 
-	fmt.Printf("  %s (%s): %d types, %d search parameters, %d compartments, %d invariants (%d resources skipped), %d KiB\n",
-		release, idx.FHIRVersion, stats.types, stats.params, stats.compartments,
-		stats.invariants, stats.skipped, len(encoded)/1024)
+	fmt.Printf("  %s (%s): %d types, %d search parameters, %d compartments, %d invariants,\n"+
+		"      %d profiles, %d value sets (%d unresolvable offline) (%d resources skipped), %d KiB\n",
+		release, idx.FHIRVersion, stats.types, stats.params, stats.compartments, stats.invariants,
+		stats.profiles, stats.valueSets, stats.unresolvable, stats.skipped, len(encoded)/1024)
 	return nil
+}
+
+// boundValueSets collects the value sets that required and extensible bindings
+// reach, mapped to the strongest binding that reaches each.
+//
+// Only those two strengths are worth expanding: a preferred or example binding
+// is advice a validator does not enforce, and carrying its codes would add
+// weight for nothing. Profiles are included, since a profile may bind an
+// element the base type left open.
+func boundValueSets(idx *model.Index) map[string]string {
+	wanted := map[string]string{}
+	note := func(b *model.Binding) {
+		if b == nil || b.ValueSet == "" {
+			return
+		}
+		switch b.Strength {
+		case "required":
+			wanted[b.ValueSet] = "required"
+		case "extensible":
+			if wanted[b.ValueSet] == "" {
+				wanted[b.ValueSet] = "extensible"
+			}
+		}
+	}
+	for _, t := range idx.Types {
+		for _, el := range t.Elements {
+			note(el.Binding)
+		}
+	}
+	for _, p := range idx.Profiles {
+		for _, el := range p.Elements {
+			note(el.Binding)
+		}
+	}
+	return wanted
 }
 
 // compileType reduces a StructureDefinition to a TypeDef, reporting false for
@@ -210,9 +311,37 @@ func compileType(res map[string]any) (*model.TypeDef, bool) {
 		if rel == "" {
 			continue
 		}
+		if kind == "primitive-type" && rel == "value" {
+			td.Regex = valueRegex(el)
+		}
 		td.Elements = append(td.Elements, compileElement(el, rel))
 	}
 	return td, true
+}
+
+// valueRegex reads the lexical pattern a primitive type's value must match.
+//
+// The specification carries it as an extension on the value element's type
+// rather than as a field, which is why this looks the way it does. Taking it
+// from the definitions rather than hard-coding a table keeps the validator's
+// idea of a valid date in step with the release it is serving.
+func valueRegex(el map[string]any) string {
+	for _, item := range sliceOf(el["type"]) {
+		t, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		for _, raw := range sliceOf(t["extension"]) {
+			ext, ok := raw.(map[string]any)
+			if !ok {
+				continue
+			}
+			if str(ext, "url") == "http://hl7.org/fhir/StructureDefinition/regex" {
+				return str(ext, "valueString")
+			}
+		}
+	}
+	return ""
 }
 
 func compileElement(el map[string]any, rel string) *model.ElementDef {
@@ -263,7 +392,7 @@ func compileTypes(el map[string]any) []model.TypeRef {
 		if code == "" {
 			continue
 		}
-		ref := model.TypeRef{Code: normalizeTypeCode(code)}
+		ref := model.TypeRef{Code: resolveTypeCode(t, code)}
 		for _, tp := range strSlice(t, "targetProfile") {
 			ref.Targets = append(ref.Targets, lastURLSegment(tp))
 		}
@@ -454,11 +583,38 @@ var systemTypeCodes = map[string]string{
 	"http://hl7.org/fhirpath/System.Time":     "time",
 }
 
-func normalizeTypeCode(code string) string {
+// resolveTypeCode decides an element's FHIR type from its declared code.
+//
+// R5 types a handful of elements by their FHIRPath System type -- Resource.id
+// and Element.id are System.String -- and names the FHIR type they really are
+// in an extension alongside. Reading that extension is what keeps Resource.id
+// an "id" rather than a plain string, which matters because "id" has a lexical
+// pattern and "string" does not.
+func resolveTypeCode(t map[string]any, code string) string {
+	if fhirType := typeExtension(t); fhirType != "" {
+		return fhirType
+	}
 	if mapped, ok := systemTypeCodes[code]; ok {
 		return mapped
 	}
 	return code
+}
+
+func typeExtension(t map[string]any) string {
+	const url = "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type"
+	for _, raw := range sliceOf(t["extension"]) {
+		ext, ok := raw.(map[string]any)
+		if !ok || str(ext, "url") != url {
+			continue
+		}
+		if value := str(ext, "valueUrl"); value != "" {
+			return value
+		}
+		if value := str(ext, "valueString"); value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 // lastURLSegment reduces a canonical URL to the type name it ends with:

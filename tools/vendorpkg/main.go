@@ -63,6 +63,20 @@ type pkg struct {
 	// Subdir is the directory within the archive or repository whose contents
 	// become the package root.
 	Subdir string `json:"subdir"`
+
+	// Dir overrides the destination subdirectory, which defaults to
+	// FHIRVersion. It exists so a release can vendor more than one package --
+	// the core definitions and the terminology that goes with them.
+	Dir string `json:"dir,omitempty"`
+}
+
+// target returns the subdirectory a package is vendored into.
+func (p pkg) target(dest string) string {
+	name := p.Dir
+	if name == "" {
+		name = p.FHIRVersion
+	}
+	return filepath.Join(dest, name)
 }
 
 func main() {
@@ -95,7 +109,7 @@ func run(lockPath, dest, testdata, only string) error {
 		if only != "" && p.FHIRVersion != only {
 			continue
 		}
-		target := filepath.Join(dest, p.FHIRVersion)
+		target := p.target(dest)
 		if isPopulated(target) {
 			fmt.Printf("%s %s: already vendored at %s\n", p.ID, p.Version, target)
 			continue

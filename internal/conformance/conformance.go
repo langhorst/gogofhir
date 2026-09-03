@@ -32,6 +32,12 @@ type (
 	SearchParam          = model.SearchParam
 	SearchParamComponent = model.SearchParamComponent
 	Compartment          = model.Compartment
+	ValueSet             = model.ValueSet
+	Profile              = model.Profile
+	ProfileElement       = model.ProfileElement
+	ProfileContext       = model.ProfileContext
+	Slicing              = model.Slicing
+	Discriminator        = model.Discriminator
 	Release              = model.Release
 )
 

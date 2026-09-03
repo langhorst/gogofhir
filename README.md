@@ -7,14 +7,15 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: v1 complete (M5).** `gogofhir serve` gives you CRUD, versioning,
+> **Status: M6 complete.** `gogofhir serve` gives you CRUD, versioning,
 > history, conditional operations, optimistic concurrency, atomic transaction
-> and batch bundles, and the whole of search — every indexed parameter type
-> with its modifiers, full-text, chaining, `_has`, `_include`/`_revinclude`,
-> composites, `_filter`, `_summary`, `_elements`, `_total`, and cursor-stable
-> paging — over 158 resource types, in JSON and XML. The FHIRPath engine passes
-> **1966 of 1998** official HL7 conformance tests. Validation (`$validate`,
-> profiles) is M6. See [Milestones](#milestones).
+> and batch bundles, the whole of search — every indexed parameter type with its
+> modifiers, full-text, chaining, `_has`, `_include`/`_revinclude`, composites,
+> `_filter`, `_summary`, `_elements`, `_total`, cursor-stable paging — and
+> `$validate` against the type system, the specification's invariants, embedded
+> value sets, and profiles with slicing. Over 158 resource types, in JSON and
+> XML. The FHIRPath engine passes **1966 of 1998** official HL7 conformance
+> tests. See [Milestones](#milestones).
 
 ## Why
 
@@ -57,6 +58,11 @@ code outside `internal/conformance` knows which release it is serving.
 ```sh
 make build                            # no network, no vendored packages needed
 ./bin/gogofhir serve -db :memory:     # or -db fhir.db to keep the data
+
+# Stricter, for a conformance run:
+#   -validate-writes       refuse resources with validation errors
+#   -strict-terminology    a binding that cannot be checked offline is an error
+#   -fhir r4               serve R4 instead of R5
 ```
 
 ```sh
@@ -99,6 +105,8 @@ GET    /{type}/_history  ·  GET /_history history, per type and system-wide
 POST   /{type}   If-None-Exist: ...       conditional create
 PUT    /{type}?...  ·  DELETE /{type}?... conditional update and delete
 POST   /                                  transaction and batch bundles
+POST   /{type}/$validate                  validate without storing
+POST   /{type}/{id}/$validate             validate a replacement, or what is stored
 ```
 
 `PATCH` is not implemented: it is a distinct interaction with its own body
@@ -258,6 +266,89 @@ substring forms. The operators that need terminology — `in`, `ni`, `ss`, `sb`
 Parameters that are declared but not indexed are deliberately absent from the
 CapabilityStatement rather than advertised and broken.
 
+## Validation
+
+`$validate` answers "would this be accepted, and what is wrong with it" without
+storing anything. Four layers run together and report as one OperationOutcome:
+
+| Layer | What it checks |
+|---|---|
+| Structure | Every element is defined; cardinality holds; a choice element carries one value; repetition and JSON shape agree; primitives match the lexical pattern their type declares; references point at permitted types |
+| Invariants | The specification's own FHIRPath constraints, on every type and element |
+| Bindings | Coded values against the value sets required and extensible bindings name |
+| Profiles | `meta.profile` and the `profile` parameter, including slices told apart by discriminator |
+
+```sh
+curl -X POST -H 'Content-Type: application/fhir+json'   --data '{"resourceType":"Patient","gender":"lady","birthDate":"25-12-1974"}'   'http://localhost:8080/Patient/$validate'
+```
+
+```
+error  Patient.birthDate  "25-12-1974" is not a valid date
+error  Patient.gender     "lady" is not in .../ValueSet/administrative-gender,
+                          which this element is required bound to (4 codes)
+```
+
+A resource with problems is still a **successful** operation — the question was
+answered. Only a malformed request is an error status.
+
+**Nothing is reported as valid that was not actually checked.** That is the rule
+the rest of this section follows from. A validator whose silence cannot be
+distinguished from a pass is worse than no validator, because a conformance
+target that overstates what it verified is one nobody can rely on.
+
+- **Value sets are expanded at build time**, so required bindings are checked
+  with no terminology server and no network. Coverage is 334 of 346 value sets
+  for R4 and 357 of 373 for R5, counting every required and extensible binding
+  in the type system and in profiles.
+- **What cannot be expanded is named, not glossed.** SNOMED CT is licensed;
+  LOINC and RxNorm are too large to embed; UCUM, ISO 3166, ISO 4217, BCP 13,
+  BCP 47, IANA time zones and DICOM are external standards the packages only
+  reference. A binding to one of those reports "the required binding to *X* was
+  **NOT checked**: it draws on *Y*, which is defined outside this package".
+  `--strict-terminology` turns those into errors for teams who have wired up a
+  terminology service.
+- **An invariant that cannot be evaluated says so.** R4 spells `dom-3` with
+  `.as(canonical)` over `descendants()`, and `as()` is defined for a single
+  item — so on any document with more than one descendant the expression is
+  unevaluable. It is reported as not checked. (R5 spells the same rule with
+  `ofType()`, and there it evaluates.)
+- **Slices within slices are reported as unchecked**, and named, rather than
+  passed over.
+
+Profiles come from the release's own package, compiled from their published
+snapshots — generating a snapshot from a differential means replaying a chain of
+constraints down a derivation tree, and the packages already ship the answer.
+Slices are assigned by discriminator (`value`, `pattern`, `type`, `exists`); a
+discriminator this server cannot evaluate makes the whole assignment
+undecidable and is reported, because a wrong slice is worse than no slice.
+
+**Writes are not validated by default.** This server exists to be developed
+against, and a developer building up a data model wants their half-finished
+resources to round-trip; one that refuses them is a server people work around
+rather than with. `--validate-writes` refuses a resource with errors (`422`,
+since the request was understood and the content is what failed), which is what
+a conformance run wants.
+
+### The example corpus
+
+Every resource HL7 ships with the FHIRPath suites is validated on every `make
+check`, and the errors found are pinned in `expectedErrors` — enforced in both
+directions, so a file that starts failing fails the build and so does one that
+stops. Every pinned entry is a defect in the example, with the reason written
+down:
+
+| File | Why |
+|---|---|
+| `codesystem-example` (R4, R5) | Ships a duplicate concept code, annotated `<!-- wrong! -->` in the source, so `csd-1` fails as it should |
+| `explanationofbenefit-example` | A fragment for exercising FHIRPath, carrying none of the resource's required elements |
+| `patient-container-example` | Its contained Organization has only an id, which `org-1` forbids; nothing references it, which `dom-3` forbids |
+| `valueset-example-expansion` (R5) | Claims `meta.profile = shareablevalueset` and omits the title that profile requires |
+
+The full HL7 validator manifest is **not** driven yet: its expectations are the
+reference implementation's own message wording and issue counts, which a second
+implementation does not reproduce by writing better code. Matching it means
+building a message-equivalence mapping, which is its own piece of work.
+
 ## Storage
 
 One `Backend` interface, and no SQL outside its implementations. The query
@@ -309,15 +400,23 @@ packages produce.
 
 ### Where the packages come from
 
-Neither comes from the official FHIR registry (`packages.fhir.org`), which is
-frequently unreachable from CI and sandboxed networks. Both mirrors are pinned
-exactly — a tarball digest for R5, a commit for R4 — and both packages are
-CC0-1.0, so vendoring is unencumbered.
+None come from the official FHIR registry (`packages.fhir.org`), which is
+frequently unreachable from CI and sandboxed networks. Every mirror is pinned
+exactly — a tarball digest, or a commit for R4 — and every package is CC0-1.0,
+so vendoring is unencumbered.
 
 | Release | Source | Pin |
 |---|---|---|
 | R4 4.0.1 | `google/fhir`, `spec/hl7.fhir.core/4.0.1/package` | commit `74fce953` |
 | R5 5.0.0 | npm `hl7.fhir.r5.core@5.0.0` | sha256 `09f22107…` |
+| Terminology | npm `hl7.terminology.r4` / `.r5` @7.0.1 | sha256 `170c546f…` / `b34d9c6b…` |
+
+The terminology package is vendored alongside each release because R5 moved
+most of its code systems out of core and into it. Without it, two thirds of
+R5's required bindings would be reported as unchecked purely because the codes
+live in a package nobody fetched — 64 unresolvable value sets rather than 16.
+THO is versioned independently of the FHIR releases, so it is pinned on its own
+rather than derived from the core package, which declares no dependency on it.
 
 Cross-checked when the pins were chosen: the R4 JSON package above and the
 independent npm package `hl7.fhir.r4.corexml@4.0.1` — the XML serialization of
@@ -335,6 +434,8 @@ consults and discards examples, narrative, and terminology.
 | Resource types | 146 | 158 |
 | Datatypes | 61 | 69 |
 | Search parameter bindings | 1716 | 1988 |
+| Profiles | 441 | 64 |
+| Value set expansions | 334 of 346 | 357 of 373 |
 | Invariants | 241 | 383 |
 | Compartments | 5 | 5 |
 | Index size | 2.3 MB | 3.9 MB |
@@ -452,7 +553,9 @@ regenerate it.
       with `:iterate`, composite parameters, and `_filter`.
 - [x] **M5 — Transactions & batch.** Internal reference resolution, conditional
       references, processing order, and atomicity. **v1 complete.**
-- [ ] **M6 — Validation.** `$validate`, profiles, invariants, bindings.
+- [x] **M6 — Validation.** `$validate`, structural checks, the specification's
+      invariants, bindings against build-time value set expansions, profiles
+      with slicing, and the terminology policy.
 - [ ] **M7 — PostgreSQL, US Core, SMART.**
 
 FHIRPath comes first because everything depends on it: search extraction,

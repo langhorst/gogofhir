@@ -18,6 +18,11 @@ import (
 // needed.
 type jsonNumber string
 
+// String returns the number as written, which is what makes a document's
+// numbers legible to anything holding them as plain values -- validation
+// comparing against a fixed value, for one.
+func (n jsonNumber) String() string { return string(n) }
+
 func (n jsonNumber) Int64() (int64, error) {
 	d, err := fhirpath.NewDecimal(string(n))
 	if err != nil {

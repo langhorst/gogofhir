@@ -8,6 +8,7 @@
 // Usage:
 //
 //	gogofhir serve       [-fhir r5] [-addr :8080] [-db fhir.db]
+//	                     [-validate-writes] [-strict-terminology]
 //	gogofhir conformance [-fhir r5]
 //	gogofhir version
 package main
@@ -64,6 +65,10 @@ func runServe(args []string) int {
 	addr := fs.String("addr", ":8080", "address to listen on")
 	dbPath := fs.String("db", "gogofhir.db", `SQLite database path, or ":memory:" for an ephemeral one`)
 	baseURL := fs.String("base-url", "", "external base URL, when behind a proxy")
+	strictTerminology := fs.Bool("strict-terminology", false,
+		"treat a binding this server cannot check offline as an error rather than a warning")
+	validateWrites := fs.Bool("validate-writes", false,
+		"reject a create or update whose resource has validation errors")
 	_ = fs.Parse(args)
 
 	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
@@ -81,7 +86,11 @@ func runServe(args []string) int {
 	}
 	defer store.Close()
 
-	server := &rest.Server{Index: idx, Store: store, BaseURL: *baseURL, Log: log}
+	server := &rest.Server{
+		Index: idx, Store: store, BaseURL: *baseURL, Log: log,
+		StrictTerminology: *strictTerminology,
+		ValidateWrites:    *validateWrites,
+	}
 	httpServer := &http.Server{
 		Addr:    *addr,
 		Handler: server.Handler(),

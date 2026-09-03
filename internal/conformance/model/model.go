@@ -64,11 +64,157 @@ type Index struct {
 	// Compartments is keyed by compartment code ("patient", "encounter").
 	Compartments map[string]*Compartment `json:"compartments"`
 
+	// ValueSets holds the expansions of the value sets that required and
+	// extensible bindings point at, keyed by canonical URL. Only those two
+	// strengths are compiled: a preferred or example binding is advice, and
+	// carrying thousands of codes to check advice against would be waste.
+	ValueSets map[string]*ValueSet `json:"valueSets,omitempty"`
+
+	// Profiles holds StructureDefinitions that constrain a type rather than
+	// define one, keyed by canonical URL. Validation resolves meta.profile and
+	// the $validate profile parameter through this.
+	Profiles map[string]*Profile `json:"profiles,omitempty"`
+
 	once          sync.Once
 	resourceTypes []string
 
 	byURLOnce sync.Once
 	byURL     map[string]*SearchParam
+}
+
+// ValueSet is a value set reduced to the question a validator asks of it: is
+// this code in it?
+//
+// The expansion is computed once at build time, so no runtime terminology
+// service is needed for the codes FHIR itself defines -- which is the great
+// majority of required bindings.
+type ValueSet struct {
+	URL  string `json:"url"`
+	Name string `json:"name,omitempty"`
+	// Systems maps a code system URL to the codes it contributes. Grouping by
+	// system rather than flattening keeps "that code is not in this system"
+	// distinguishable from "that code is not in the value set at all".
+	Systems map[string][]string `json:"systems,omitempty"`
+	// Unresolvable, when set, says why the value set could not be enumerated
+	// offline: it draws on SNOMED CT, LOINC, UCUM, ISO country or currency
+	// codes, or another system too large or too encumbered to embed. A binding
+	// to one of these is reported as *unchecked*, never as satisfied --
+	// claiming otherwise would overstate what the server verified.
+	Unresolvable string `json:"unresolvable,omitempty"`
+
+	once  sync.Once
+	index map[string]map[string]bool
+}
+
+// Contains reports whether a code is in the value set, and whether the value
+// set even covers the system it was written in.
+//
+// The two answers are separate because they mean different things to a reader:
+// an unknown system usually means the resource used a different terminology,
+// while a known system with an unknown code is a plain mistake.
+func (v *ValueSet) Contains(system, code string) (found, knownSystem bool) {
+	v.once.Do(func() {
+		v.index = make(map[string]map[string]bool, len(v.Systems))
+		for url, codes := range v.Systems {
+			set := make(map[string]bool, len(codes))
+			for _, c := range codes {
+				set[c] = true
+			}
+			v.index[url] = set
+		}
+	})
+	if system == "" {
+		// A code written without a system is checked against every system the
+		// value set draws on, which is the most a validator can do with it.
+		for _, set := range v.index {
+			if set[code] {
+				return true, true
+			}
+		}
+		return false, false
+	}
+	set, knownSystem := v.index[system]
+	return knownSystem && set[code], knownSystem
+}
+
+// Size reports how many codes the expansion holds.
+func (v *ValueSet) Size() int {
+	n := 0
+	for _, codes := range v.Systems {
+		n += len(codes)
+	}
+	return n
+}
+
+// Profile is a StructureDefinition whose derivation is "constraint": it narrows
+// an existing type rather than defining a new one.
+//
+// Its elements come from the published snapshot rather than from the
+// differential. Generating a snapshot from a differential is one of the harder
+// parts of FHIR tooling -- it means replaying a chain of constraints over a
+// base type -- and the packages already ship the answer.
+type Profile struct {
+	URL  string `json:"url"`
+	Name string `json:"name,omitempty"`
+	// Type is the base type constrained: "Observation", or "Extension" for an
+	// extension definition.
+	Type string `json:"type"`
+	// Base is the canonical URL this profile derives from, which may itself be
+	// another profile.
+	Base string `json:"base,omitempty"`
+	// Contexts are where an extension may appear, empty for other profiles.
+	Contexts []ProfileContext  `json:"contexts,omitempty"`
+	Elements []*ProfileElement `json:"elements,omitempty"`
+}
+
+// ProfileContext is one place an extension is allowed.
+type ProfileContext struct {
+	Type       string `json:"type"` // element, fhirpath, extension
+	Expression string `json:"expression"`
+}
+
+// ProfileElement is one constrained element of a profile.
+type ProfileElement struct {
+	// Path is the element path relative to the profiled type, without slice
+	// names: "identifier.system".
+	Path string `json:"path"`
+	// Slice is the slice this element belongs to, from the element id's ":"
+	// segments: "mrn", or "mrn/type" for a slice within a slice. Empty for the
+	// unsliced element.
+	Slice   string    `json:"slice,omitempty"`
+	Min     int       `json:"min,omitempty"`
+	Max     string    `json:"max,omitempty"`
+	Types   []TypeRef `json:"types,omitempty"`
+	Binding *Binding  `json:"binding,omitempty"`
+	// Fixed and Pattern hold fixed[x] and pattern[x]. A fixed value must match
+	// exactly; a pattern must be present but may be accompanied by more.
+	Fixed   any `json:"fixed,omitempty"`
+	Pattern any `json:"pattern,omitempty"`
+	// MustSupport is recorded but not enforced: what "supported" means is
+	// defined by the implementation guide, not by the resource.
+	MustSupport bool `json:"mustSupport,omitempty"`
+	// Slicing is set on the element that introduces slices, and describes how
+	// occurrences are assigned to them.
+	Slicing *Slicing `json:"slicing,omitempty"`
+	// Invariants are constraints the profile adds at this element.
+	Invariants []*Invariant `json:"invariants,omitempty"`
+}
+
+// Slicing says how the occurrences of a repeating element are divided.
+type Slicing struct {
+	// Rules is "open", "closed", or "openAtEnd": whether occurrences matching
+	// no slice are permitted.
+	Rules          string          `json:"rules,omitempty"`
+	Ordered        bool            `json:"ordered,omitempty"`
+	Discriminators []Discriminator `json:"discriminators,omitempty"`
+}
+
+// Discriminator is how one slice is told apart from another.
+type Discriminator struct {
+	// Type is "value", "pattern", "type", "profile", "exists", or "position".
+	Type string `json:"type"`
+	// Path is a restricted FHIRPath relative to the sliced element.
+	Path string `json:"path"`
 }
 
 // TypeDef is one StructureDefinition reduced to what the server needs.
@@ -89,6 +235,11 @@ type TypeDef struct {
 	// the element path it is evaluated against. Inherited constraints stay on
 	// the type that declares them — see Index.Invariants.
 	Invariants []*Invariant `json:"invariants,omitempty"`
+
+	// Regex is the lexical form a primitive type's value must take, from the
+	// specification's own definition rather than a copy kept here: the release
+	// owns its syntax, and a hand-maintained table would drift from it.
+	Regex string `json:"regex,omitempty"`
 
 	byPath map[string]*ElementDef
 	once   sync.Once
@@ -284,6 +435,25 @@ func (i *Index) SearchParamByURL(url string) (*SearchParam, bool) {
 		}
 	})
 	p, ok := i.byURL[url]
+	return p, ok
+}
+
+// ValueSet returns a compiled value set by canonical URL. A version suffix is
+// ignored: an index carries one release, so the version is implied.
+func (i *Index) ValueSet(url string) (*ValueSet, bool) {
+	if before, _, found := strings.Cut(url, "|"); found {
+		url = before
+	}
+	vs, ok := i.ValueSets[url]
+	return vs, ok
+}
+
+// Profile returns a profile by canonical URL.
+func (i *Index) Profile(url string) (*Profile, bool) {
+	if before, _, found := strings.Cut(url, "|"); found {
+		url = before
+	}
+	p, ok := i.Profiles[url]
 	return p, ok
 }
 

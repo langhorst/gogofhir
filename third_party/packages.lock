@@ -15,7 +15,15 @@
     "1062 CodeSystem, 47 OperationDefinition, 6 CompartmentDefinition.",
     "",
     "Both packages are CC0-1.0 (HL7 publishes the definitions into the public",
-    "domain), so vendoring and redistribution are unencumbered."
+    "domain), so vendoring and redistribution are unencumbered.",
+    "",
+    "Each release also vendors the HL7 terminology package (THO) alongside its",
+    "core definitions. R5 moved most of its code systems out of core and into",
+    "THO, so without it two thirds of R5's uncheckable required bindings are",
+    "uncheckable only because the codes live in a package we did not fetch --",
+    "which the validator would report as 'not checked' rather than checking.",
+    "THO is versioned independently of the FHIR releases and is pinned here",
+    "explicitly; it is also CC0-1.0."
   ],
   "packages": [
     {
@@ -36,6 +44,28 @@
       "source": "tarball",
       "url": "https://registry.npmjs.org/hl7.fhir.r5.core/-/hl7.fhir.r5.core-5.0.0.tgz",
       "sha256": "09f22107bef64313545a50d2c127d20f81173c499a395672fae089bc23e72fab",
+      "subdir": "package"
+    },
+    {
+      "id": "hl7.terminology.r4",
+      "version": "7.0.1",
+      "fhirVersion": "r4",
+      "dir": "r4-terminology",
+      "license": "CC0-1.0",
+      "source": "tarball",
+      "url": "https://registry.npmjs.org/hl7.terminology.r4/-/hl7.terminology.r4-7.0.1.tgz",
+      "sha256": "170c546f761fb51b3355788ca500206f6b772b21c57348c29205de85a6612baa",
+      "subdir": "package"
+    },
+    {
+      "id": "hl7.terminology.r5",
+      "version": "7.0.1",
+      "fhirVersion": "r5",
+      "dir": "r5-terminology",
+      "license": "CC0-1.0",
+      "source": "tarball",
+      "url": "https://registry.npmjs.org/hl7.terminology.r5/-/hl7.terminology.r5-7.0.1.tgz",
+      "sha256": "b34d9c6bdf108884e1d5ba535765e7b5cd93009f0af9f3b7e5eba38e5ae7a70b",
       "subdir": "package"
     }
   ],

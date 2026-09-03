@@ -140,6 +140,12 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		"conditionalDelete": "single",
 		"conditionalRead":   "modified-since",
 	}
+	entry["operation"] = []any{
+		map[string]any{
+			"name":       "validate",
+			"definition": "http://hl7.org/fhir/OperationDefinition/Resource-validate",
+		},
+	}
 	entry["searchParam"] = params
 	if len(includes) > 0 {
 		entry["searchInclude"] = includes

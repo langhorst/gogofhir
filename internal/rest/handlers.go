@@ -120,6 +120,9 @@ func (s *Server) handleCreate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if !s.validateOnWrite(w, r, node) {
+		return
+	}
 	// The server assigns the id on a create: any id the client sent is ignored,
 	// since POST means "you choose".
 	node.SetID(newID())
@@ -165,6 +168,9 @@ func (s *Server) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	node.SetID(id)
+	if !s.validateOnWrite(w, r, node) {
+		return
+	}
 
 	created, res, err := s.Store.Update(r.Context(), node, parseETag(r.Header.Get("If-Match")))
 	if err != nil {
@@ -246,6 +252,9 @@ func (s *Server) handleConditionalUpdate(w http.ResponseWriter, r *http.Request)
 		node.SetID(existing.ID)
 	case node.ID() == "":
 		node.SetID(newID())
+	}
+	if !s.validateOnWrite(w, r, node) {
+		return
 	}
 
 	created, res, err := s.Store.Update(r.Context(), node, "")
