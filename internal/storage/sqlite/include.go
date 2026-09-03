@@ -152,7 +152,7 @@ func (s *Store) pidsFor(ctx context.Context, resources []*storage.Resource, only
 	if len(conditions) == 0 {
 		return nil, nil
 	}
-	rows, err := s.db.QueryContext(ctx,
+	rows, err := s.q.QueryContext(ctx,
 		"SELECT pid FROM resource WHERE "+strings.Join(conditions, " OR "), args...)
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (s *Store) pidsFor(ctx context.Context, resources []*storage.Resource, only
 }
 
 func (s *Store) queryResources(ctx context.Context, query string, args []any) ([]*storage.Resource, error) {
-	rows, err := s.db.QueryContext(ctx, query, args...)
+	rows, err := s.q.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

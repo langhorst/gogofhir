@@ -7,13 +7,14 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M4 complete.** `gogofhir serve` gives you CRUD, versioning,
-> history, conditional operations, optimistic concurrency, and the whole of
-> search — every indexed parameter type with its modifiers, full-text,
-> chaining, `_has`, `_include`/`_revinclude`, composites, `_filter`,
-> `_summary`, `_elements`, `_total`, and cursor-stable paging — over 158
-> resource types, in JSON and XML. The FHIRPath engine passes **1966 of 1998**
-> official HL7 conformance tests. See [Milestones](#milestones).
+> **Status: v1 complete (M5).** `gogofhir serve` gives you CRUD, versioning,
+> history, conditional operations, optimistic concurrency, atomic transaction
+> and batch bundles, and the whole of search — every indexed parameter type
+> with its modifiers, full-text, chaining, `_has`, `_include`/`_revinclude`,
+> composites, `_filter`, `_summary`, `_elements`, `_total`, and cursor-stable
+> paging — over 158 resource types, in JSON and XML. The FHIRPath engine passes
+> **1966 of 1998** official HL7 conformance tests. Validation (`$validate`,
+> profiles) is M6. See [Milestones](#milestones).
 
 ## Why
 
@@ -97,7 +98,12 @@ GET    /{type}/{id}/_history              history, per resource
 GET    /{type}/_history  ·  GET /_history history, per type and system-wide
 POST   /{type}   If-None-Exist: ...       conditional create
 PUT    /{type}?...  ·  DELETE /{type}?... conditional update and delete
+POST   /                                  transaction and batch bundles
 ```
+
+`PATCH` is not implemented: it is a distinct interaction with its own body
+formats (JSON Patch, FHIRPath Patch), and a bundle entry using it is refused
+rather than silently ignored.
 
 Behaviours worth stating, because each is easy to get subtly wrong:
 
@@ -113,6 +119,58 @@ Behaviours worth stating, because each is easy to get subtly wrong:
 - **JSON and XML are the same server.** Both are read and written by one pair
   of codecs over one document model, so a resource created as XML reads back
   identically as JSON.
+
+## Transactions and batches
+
+`POST /` takes a Bundle whose entries are RESTful interactions. The two kinds
+differ in one thing that changes everything.
+
+A **batch** is a convenience: independent interactions posted together, each
+succeeding or failing on its own. A **transaction** is a unit — entries may
+refer to each other, and either all of them happen or none do.
+
+```jsonc
+{"resourceType": "Bundle", "type": "transaction", "entry": [
+  {"fullUrl": "urn:uuid:1",
+   "resource": {"resourceType": "Patient", "name": [{"family": "Chalmers"}]},
+   "request": {"method": "POST", "url": "Patient",
+               "ifNoneExist": "identifier=http://example.org/mrn|A1"}},
+  {"resource": {"resourceType": "Observation", "status": "final",
+                "subject": {"reference": "urn:uuid:1"}},
+   "request": {"method": "POST", "url": "Observation"}}
+]}
+```
+
+- **Internal references are resolved.** The two entries above are posted
+  together precisely because neither resource exists yet: the Observation names
+  the Patient by the placeholder in its `fullUrl`, and the server substitutes
+  the id it assigned. Finding those references is schema-driven rather than a
+  search for JSON keys named `reference` — `DetectedIssue.reference`,
+  `Expression.reference` and three others are plain URIs, and rewriting one
+  would corrupt the resource.
+- **Conditional references** name a resource by search criteria instead of by
+  id (`"reference": "Patient?identifier=..."`), for when the client knows an
+  identifier but not what the server called it. No match, or more than one, is
+  an error rather than a guess.
+- **Identities are settled before anything is written**, which is what makes a
+  reference to a not-yet-created resource resolvable at all. Conditional
+  creates, updates and deletes are evaluated in the same pass, so by execution
+  time every entry is a plain instance-level interaction.
+- **Entries execute in the specification's order** — delete, create, update,
+  read. It is not arbitrary: deleting before creating lets one transaction
+  replace a resource, and reading last means a `GET` observes the
+  transaction's own writes. Responses come back in request order regardless.
+- **A resource may be touched only once.** Two entries writing one resource
+  have no defined order and no defined outcome, so it is an error rather than a
+  race the server resolves silently.
+- **A failed transaction leaves nothing behind**, and the outcome names the
+  entry that failed and why. Storage exposes one `Tx` on the backend and every
+  entry runs inside it, index rows included.
+
+Entries are executed by dispatching them back through the server's own handler.
+A create inside a bundle is therefore the *same* create — same conditional
+handling, same status codes, same OperationOutcome — rather than a second
+implementation that drifts from the first.
 
 ## Search
 
@@ -392,7 +450,8 @@ regenerate it.
       multi-key sorting, and cursor-stable paging.
 - [x] **M4 — Search advanced.** Chaining, `_has`, `_include`/`_revinclude`
       with `:iterate`, composite parameters, and `_filter`.
-- [ ] **M5 — Transactions & batch.** v1 complete.
+- [x] **M5 — Transactions & batch.** Internal reference resolution, conditional
+      references, processing order, and atomicity. **v1 complete.**
 - [ ] **M6 — Validation.** `$validate`, profiles, invariants, bindings.
 - [ ] **M7 — PostgreSQL, US Core, SMART.**
 

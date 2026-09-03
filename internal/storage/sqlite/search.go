@@ -60,7 +60,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	if !q.SkipTotal {
 		// Counting is a second evaluation of the predicate, so _total=none
 		// skips it. A client paging through results rarely needs it twice.
-		if err := s.db.QueryRowContext(ctx,
+		if err := s.q.QueryRowContext(ctx,
 			"SELECT COUNT(*) FROM resource r WHERE "+condition, args...).Scan(&total); err != nil {
 			return nil, 0, "", err
 		}
@@ -98,7 +98,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		pageArgs = append(pageArgs, q.Offset)
 	}
 
-	rows, err := s.db.QueryContext(ctx, query, pageArgs...)
+	rows, err := s.q.QueryContext(ctx, query, pageArgs...)
 	if err != nil {
 		return nil, 0, "", err
 	}

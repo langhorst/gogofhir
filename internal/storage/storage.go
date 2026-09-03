@@ -354,6 +354,17 @@ type Backend interface {
 	// skipped.
 	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, nextCursor string, err error)
 
+	// Tx runs fn against a backend whose writes commit together: every Create,
+	// Update, and Delete fn performs either lands or none of them do.
+	// Returning an error rolls all of them back.
+	//
+	// It exists for transaction bundles, where atomicity is the whole point --
+	// a half-applied transaction leaves a client with no way to know what
+	// happened. Reads inside fn see fn's own uncommitted writes, which is what
+	// lets a later entry reference a resource an earlier one created. Nested
+	// calls join the enclosing transaction rather than starting a new one.
+	Tx(ctx context.Context, fn func(context.Context, Backend) error) error
+
 	// Include resolves _include and _revinclude against a set of matches,
 	// returning the additional resources to place in the bundle. Resources
 	// already among the seeds are not returned again.

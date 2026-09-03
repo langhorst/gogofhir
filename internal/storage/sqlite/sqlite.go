@@ -49,11 +49,23 @@ var migrations embed.FS
 
 // Store is the SQLite-backed storage.Backend.
 type Store struct {
-	db        *sql.DB
+	db *sql.DB
+	// q is what statements actually run against: the pool normally, or an open
+	// transaction for a store scoped by Tx. Everything below goes through it,
+	// so one implementation serves both cases and a transaction bundle's reads
+	// see its own uncommitted writes.
+	q         querier
 	idx       *conformance.Index
 	extractor *storage.Extractor
 	// now is the clock, replaceable in tests so lastUpdated is predictable.
 	now func() time.Time
+}
+
+// querier is the statement surface *sql.DB and *sql.Tx have in common.
+type querier interface {
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
 var _ storage.Backend = (*Store)(nil)
@@ -72,7 +84,7 @@ func Open(path string, idx *conformance.Index) (*Store, error) {
 	// limit of this backend rather than a bug.
 	db.SetMaxOpenConns(1)
 
-	s := &Store{db: db, idx: idx, extractor: storage.NewExtractor(idx), now: time.Now}
+	s := &Store{db: db, q: db, idx: idx, extractor: storage.NewExtractor(idx), now: time.Now}
 	if err := s.migrate(); err != nil {
 		db.Close()
 		return nil, err
@@ -89,8 +101,65 @@ func dsnFor(path string) string {
 	return "file:" + filepath.ToSlash(path) + "?" + pragmas
 }
 
-// Close releases the database.
-func (s *Store) Close() error { return s.db.Close() }
+// Close releases the database. A store scoped to a transaction shares its
+// parent's pool, so closing it is a no-op rather than a way to take the whole
+// server's database down from inside one request.
+func (s *Store) Close() error {
+	if s.nested() {
+		return nil
+	}
+	return s.db.Close()
+}
+
+func (s *Store) nested() bool {
+	_, ok := s.q.(*sql.Tx)
+	return ok
+}
+
+// Tx runs fn against a store scoped to one database transaction.
+//
+// Atomicity is the point: a transaction bundle that half-applies leaves a
+// client unable to tell what happened. Nesting joins the enclosing transaction
+// instead of starting a second one, because SQLite has no independent nested
+// transactions and a savepoint would give the inner one the power to commit
+// while the outer rolls back.
+func (s *Store) Tx(ctx context.Context, fn func(context.Context, storage.Backend) error) error {
+	if s.nested() {
+		return fn(ctx, s)
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	scoped := *s
+	scoped.q = tx
+	if err := fn(ctx, &scoped); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// inTx runs a write in a transaction, joining an enclosing one where there is
+// one. Every write goes through it, so versioning, history, and indexing can
+// never land without each other.
+func (s *Store) inTx(ctx context.Context, fn func(q querier) error) error {
+	if tx, ok := s.q.(*sql.Tx); ok {
+		// The enclosing transaction owns the commit; committing here would
+		// release writes the caller may still roll back.
+		return fn(tx)
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if err := fn(tx); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
 
 func (s *Store) migrate() error {
 	if _, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY)`); err != nil {
@@ -163,13 +232,18 @@ const (
 // history, and indexing cannot drift apart: they all happen in one transaction,
 // and a failure anywhere leaves nothing behind.
 func (s *Store) write(ctx context.Context, node *resource.Node, ifMatch string, mode writeMode) (created bool, out *storage.Resource, err error) {
-	resourceType, id := node.FHIRType(), node.ID()
-
-	tx, err := s.db.BeginTx(ctx, nil)
+	err = s.inTx(ctx, func(tx querier) error {
+		created, out, err = s.writeIn(ctx, tx, node, ifMatch, mode)
+		return err
+	})
 	if err != nil {
 		return false, nil, err
 	}
-	defer tx.Rollback()
+	return created, out, nil
+}
+
+func (s *Store) writeIn(ctx context.Context, tx querier, node *resource.Node, ifMatch string, mode writeMode) (created bool, out *storage.Resource, err error) {
+	resourceType, id := node.FHIRType(), node.ID()
 
 	var pid, currentVersion int64
 	var currentDeleted bool
@@ -242,9 +316,6 @@ func (s *Store) write(ctx context.Context, node *resource.Node, ifMatch string, 
 	if err := s.reindex(ctx, tx, pid, stamped); err != nil {
 		return false, nil, err
 	}
-	if err := tx.Commit(); err != nil {
-		return false, nil, err
-	}
 	return created, &storage.Resource{
 		Type: resourceType, ID: id, VersionID: version,
 		LastUpdated: updated, Content: content,
@@ -254,13 +325,18 @@ func (s *Store) write(ctx context.Context, node *resource.Node, ifMatch string, 
 // Delete tombstones a resource. Deleting something absent succeeds: the
 // specification makes delete idempotent, so a client retrying a delete must not
 // see an error.
-func (s *Store) Delete(ctx context.Context, resourceType, id, ifMatch string) (bool, *storage.Resource, error) {
-	tx, err := s.db.BeginTx(ctx, nil)
+func (s *Store) Delete(ctx context.Context, resourceType, id, ifMatch string) (existed bool, out *storage.Resource, err error) {
+	err = s.inTx(ctx, func(tx querier) error {
+		existed, out, err = s.deleteIn(ctx, tx, resourceType, id, ifMatch)
+		return err
+	})
 	if err != nil {
 		return false, nil, err
 	}
-	defer tx.Rollback()
+	return existed, out, nil
+}
 
+func (s *Store) deleteIn(ctx context.Context, tx querier, resourceType, id, ifMatch string) (bool, *storage.Resource, error) {
 	var pid, currentVersion int64
 	var deleted bool
 	row := tx.QueryRowContext(ctx,
@@ -298,9 +374,6 @@ func (s *Store) Delete(ctx context.Context, resourceType, id, ifMatch string) (b
 	if err := s.clearIndex(ctx, tx, pid); err != nil {
 		return false, nil, err
 	}
-	if err := tx.Commit(); err != nil {
-		return false, nil, err
-	}
 	return true, &storage.Resource{
 		Type: resourceType, ID: id, VersionID: version,
 		LastUpdated: updated, Deleted: true,
@@ -324,7 +397,7 @@ var indexTables = map[storage.IndexKind]struct {
 	storage.IndexNumber:    {"idx_number", []string{"code", "seq", "low", "high"}},
 }
 
-func (s *Store) reindex(ctx context.Context, tx *sql.Tx, pid int64, node *resource.Node) error {
+func (s *Store) reindex(ctx context.Context, tx querier, pid int64, node *resource.Node) error {
 	if err := s.clearIndex(ctx, tx, pid); err != nil {
 		return err
 	}
@@ -374,7 +447,7 @@ func indexValues(e storage.IndexEntry) []any {
 	return nil
 }
 
-func (s *Store) clearIndex(ctx context.Context, tx *sql.Tx, pid int64) error {
+func (s *Store) clearIndex(ctx context.Context, tx querier, pid int64) error {
 	for _, spec := range indexTables {
 		if _, err := tx.ExecContext(ctx, "DELETE FROM "+spec.table+" WHERE pid = ?", pid); err != nil {
 			return err
@@ -392,7 +465,7 @@ func (s *Store) clearIndex(ctx context.Context, tx *sql.Tx, pid int64) error {
 
 // Read returns the current version.
 func (s *Store) Read(ctx context.Context, resourceType, id string) (*storage.Resource, error) {
-	row := s.db.QueryRowContext(ctx, `
+	row := s.q.QueryRowContext(ctx, `
 		SELECT version_id, last_updated, deleted, content
 		FROM resource WHERE resource_type = ? AND fhir_id = ?`, resourceType, id)
 	res, err := scanResource(row, resourceType, id)
@@ -411,7 +484,7 @@ func (s *Store) VRead(ctx context.Context, resourceType, id, versionID string) (
 	if err != nil {
 		return nil, storage.ErrNotFound
 	}
-	row := s.db.QueryRowContext(ctx, `
+	row := s.q.QueryRowContext(ctx, `
 		SELECT version_id, last_updated, deleted, content
 		FROM resource_history
 		WHERE resource_type = ? AND fhir_id = ? AND version_id = ?`, resourceType, id, version)
@@ -474,7 +547,7 @@ func (s *Store) History(ctx context.Context, q storage.HistoryQuery) ([]*storage
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, count, q.Offset)
 
-	rows, err := s.db.QueryContext(ctx, query, args...)
+	rows, err := s.q.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

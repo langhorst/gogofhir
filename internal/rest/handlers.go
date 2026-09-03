@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/url"
@@ -100,7 +101,7 @@ func (s *Server) handleCreate(w http.ResponseWriter, r *http.Request) {
 	// nothing is created and the existing resource is returned. It is how a
 	// client makes "create unless it already exists" atomic.
 	if criteria := r.Header.Get("If-None-Exist"); criteria != "" {
-		existing, err := s.matchOne(r, resourceType, criteria)
+		existing, err := s.matchOne(r.Context(), resourceType, criteria)
 		switch {
 		case errors.Is(err, storage.ErrMultipleMatches):
 			s.failStorage(w, r, err)
@@ -233,7 +234,7 @@ func (s *Server) handleConditionalUpdate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	existing, err := s.matchOne(r, resourceType, r.URL.RawQuery)
+	existing, err := s.matchOne(r.Context(), resourceType, r.URL.RawQuery)
 	switch {
 	case errors.Is(err, storage.ErrMultipleMatches):
 		s.failStorage(w, r, err)
@@ -274,7 +275,7 @@ func (s *Server) handleConditionalDelete(w http.ResponseWriter, r *http.Request)
 		s.fail(w, r, http.StatusBadRequest, "a conditional delete needs search criteria")
 		return
 	}
-	existing, err := s.matchOne(r, resourceType, r.URL.RawQuery)
+	existing, err := s.matchOne(r.Context(), resourceType, r.URL.RawQuery)
 	switch {
 	case errors.Is(err, storage.ErrMultipleMatches):
 		s.failStorage(w, r, err)
@@ -297,7 +298,7 @@ func (s *Server) handleConditionalDelete(w http.ResponseWriter, r *http.Request)
 // matchOne runs conditional-operation criteria and insists on a single result.
 // More than one match is an error rather than a choice: the specification will
 // not let a server guess which resource the client meant.
-func (s *Server) matchOne(r *http.Request, resourceType, rawQuery string) (*storage.Resource, error) {
+func (s *Server) matchOne(ctx context.Context, resourceType, rawQuery string) (*storage.Resource, error) {
 	values, err := url.ParseQuery(rawQuery)
 	if err != nil {
 		return nil, &searchError{"malformed search criteria"}
@@ -309,7 +310,7 @@ func (s *Server) matchOne(r *http.Request, resourceType, rawQuery string) (*stor
 	// Two is enough to know the criteria are ambiguous, and the total is not
 	// needed to find that out.
 	q.Count, q.SkipTotal = 2, true
-	results, _, _, err := s.Store.Search(r.Context(), q)
+	results, _, _, err := s.Store.Search(ctx, q)
 	if err != nil {
 		return nil, err
 	}

@@ -258,3 +258,49 @@ func TestReaderErrors(t *testing.T) {
 		t.Error("FromXML with an unknown resource type: expected an error")
 	}
 }
+
+// A transaction bundle rewrites references between its entries, and finding
+// them structurally -- any JSON key named "reference" -- is wrong: several
+// elements across R4 and R5 are named that and hold plain URIs. Rewriting one
+// of those would corrupt the resource, so the walk is schema-driven.
+func TestReferenceWalkIgnoresLookalikes(t *testing.T) {
+	node := fromJSON(t, `{
+	  "resourceType": "DetectedIssue",
+	  "status": "final",
+	  "reference": "http://example.org/guidance",
+	  "subject": {"reference": "urn:uuid:1"},
+	  "author": {"reference": "urn:uuid:2"},
+	  "evidence": [{"detail": [{"reference": "Observation/3"}]}]
+	}`)
+
+	got := node.References()
+	want := []string{"urn:uuid:1", "urn:uuid:2", "Observation/3"}
+	if len(got) != len(want) {
+		t.Fatalf("References() = %v, want %v", got, want)
+	}
+	for _, reference := range got {
+		if reference == "http://example.org/guidance" {
+			t.Fatal("DetectedIssue.reference is a uri, not a Reference; it must not be collected")
+		}
+	}
+
+	changed := node.RewriteReferences(func(reference string) (string, bool) {
+		switch reference {
+		case "urn:uuid:1":
+			return "Patient/a", true
+		case "urn:uuid:2":
+			return "Practitioner/b", true
+		}
+		return "", false
+	})
+	if changed != 2 {
+		t.Errorf("RewriteReferences changed %d references, want 2", changed)
+	}
+	obj, _ := node.Object()
+	if got, _ := obj["reference"].(string); got != "http://example.org/guidance" {
+		t.Errorf("DetectedIssue.reference was rewritten to %q", got)
+	}
+	if eval(t, node, "DetectedIssue.subject.reference")[0] != "Patient/a" {
+		t.Errorf("subject was not rewritten: %v", node.References())
+	}
+}

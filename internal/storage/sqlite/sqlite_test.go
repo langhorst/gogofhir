@@ -510,3 +510,62 @@ func TestSkipTotal(t *testing.T) {
 		t.Errorf("total = %d, want -1 to mean it was not computed", total)
 	}
 }
+
+// Tx is the transaction bundle's atomicity: every write inside it lands, or
+// none does. The failure case is the one that matters -- a half-applied
+// transaction leaves a client with no way to find out what happened.
+func TestTxCommitsAndRollsBack(t *testing.T) {
+	ctx := context.Background()
+	store := newStore(t)
+
+	err := store.Tx(ctx, func(ctx context.Context, tx storage.Backend) error {
+		if _, err := tx.Create(ctx, patient(t, "kept-1", "Kept")); err != nil {
+			return err
+		}
+		_, err := tx.Create(ctx, patient(t, "kept-2", "Kept"))
+		return err
+	})
+	if err != nil {
+		t.Fatalf("Tx: %v", err)
+	}
+	for _, id := range []string{"kept-1", "kept-2"} {
+		if _, err := store.Read(ctx, "Patient", id); err != nil {
+			t.Errorf("Read %s after a committed Tx: %v", id, err)
+		}
+	}
+
+	sentinel := errors.New("deliberate")
+	err = store.Tx(ctx, func(ctx context.Context, tx storage.Backend) error {
+		if _, err := tx.Create(ctx, patient(t, "dropped", "Dropped")); err != nil {
+			return err
+		}
+		// The write above is visible inside the transaction, which is what lets
+		// a later bundle entry reference what an earlier one created.
+		if _, err := tx.Read(ctx, "Patient", "dropped"); err != nil {
+			t.Errorf("a transaction cannot see its own write: %v", err)
+		}
+		return sentinel
+	})
+	if !errors.Is(err, sentinel) {
+		t.Fatalf("Tx error = %v, want the sentinel", err)
+	}
+	if _, err := store.Read(ctx, "Patient", "dropped"); !errors.Is(err, storage.ErrNotFound) {
+		t.Errorf("Read after a rolled-back Tx = %v, want ErrNotFound", err)
+	}
+
+	// The index has to roll back with the content; a row left behind would make
+	// a deleted resource keep matching searches.
+	matches, _, _, err := store.Search(ctx, storage.SearchQuery{
+		Type: "Patient",
+		Params: []storage.ParamMatch{{
+			Code: "family", Kind: storage.IndexString,
+			Values: []storage.MatchValue{{Text: "dropped", Match: storage.MatchPrefix}},
+		}},
+	})
+	if err != nil {
+		t.Fatalf("Search: %v", err)
+	}
+	if len(matches) != 0 {
+		t.Errorf("a rolled-back write left %d index rows behind", len(matches))
+	}
+}

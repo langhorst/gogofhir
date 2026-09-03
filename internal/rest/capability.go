@@ -66,6 +66,8 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 			"mode":     "server",
 			"resource": resources,
 			"interaction": []any{
+				map[string]any{"code": "transaction"},
+				map[string]any{"code": "batch"},
 				map[string]any{"code": "history-system"},
 			},
 			// Declared once for the server rather than per resource: these

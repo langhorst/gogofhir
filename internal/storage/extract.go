@@ -4,6 +4,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -25,8 +26,15 @@ import (
 // element selected by a string parameter yields its text.
 
 // Extractor turns resources into index entries.
+//
+// One extractor is shared by every write, and the caches below are the only
+// mutable state in it. They are guarded because concurrent writes are only
+// serialized today by SQLite's single connection -- an accident that a
+// transaction-scoped store and the PostgreSQL backend both remove.
 type Extractor struct {
 	idx *conformance.Index
+
+	mu sync.Mutex
 	// compiled caches parsed expressions. The R5 index carries 1988 of them and
 	// they are evaluated on every write, so parsing them repeatedly would
 	// dominate the cost of storing a resource.
@@ -139,7 +147,19 @@ func CompositeComponentCode(code string, n int) string {
 // componentExpression parses a composite component's expression, cached by the
 // component's canonical URL.
 func (e *Extractor) componentExpression(definition, expression string) fhirpath.Expr {
-	key := "component:" + definition + ":" + expression
+	return e.parse("component:"+definition+":"+expression, expression)
+}
+
+func (e *Extractor) expression(sp *conformance.SearchParam) fhirpath.Expr {
+	return e.parse(strings.Join(sp.Base, ",")+"/"+sp.Code, sp.Expression)
+}
+
+// parse returns a cached expression, parsing it on first use. An expression
+// that fails to parse is remembered as unusable so a broken parameter costs one
+// parse rather than one per write.
+func (e *Extractor) parse(key, expression string) fhirpath.Expr {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if expr, ok := e.compiled[key]; ok {
 		return expr
 	}
@@ -147,23 +167,6 @@ func (e *Extractor) componentExpression(definition, expression string) fhirpath.
 		return nil
 	}
 	expr, err := fhirpath.Parse(expression)
-	if err != nil {
-		e.unusable[key] = true
-		return nil
-	}
-	e.compiled[key] = expr
-	return expr
-}
-
-func (e *Extractor) expression(sp *conformance.SearchParam) fhirpath.Expr {
-	key := strings.Join(sp.Base, ",") + "/" + sp.Code
-	if expr, ok := e.compiled[key]; ok {
-		return expr
-	}
-	if e.unusable[key] {
-		return nil
-	}
-	expr, err := fhirpath.Parse(sp.Expression)
 	if err != nil {
 		e.unusable[key] = true
 		return nil

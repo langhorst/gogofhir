@@ -27,12 +27,15 @@ type bundleEntry struct {
 	// mode is "match", "include", or "outcome" for a search bundle; empty
 	// otherwise.
 	mode string
-	// request and response describe a history entry's interaction.
-	method  string
-	url     string
-	status  string
-	etag    string
-	lastMod string
+	// request and response describe an entry's interaction: a history entry
+	// records one that happened, a transaction-response entry reports one the
+	// server just performed.
+	method   string
+	url      string
+	status   string
+	location string
+	etag     string
+	lastMod  string
 }
 
 // bundleContext is what a search bundle needs besides its results.
@@ -155,7 +158,14 @@ func buildBundle(idx *conformance.Index, bundleType string, total *int, entries 
 		}
 		if e.method != "" {
 			entry["request"] = map[string]any{"method": e.method, "url": e.url}
+		}
+		// A transaction response carries a response without a request: the
+		// request is the entry the client sent, at the same position.
+		if e.status != "" {
 			response := map[string]any{"status": e.status}
+			if e.location != "" {
+				response["location"] = e.location
+			}
 			if e.etag != "" {
 				response["etag"] = e.etag
 			}

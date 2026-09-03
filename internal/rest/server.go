@@ -47,6 +47,9 @@ func (s *Server) Handler() http.Handler {
 
 	mux.HandleFunc("GET /metadata", s.handleCapabilities)
 	mux.HandleFunc("GET /_history", s.handleSystemHistory)
+	// "{$}" matches the root path exactly, which is where transaction and batch
+	// bundles are posted.
+	mux.HandleFunc("POST /{$}", s.handleBundle)
 
 	mux.HandleFunc("GET /{type}", s.handleSearch)
 	mux.HandleFunc("POST /{type}", s.handleCreate)
@@ -62,7 +65,16 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /{type}/{id}/_history", s.handleInstanceHistory)
 	mux.HandleFunc("GET /{type}/{id}/_history/{vid}", s.handleVRead)
 
+	// Anything unmatched. Without it the mux answers with Go's plain-text 404,
+	// and a FHIR client is entitled to an OperationOutcome on every error --
+	// including the ones the router produces.
+	mux.HandleFunc("/", s.handleUnknownRoute)
+
 	return mux
+}
+
+func (s *Server) handleUnknownRoute(w http.ResponseWriter, r *http.Request) {
+	s.fail(w, r, http.StatusNotFound, "no interaction at %s %s", r.Method, r.URL.Path)
 }
 
 // ---- responses ----
