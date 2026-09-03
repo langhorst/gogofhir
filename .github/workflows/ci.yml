@@ -22,6 +22,33 @@ jobs:
       # the published packages nor network access to them.
       - run: make check
 
+  parity:
+    name: storage parity (SQLite + PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: gogofhir
+          POSTGRES_PASSWORD: gogofhir
+          POSTGRES_DB: gogofhir
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+      # The identical storage and REST suites, run against both engines. An
+      # assertion that passes on one and fails on the other is a divergence to
+      # document or a bug to fix, and this is the job that finds out.
+      - run: make check-parity
+        env:
+          GOGOFHIR_TEST_POSTGRES: postgres://gogofhir:gogofhir@localhost:5432/gogofhir?sslmode=disable
+
   generated:
     name: conformance indexes are current
     runs-on: ubuntu-latest

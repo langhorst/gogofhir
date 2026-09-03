@@ -6,11 +6,15 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/rest"
+	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/postgres"
 	"github.com/langhorst/gogofhir/internal/storage/sqlite"
 )
 
@@ -26,16 +30,71 @@ type client struct {
 
 func newServer(t *testing.T) *client {
 	t.Helper()
+	return serve(t, &rest.Server{})
+}
+
+// serve wires a server onto a fresh backend and starts it.
+//
+// Which backend depends on GOGOFHIR_TEST_POSTGRES: unset, every test runs on an
+// in-memory SQLite database, and set, the identical suite runs against
+// PostgreSQL. That is the parity gate at its widest -- not the storage layer
+// alone but the whole server, since a divergence that only shows through a
+// search parameter or a transaction is exactly the kind a storage-level suite
+// can miss.
+func serve(t *testing.T, server *rest.Server) *client {
+	t.Helper()
 	idx := conformance.MustLoad(conformance.R5)
-	store, err := sqlite.Open(":memory:", idx)
+	store := newBackend(t, idx)
+
+	server.Index, server.Store = idx, store
+	srv := httptest.NewServer(server.Handler())
+	t.Cleanup(srv.Close)
+	return &client{t: t, base: srv.URL}
+}
+
+// schemaCounter names a private schema per test, so a PostgreSQL run starts
+// each one empty without dropping and recreating a database.
+var schemaCounter atomic.Int64
+
+func newBackend(t *testing.T, idx *conformance.Index) storage.Backend {
+	t.Helper()
+	dsn := os.Getenv("GOGOFHIR_TEST_POSTGRES")
+	if dsn == "" {
+		store, err := sqlite.Open(":memory:", idx)
+		if err != nil {
+			t.Fatalf("opening store: %v", err)
+		}
+		t.Cleanup(func() { store.Close() })
+		return store
+	}
+
+	schema := fmt.Sprintf("gogofhir_rest_%d", schemaCounter.Add(1))
+	admin, err := postgres.Open(dsn, idx)
+	if err != nil {
+		t.Fatalf("connecting to PostgreSQL: %v", err)
+	}
+	if _, err := admin.DB().Exec("CREATE SCHEMA " + schema); err != nil {
+		admin.Close()
+		t.Fatalf("creating schema: %v", err)
+	}
+	admin.Close()
+
+	separator := "?"
+	if strings.Contains(dsn, "?") {
+		separator = "&"
+	}
+	store, err := postgres.Open(dsn+separator+"search_path="+schema, idx)
 	if err != nil {
 		t.Fatalf("opening store: %v", err)
 	}
-	t.Cleanup(func() { store.Close() })
-
-	srv := httptest.NewServer((&rest.Server{Index: idx, Store: store}).Handler())
-	t.Cleanup(srv.Close)
-	return &client{t: t, base: srv.URL}
+	t.Cleanup(func() {
+		store.Close()
+		if cleanup, err := postgres.Open(dsn, idx); err == nil {
+			cleanup.DB().Exec("DROP SCHEMA " + schema + " CASCADE")
+			cleanup.Close()
+		}
+	})
+	return store
 }
 
 type response struct {

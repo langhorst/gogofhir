@@ -2,13 +2,10 @@ package rest_test
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/rest"
-	"github.com/langhorst/gogofhir/internal/storage/sqlite"
 )
 
 // $validate, and validation on write.
@@ -151,16 +148,7 @@ func TestValidateWrites(t *testing.T) {
 // errors, as -validate-writes does.
 func newValidatingServer(t *testing.T) *client {
 	t.Helper()
-	idx := conformance.MustLoad(conformance.R5)
-	store, err := sqlite.Open(":memory:", idx)
-	if err != nil {
-		t.Fatalf("opening store: %v", err)
-	}
-	t.Cleanup(func() { store.Close() })
-	server := &rest.Server{Index: idx, Store: store, ValidateWrites: true}
-	srv := httptest.NewServer(server.Handler())
-	t.Cleanup(srv.Close)
-	return &client{t: t, base: srv.URL}
+	return serve(t, &rest.Server{ValidateWrites: true})
 }
 
 // The CapabilityStatement has to advertise $validate, or a client has no way to

@@ -9,7 +9,7 @@ FHIRVERSIONS := r4 r5
 .DEFAULT_GOAL := help
 
 .PHONY: help build release run test test-race cover bench fmt fmt-check vet \
-        lint check vendor gen gen-check clean
+        lint check check-parity vendor gen gen-check clean
 
 help: ## List available targets
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -45,6 +45,14 @@ test: ## Run all tests
 test-race: ## Run all tests with the race detector
 	$(GO) test -race $(PKGS)
 
+check-parity: ## Run the storage and REST suites against PostgreSQL as well
+	@if [ -z "$$GOGOFHIR_TEST_POSTGRES" ]; then \
+		echo "GOGOFHIR_TEST_POSTGRES is not set; the PostgreSQL half of the parity gate cannot run."; \
+		echo "  e.g. GOGOFHIR_TEST_POSTGRES='postgres://user@host:5432/db?sslmode=disable' make check-parity"; \
+		exit 1; \
+	fi
+	$(GO) test ./internal/storage/... ./internal/rest/...
+
 cover: ## Run race tests with coverage and print the summary
 	@mkdir -p bin
 	$(GO) test -race -coverprofile=bin/cover.out \
@@ -68,6 +76,9 @@ vet: ## Run go vet
 lint: fmt-check vet ## Formatting check + vet
 
 check: lint test-race ## The pre-push gate: lint + race tests
+	@if [ -n "$$GOGOFHIR_TEST_POSTGRES" ]; then $(MAKE) check-parity; else \
+		echo "note: GOGOFHIR_TEST_POSTGRES unset, so the suites ran on SQLite only (see check-parity)"; \
+	fi
 
 clean: ## Remove build artifacts and runtime state
 	rm -rf bin data

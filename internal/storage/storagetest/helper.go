@@ -1,4 +1,4 @@
-package sqlite_test
+package storagetest
 
 import (
 	"strings"

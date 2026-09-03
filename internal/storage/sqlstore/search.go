@@ -1,4 +1,4 @@
-package sqlite
+package sqlstore
 
 import (
 	"context"
@@ -26,13 +26,13 @@ import (
 
 // Search returns matching resources, the total, and a cursor for the next page.
 func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.Resource, int, string, error) {
-	where := []string{"r.deleted = 0"}
+	where := []string{"r.deleted = FALSE"}
 	var args []any
 	if q.Type != "" {
 		where = append(where, "r.resource_type = ?")
 		args = append(args, q.Type)
 	}
-	scope := &renderScope{alias: "r"}
+	scope := &renderScope{alias: "r", store: s}
 	for _, p := range q.Params {
 		clause, clauseArgs, err := renderParam(p, scope)
 		if err != nil {
@@ -60,7 +60,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	if !q.SkipTotal {
 		// Counting is a second evaluation of the predicate, so _total=none
 		// skips it. A client paging through results rarely needs it twice.
-		if err := s.q.QueryRowContext(ctx,
+		if err := s.queryRow(ctx,
 			"SELECT COUNT(*) FROM resource r WHERE "+condition, args...).Scan(&total); err != nil {
 			return nil, 0, "", err
 		}
@@ -98,7 +98,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		pageArgs = append(pageArgs, q.Offset)
 	}
 
-	rows, err := s.q.QueryContext(ctx, query, pageArgs...)
+	rows, err := s.query(ctx, query, pageArgs...)
 	if err != nil {
 		return nil, 0, "", err
 	}
@@ -315,6 +315,9 @@ func quote(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'
 // predicates on the far side are the same predicates -- so every renderer takes
 // a scope rather than assuming the outer "r".
 type renderScope struct {
+	// store is carried so a renderer can reach the dialect; full text is the
+	// one predicate the engines build differently.
+	store *Store
 	alias string
 	n     int
 	// depth bounds how far chains may nest. A chain is a join per level, and a
@@ -326,7 +329,7 @@ type renderScope struct {
 const maxChainDepth = 4
 
 func (sc *renderScope) nested(alias string) *renderScope {
-	return &renderScope{alias: alias, n: sc.n, depth: sc.depth + 1}
+	return &renderScope{store: sc.store, alias: alias, n: sc.n, depth: sc.depth + 1}
 }
 
 func (sc *renderScope) newAlias(prefix string) string {
@@ -536,11 +539,11 @@ func renderFilter(e *storage.FilterExpr, sc *renderScope) (string, []any, error)
 
 // renderFullText builds the _text and _content predicates.
 //
-// FTS5 has its own query language, and a user's search terms are not written in
-// it: a value containing NEAR, OR, or a quote would otherwise be read as syntax
-// rather than as words. Each term is therefore quoted as a phrase and the terms
-// combined with AND, which gives "all of these words appear" -- the semantics a
-// client expects from a text search.
+// This is the one predicate the engines build differently -- FTS5 on one side,
+// tsvector on the other -- so it is the one that goes through the dialect. Both
+// render "all of these words appear", which is what a client expects from a
+// text search, and both treat the client's terms as words rather than as query
+// syntax: a value containing NEAR, OR, or a quote must not become an operator.
 func renderFullText(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	column := "content"
 	if p.Code == "_text" {
@@ -549,16 +552,12 @@ func renderFullText(p storage.ParamMatch, sc *renderScope) (string, []any, error
 	var alternatives []string
 	var args []any
 	for _, v := range p.Values {
-		query := fts5Query(column, v.Text)
-		if query == "" {
+		clause, clauseArgs, ok := sc.store.dialect.FullTextPredicate(sc.alias, column, v.Text)
+		if !ok {
 			continue
 		}
-		// FTS5 requires the table's own name on the left of MATCH; an alias is
-		// not a column and the parser rejects it.
-		alternatives = append(alternatives,
-			f("EXISTS (SELECT 1 FROM idx_fulltext"+
-				" WHERE idx_fulltext.rowid = %s.pid AND idx_fulltext MATCH ?)", sc.alias))
-		args = append(args, query)
+		alternatives = append(alternatives, clause)
+		args = append(args, clauseArgs...)
 	}
 	if len(alternatives) == 0 {
 		return "", nil, nil
@@ -568,20 +567,6 @@ func renderFullText(p storage.ParamMatch, sc *renderScope) (string, []any, error
 		clause = "NOT " + clause
 	}
 	return clause, args, nil
-}
-
-// fts5Query renders search terms as an FTS5 column-filtered conjunction, with
-// every term quoted so none of it can be read as operator syntax.
-func fts5Query(column, value string) string {
-	fields := strings.Fields(value)
-	if len(fields) == 0 {
-		return ""
-	}
-	quoted := make([]string, 0, len(fields))
-	for _, field := range fields {
-		quoted = append(quoted, `"`+strings.ReplaceAll(field, `"`, `""`)+`"`)
-	}
-	return column + " : (" + strings.Join(quoted, " AND ") + ")"
 }
 
 func renderResourceColumn(column string, p storage.ParamMatch) (string, []any, error) {
@@ -631,16 +616,22 @@ func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string
 		}
 
 	case storage.IndexString:
+		// The folded column is only ever compared with folded text. Callers
+		// normalize already, but doing it here as well is what makes the
+		// comparison independent of the engine: SQLite's LIKE ignores ASCII
+		// case and PostgreSQL's does not, so a query that reached the column
+		// unfolded would quietly mean different things on the two.
+		folded := escapeLike(storage.Normalize(v.Text))
 		switch v.Match {
 		case storage.MatchExact:
 			return f("%s.exact = ?", x), []any{v.Text}, nil
 		case storage.MatchContains:
-			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + escapeLike(v.Text) + "%"}, nil
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + folded + "%"}, nil
 		case storage.MatchEndsWith:
-			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + escapeLike(v.Text)}, nil
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + folded}, nil
 		default:
 			// FHIR string search matches by prefix, on the folded form.
-			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{escapeLike(v.Text) + "%"}, nil
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{folded + "%"}, nil
 		}
 
 	case storage.IndexReference:
@@ -703,7 +694,7 @@ func renderChain(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	conditions := []string{
 		f("%s.pid = %s.pid", ref, sc.alias),
 		f("%s.code = ?", ref),
-		f("%s.deleted = 0", target),
+		f("%s.deleted = FALSE", target),
 	}
 	args := []any{p.Code}
 	if p.Chain.TargetType != "" {
@@ -746,7 +737,7 @@ func renderHas(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	conditions := []string{
 		f("%s.pid = %s.pid", ref, source),
 		f("%s.resource_type = ?", source),
-		f("%s.deleted = 0", source),
+		f("%s.deleted = FALSE", source),
 		f("%s.code = ?", ref),
 		// The reference must point back at the row in scope. Matching both the
 		// type and the id keeps "Patient/1" from also matching "Group/1".

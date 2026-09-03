@@ -7,7 +7,7 @@
 //
 // Usage:
 //
-//	gogofhir serve       [-fhir r5] [-addr :8080] [-db fhir.db]
+//	gogofhir serve       [-fhir r5] [-addr :8080] [-db fhir.db | postgres://...]
 //	                     [-validate-writes] [-strict-terminology]
 //	gogofhir conformance [-fhir r5]
 //	gogofhir version
@@ -29,7 +29,9 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/rest"
+	"github.com/langhorst/gogofhir/internal/storage/postgres"
 	"github.com/langhorst/gogofhir/internal/storage/sqlite"
+	"github.com/langhorst/gogofhir/internal/storage/sqlstore"
 )
 
 // version is stamped at release time with -ldflags "-X main.version=...".
@@ -63,7 +65,8 @@ func runServe(args []string) int {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	release := fs.String("fhir", string(conformance.R5), "FHIR release to serve (r4, r5)")
 	addr := fs.String("addr", ":8080", "address to listen on")
-	dbPath := fs.String("db", "gogofhir.db", `SQLite database path, or ":memory:" for an ephemeral one`)
+	dbPath := fs.String("db", "gogofhir.db",
+		`SQLite database path, ":memory:" for an ephemeral one, or a postgres:// URL`)
 	baseURL := fs.String("base-url", "", "external base URL, when behind a proxy")
 	strictTerminology := fs.Bool("strict-terminology", false,
 		"treat a binding this server cannot check offline as an error rather than a warning")
@@ -79,9 +82,9 @@ func runServe(args []string) int {
 		log.Error("loading conformance index", "error", err)
 		return 1
 	}
-	store, err := sqlite.Open(*dbPath, idx)
+	store, err := openStore(*dbPath, idx)
 	if err != nil {
-		log.Error("opening database", "path", *dbPath, "error", err)
+		log.Error("opening database", "db", *dbPath, "error", err)
 		return 1
 	}
 	defer store.Close()
@@ -108,7 +111,7 @@ func runServe(args []string) int {
 	go func() {
 		log.Info("gogofhir listening",
 			"addr", *addr, "release", idx.Release, "fhirVersion", idx.FHIRVersion,
-			"resourceTypes", len(idx.ResourceTypes()), "db", *dbPath)
+			"resourceTypes", len(idx.ResourceTypes()), "engine", store.Engine())
 		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error("http server", "error", err)
 			stop()
@@ -124,6 +127,20 @@ func runServe(args []string) int {
 		return 1
 	}
 	return 0
+}
+
+// openStore picks a backend from the -db value.
+//
+// A connection URL means PostgreSQL and anything else is a SQLite path, which
+// keeps the common case -- a file, or nothing at all -- a single flag with no
+// ceremony.
+func openStore(db string, idx *conformance.Index) (*sqlstore.Store, error) {
+	switch {
+	case strings.HasPrefix(db, "postgres://"), strings.HasPrefix(db, "postgresql://"):
+		return postgres.Open(db, idx)
+	default:
+		return sqlite.Open(db, idx)
+	}
 }
 
 // runConformance summarizes the embedded index for a release. It is the

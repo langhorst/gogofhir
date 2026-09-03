@@ -7,15 +7,17 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M6 complete.** `gogofhir serve` gives you CRUD, versioning,
+> **Status: M7a complete.** `gogofhir serve` gives you CRUD, versioning,
 > history, conditional operations, optimistic concurrency, atomic transaction
 > and batch bundles, the whole of search — every indexed parameter type with its
 > modifiers, full-text, chaining, `_has`, `_include`/`_revinclude`, composites,
 > `_filter`, `_summary`, `_elements`, `_total`, cursor-stable paging — and
 > `$validate` against the type system, the specification's invariants, embedded
 > value sets, and profiles with slicing. Over 158 resource types, in JSON and
-> XML. The FHIRPath engine passes **1966 of 1998** official HL7 conformance
-> tests. See [Milestones](#milestones).
+> XML, on **SQLite or PostgreSQL** — one implementation, with both engines
+> passing the identical storage and REST suites. The FHIRPath engine passes
+> **1966 of 1998** official HL7 conformance tests. See
+> [Milestones](#milestones).
 
 ## Why
 
@@ -40,7 +42,7 @@ search-index model.
 | Conformance data | Compiled at build time into an embedded index |
 | FHIRPath | Full engine, own package |
 | Validation | Structural + profiles + invariants |
-| Storage | SQLite through v1; PostgreSQL at M7 |
+| Storage | SQLite and PostgreSQL, one implementation |
 | Tenancy | Single tenant |
 
 **Untyped documents** are the load-bearing choice. Rather than generating Go
@@ -351,9 +353,12 @@ building a message-equivalence mapping, which is its own piece of work.
 
 ## Storage
 
+**SQLite and PostgreSQL, from one implementation.** `-db fhir.db` for a file,
+`-db :memory:` for nothing at all, `-db postgres://...` for a server.
+
 One `Backend` interface, and no SQL outside its implementations. The query
 surface is a typed plan rather than a string, so the search layer never writes
-SQL and the backend never parses FHIR syntax — which is what should make the
+SQL and the backend never parses FHIR syntax — which is what made the
 PostgreSQL port a translation rather than a rewrite.
 
 The schema is ordinary relational tables with B-tree indexes, not
@@ -379,10 +384,54 @@ never describe a version that is not stored, and they follow the current
 version: an updated resource stops matching its old values, a deleted one stops
 matching at all.
 
-Full-text (`_text`, `_content`) is the one place the two backends genuinely
-diverge: SQLite uses FTS5, PostgreSQL will use `tsvector`. Everything else is
-ordinary tables and B-tree lookups that both engines index identically, so
-`0002_fulltext.sql` is the whole of the divergence rather than the start of it.
+### One implementation, two engines
+
+There is a single SQL implementation, in `internal/storage/sqlstore`. A
+`Dialect` supplies what the engines genuinely do differently, and the list is
+short enough to read:
+
+| | SQLite | PostgreSQL |
+|---|---|---|
+| Placeholders | `?` | `$1`, renumbered at the driver boundary |
+| Surrogate key of an insert | `last_insert_rowid` | `RETURNING pid` |
+| Full text | FTS5 virtual table | `tsvector` with a GIN index |
+| DDL | `migrations/*.sql` | `migrations/*.sql` |
+
+Everything else was written portably on purpose rather than negotiated in the
+seam: booleans are spelled `TRUE`/`FALSE`, which both accept; string matching
+runs against a pre-folded column so it never depends on whether `LIKE` ignores
+case; `ESCAPE '\'` is standard; dates and numbers are ordinary integers and
+doubles. Writing the second backend as a second *implementation* is exactly how
+a portable abstraction turns out not to be, so there is only one.
+
+Full text is the one genuinely divergent feature. Both are given the same
+semantics — all of these words appear, case folded, the client's terms treated
+as words rather than as query syntax — and PostgreSQL uses the `simple` text
+search configuration rather than `english` precisely so a stemmer cannot make
+the same query match different documents on the two engines.
+
+### The parity gate
+
+`internal/storage/storagetest` is a suite written against the `Backend`
+interface, knowing nothing about SQL, and **both engines run all of it**. So
+does the entire REST suite — CRUD, versioning, history, conditional operations,
+every search parameter type, chaining, `_has`, includes, composites, `_filter`,
+transactions, validation — which is the wider gate, because a divergence that
+only shows through a search parameter or a transaction is one a storage-level
+suite can miss.
+
+```sh
+make check          # SQLite, and says so
+GOGOFHIR_TEST_POSTGRES='postgres://user@host:5432/db?sslmode=disable' \
+  make check-parity # both engines, the identical assertions
+```
+
+Without the variable the PostgreSQL half skips *loudly* — a silently skipped
+parity gate is not a gate — and CI supplies it from a service container.
+
+Finding this way rather than by inspection is the point. The suite immediately
+caught a string search that only worked because SQLite's `LIKE` ignores ASCII
+case, which would have been a silent behaviour difference between deployments.
 
 ## Conformance data
 
@@ -556,7 +605,10 @@ regenerate it.
 - [x] **M6 — Validation.** `$validate`, structural checks, the specification's
       invariants, bindings against build-time value set expansions, profiles
       with slicing, and the terminology policy.
-- [ ] **M7 — PostgreSQL, US Core, SMART.**
+- [x] **M7a — PostgreSQL.** One SQL implementation for both engines, and the
+      storage and REST suites passing identically on each.
+- [ ] **M7b — US Core.** Profile conformance against the published package.
+- [ ] **M7c — SMART App Launch.** OAuth2, to make Inferno meaningful.
 
 FHIRPath comes first because everything depends on it: search extraction,
 `_filter`, invariants, and subscription criteria are all FHIRPath. It is also

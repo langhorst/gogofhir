@@ -1,4 +1,4 @@
-package sqlite
+package sqlstore
 
 import (
 	"context"
@@ -82,7 +82,7 @@ func (s *Store) expandForward(ctx context.Context, from []*storage.Resource, spe
 		return nil, err
 	}
 
-	conditions := []string{"ref.pid IN (" + placeholders(len(pids)) + ")", "t.deleted = 0"}
+	conditions := []string{"ref.pid IN (" + placeholders(len(pids)) + ")", "t.deleted = FALSE"}
 	args := append([]any{}, pids...)
 	if !spec.Wildcard {
 		conditions = append(conditions, "ref.code = ?")
@@ -123,7 +123,7 @@ func (s *Store) expandReverse(ctx context.Context, from []*storage.Resource, spe
 	conditions := []string{
 		"(" + strings.Join(targets, " OR ") + ")",
 		"src.resource_type = ?",
-		"src.deleted = 0",
+		"src.deleted = FALSE",
 	}
 	args = append(args, spec.SourceType)
 	if !spec.Wildcard {
@@ -152,7 +152,7 @@ func (s *Store) pidsFor(ctx context.Context, resources []*storage.Resource, only
 	if len(conditions) == 0 {
 		return nil, nil
 	}
-	rows, err := s.q.QueryContext(ctx,
+	rows, err := s.query(ctx,
 		"SELECT pid FROM resource WHERE "+strings.Join(conditions, " OR "), args...)
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (s *Store) pidsFor(ctx context.Context, resources []*storage.Resource, only
 }
 
 func (s *Store) queryResources(ctx context.Context, query string, args []any) ([]*storage.Resource, error) {
-	rows, err := s.q.QueryContext(ctx, query, args...)
+	rows, err := s.query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

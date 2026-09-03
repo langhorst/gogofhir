@@ -1,12 +1,17 @@
 // Package storage persists FHIR resources and the indexes search runs against.
 //
 // The Backend interface is the only thing the rest of the server talks to, and
-// no SQL appears outside its implementations. That boundary is deliberate:
-// SQLite is the sole backend through v1 and PostgreSQL arrives later, and a
-// second backend retrofitted onto a query layer that has quietly grown
-// SQLite-specific habits is exactly how a "portable" abstraction turns out not
-// to be. Keeping the query surface expressed as values rather than strings is
-// what makes the later port a translation rather than a rewrite.
+// no SQL appears outside its implementations. That boundary is deliberate: a
+// second backend retrofitted onto a query layer that has quietly grown one
+// engine's habits is exactly how a "portable" abstraction turns out not to be.
+// Keeping the query surface expressed as values rather than strings is what
+// made the PostgreSQL port a translation rather than a rewrite.
+//
+// There is one SQL implementation, in internal/storage/sqlstore, and the
+// engines supply only what they genuinely do differently. What keeps them
+// honest is internal/storage/storagetest: the identical suite runs against
+// both, so an assertion that cannot hold on one is a documented divergence or
+// a bug rather than a surprise in production.
 package storage
 
 import (
