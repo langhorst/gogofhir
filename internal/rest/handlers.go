@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/langhorst/gogofhir/internal/resource"
 	"github.com/langhorst/gogofhir/internal/storage"
 )
 
@@ -37,7 +38,23 @@ func (s *Server) handleRead(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, r, http.StatusInternalServerError, "stored resource is unreadable: %v", err)
 		return
 	}
+	node, ok = s.subsetForRequest(w, r, node)
+	if !ok {
+		return
+	}
 	s.write(w, r, http.StatusOK, node, s.resourceHeaders(s.base(r), res))
+}
+
+// subsetForRequest applies _summary and _elements to a single-resource
+// response. They shape a read as much as a search, and a client that asks for a
+// summary on one and not the other has to special-case the server.
+func (s *Server) subsetForRequest(w http.ResponseWriter, r *http.Request, node *resource.Node) (*resource.Node, bool) {
+	var opts searchOptions
+	if err := parseSubsetOptions(r.URL.Query(), &opts); err != nil {
+		s.fail(w, r, http.StatusBadRequest, "%s", err.Error())
+		return nil, false
+	}
+	return opts.subset(node), true
 }
 
 // handleVRead: GET /{type}/{id}/_history/{vid}
@@ -54,6 +71,10 @@ func (s *Server) handleVRead(w http.ResponseWriter, r *http.Request) {
 	node, err := s.stored(res)
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "stored resource is unreadable: %v", err)
+		return
+	}
+	node, ok = s.subsetForRequest(w, r, node)
+	if !ok {
 		return
 	}
 	s.write(w, r, http.StatusOK, node, s.resourceHeaders(s.base(r), res))
@@ -281,13 +302,14 @@ func (s *Server) matchOne(r *http.Request, resourceType, rawQuery string) (*stor
 	if err != nil {
 		return nil, &searchError{"malformed search criteria"}
 	}
-	q, err := parseSearch(s.Index, resourceType, values)
+	q, _, err := parseSearch(s.Index, resourceType, values)
 	if err != nil {
 		return nil, err
 	}
-	// Two is enough to know the criteria are ambiguous.
-	q.Count = 2
-	results, _, err := s.Store.Search(r.Context(), q)
+	// Two is enough to know the criteria are ambiguous, and the total is not
+	// needed to find that out.
+	q.Count, q.SkipTotal = 2, true
+	results, _, _, err := s.Store.Search(r.Context(), q)
 	if err != nil {
 		return nil, err
 	}
@@ -325,7 +347,7 @@ func (s *Server) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType string, values url.Values) {
-	q, err := parseSearch(s.Index, resourceType, values)
+	q, opts, err := parseSearch(s.Index, resourceType, values)
 	if err != nil {
 		var se *searchError
 		if errors.As(err, &se) {
@@ -335,12 +357,27 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 		s.fail(w, r, http.StatusInternalServerError, "search failed: %v", err)
 		return
 	}
-	results, total, err := s.Store.Search(r.Context(), q)
+	results, total, cursor, err := s.Store.Search(r.Context(), q)
 	if err != nil {
+		var se *searchError
+		if errors.As(err, &se) {
+			s.fail(w, r, http.StatusBadRequest, "%s", se.Error())
+			return
+		}
 		s.failStorage(w, r, err)
 		return
 	}
-	bundle, err := searchBundle(s.Index, s.base(r), r.URL, results, total, q)
+	if opts.countOnly {
+		// _summary=count wants the number and nothing else.
+		results, cursor = nil, ""
+	}
+	bundle, err := searchBundle(s.Index, bundleContext{
+		base:    s.base(r),
+		request: r.URL,
+		total:   total,
+		cursor:  cursor,
+		options: opts,
+	}, results)
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the search bundle failed: %v", err)
 		return

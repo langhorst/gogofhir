@@ -68,6 +68,16 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 			"interaction": []any{
 				map[string]any{"code": "history-system"},
 			},
+			// Declared once for the server rather than per resource: these
+			// shape a response rather than filter it.
+			"searchParam": []any{
+				map[string]any{"name": "_count", "type": "number",
+					"documentation": "Page size. Paging is by cursor: follow the bundle's next link."},
+				map[string]any{"name": "_sort", "type": "string"},
+				map[string]any{"name": "_summary", "type": "token"},
+				map[string]any{"name": "_elements", "type": "string"},
+				map[string]any{"name": "_total", "type": "token"},
+			},
 		}},
 	}
 	return resource.New(s.Index, statement)
@@ -87,7 +97,17 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		map[string]any{"code": "search-type"},
 	}
 
-	var params []any
+	// The common parameters are handled by the server rather than extracted
+	// from an expression, so they are not in the index and must be declared
+	// here or clients will not know they work.
+	params := []any{
+		map[string]any{"name": "_id", "type": "token"},
+		map[string]any{"name": "_lastUpdated", "type": "date"},
+		map[string]any{"name": "_text", "type": "special",
+			"documentation": "Full-text search over the resource's narrative."},
+		map[string]any{"name": "_content", "type": "special",
+			"documentation": "Full-text search over the resource's text values."},
+	}
 	for _, sp := range s.Index.SearchParamsFor(typeName) {
 		if _, indexed := indexKindFor(sp.Type); !indexed {
 			// Composite and "special" parameters are declared by the
@@ -112,8 +132,6 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		"conditionalDelete": "single",
 		"conditionalRead":   "modified-since",
 	}
-	if len(params) > 0 {
-		entry["searchParam"] = params
-	}
+	entry["searchParam"] = params
 	return entry
 }

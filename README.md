@@ -7,11 +7,12 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M2 complete.** The server runs: `gogofhir serve` gives you CRUD,
-> versioning, history, conditional operations, optimistic concurrency, indexed
-> search, and a generated CapabilityStatement over 158 resource types, in JSON
-> and XML. The FHIRPath engine passes **1966 of 1998** official HL7 conformance
-> tests. See [Milestones](#milestones).
+> **Status: M3 complete.** `gogofhir serve` gives you CRUD, versioning,
+> history, conditional operations, optimistic concurrency, and full search —
+> every indexed parameter type with its modifiers, full-text, `_summary`,
+> `_elements`, `_total`, and cursor-stable paging — over 158 resource types, in
+> JSON and XML. The FHIRPath engine passes **1966 of 1998** official HL7
+> conformance tests. See [Milestones](#milestones).
 
 ## Why
 
@@ -112,12 +113,47 @@ Behaviours worth stating, because each is easy to get subtly wrong:
   of codecs over one document model, so a resource created as XML reads back
   identically as JSON.
 
-Search covers the seven indexed parameter types with token systems
-(`identifier=system|code`), comparison prefixes (`birthdate=ge1974`),
-comma-separated alternatives, and the `:exact` and `:missing` modifiers.
-Chaining, `_has`, `_include`, and composite parameters arrive with M4;
-parameters that are declared but not yet indexed are deliberately absent from
-the CapabilityStatement rather than advertised and broken.
+## Search
+
+Every parameter type is indexed and searchable, with the modifiers and prefixes
+the specification defines:
+
+| | |
+|---|---|
+| token | `identifier=system\|code`, `\|code`, `system\|`, `:not`, `:text`, `:of-type` |
+| string | prefix by default, `:exact`, `:contains` |
+| reference | `subject=Patient/123`, `subject:Patient=123`, `:identifier` |
+| date | `birthdate=ge1974`, and `eq ne gt lt ge le sa eb ap` |
+| quantity | `value-quantity=gt60\|http://unitsofmeasure.org\|kg` |
+| uri | `url:below=`, `url:above=` |
+| number | prefixes as for dates |
+| special | `_text` over the narrative, `_content` over every text value |
+| all | `:missing`, comma-separated alternatives, `_id`, `_lastUpdated` |
+
+Result parameters: `_sort` (multi-key, `-` for descending), `_count`,
+`_summary` (`true`/`text`/`data`/`count`/`false`), `_elements`, and `_total`
+(`none` skips the count entirely, which is a second evaluation of the
+predicate). A subsetted resource is tagged `SUBSETTED` — without it a client
+cannot tell a filtered resource from a sparse one, which is how a display bug
+becomes a clinical one.
+
+**Paging is by cursor.** The `next` link carries an opaque token encoding where
+the previous page stopped, so a resource created between two fetches cannot
+shift the rows after it. Offset paging silently repeats or skips rows under
+concurrent writes, and a conformance suite paging through a dataset someone
+else is writing to will find that. There is deliberately no `last` or
+`previous` link: both need an offset to point at, which a keyset cursor has
+not got.
+
+**Modifiers that need terminology are refused, not faked.** `:in`, `:not-in`,
+and `:above`/`:below` on a token need a value set expansion or a code system
+hierarchy. Answering them with an empty result would read as "no matching
+resources", which is a different and misleading claim, so they return a 400
+saying what is missing.
+
+Chaining, `_has`, `_include`/`_revinclude`, and composite parameters arrive
+with M4. Parameters that are declared but not yet indexed are deliberately
+absent from the CapabilityStatement rather than advertised and broken.
 
 ## Storage
 
@@ -134,7 +170,9 @@ correctness:
 - **Dates are indexed as intervals**, because `2024` denotes a year and not an
   instant. The search prefixes are then interval algebra over those bounds.
   Storing a point instead is the most common way FHIR date search goes quietly
-  wrong. Numbers work the same way: `1.1` means anything that would round to it.
+  wrong. Numbers work the same way: `1.1` means anything that would round to it
+  — and their intervals are half-open, so a search for `71` does not match a
+  stored `70` where `[69.5, 70.5)` and `[70.5, 71.5)` would otherwise touch.
 - **The logical id is separate from the surrogate key.** Clients choose
   arbitrary ids and those ids appear in references, but joins want an integer.
 
@@ -142,6 +180,11 @@ Indexes are written in the same transaction as the resource, so an index can
 never describe a version that is not stored, and they follow the current
 version: an updated resource stops matching its old values, a deleted one stops
 matching at all.
+
+Full-text (`_text`, `_content`) is the one place the two backends genuinely
+diverge: SQLite uses FTS5, PostgreSQL will use `tsvector`. Everything else is
+ordinary tables and B-tree lookups that both engines index identically, so
+`0002_fulltext.sql` is the whole of the divergence rather than the start of it.
 
 ## Conformance data
 
@@ -295,9 +338,9 @@ regenerate it.
       tests pass; the rest are enumerated above.
 - [x] **M2 — Storage + REST core.** CRUD, versioning, history, conditional
       operations, ETag concurrency, CapabilityStatement, JSON and XML.
-- [ ] **M3 — Search fundamentals.** The remaining modifiers, `_summary`,
-      `_elements`, `_total`, and cursor-stable paging (M2 pages by offset,
-      which is honest but shifts under concurrent writes).
+- [x] **M3 — Search fundamentals.** Every indexed parameter type with its
+      modifiers and prefixes, full-text, `_summary`, `_elements`, `_total`,
+      multi-key sorting, and cursor-stable paging.
 - [ ] **M4 — Search advanced.** Chaining, `_has`, `_include`/`_revinclude`,
       composites, `_filter`.
 - [ ] **M5 — Transactions & batch.** v1 complete.

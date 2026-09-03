@@ -35,18 +35,30 @@ type bundleEntry struct {
 	lastMod string
 }
 
+// bundleContext is what a search bundle needs besides its results.
+type bundleContext struct {
+	base    string
+	request *url.URL
+	total   int
+	cursor  string
+	options searchOptions
+}
+
 // searchBundle builds a searchset Bundle with the paging links a client follows.
-func searchBundle(idx *conformance.Index, base string, requestURL *url.URL, results []*storage.Resource, total int, q storage.SearchQuery) (*resource.Node, error) {
+func searchBundle(idx *conformance.Index, ctx bundleContext, results []*storage.Resource) (*resource.Node, error) {
 	entries := make([]bundleEntry, 0, len(results))
 	for _, res := range results {
 		entries = append(entries, bundleEntry{
-			fullURL: fmt.Sprintf("%s/%s/%s", base, res.Type, res.ID),
+			fullURL: fmt.Sprintf("%s/%s/%s", ctx.base, res.Type, res.ID),
 			content: res.Content,
 			mode:    "match",
 		})
 	}
-	links := pagingLinks(requestURL, total, q)
-	return buildBundle(idx, "searchset", &total, entries, links)
+	var total *int
+	if ctx.total >= 0 {
+		total = &ctx.total
+	}
+	return buildBundle(idx, "searchset", total, entries, pagingLinks(ctx), ctx.options, idx)
 }
 
 // historyBundle builds a history Bundle. Its entries carry request and response
@@ -73,10 +85,11 @@ func historyBundle(idx *conformance.Index, base string, versions []*storage.Reso
 		}
 		entries = append(entries, entry)
 	}
-	return buildBundle(idx, "history", nil, entries, nil)
+	return buildBundle(idx, "history", nil, entries, nil, searchOptions{}, idx)
 }
 
-func buildBundle(idx *conformance.Index, bundleType string, total *int, entries []bundleEntry, links []any) (*resource.Node, error) {
+func buildBundle(idx *conformance.Index, bundleType string, total *int, entries []bundleEntry,
+	links []any, opts searchOptions, subsetIdx *conformance.Index) (*resource.Node, error) {
 	obj := map[string]any{
 		"resourceType": "Bundle",
 		"type":         bundleType,
@@ -104,7 +117,24 @@ func buildBundle(idx *conformance.Index, bundleType string, total *int, entries 
 			if err := dec.Decode(&nested); err != nil {
 				return nil, fmt.Errorf("rest: reading stored resource: %w", err)
 			}
-			entry["resource"] = resource.ConvertNumbers(nested)
+			converted, ok := resource.ConvertNumbers(nested).(map[string]any)
+			if !ok {
+				return nil, fmt.Errorf("rest: stored resource is not an object")
+			}
+			// _summary and _elements trim each entry, and mark it SUBSETTED so
+			// a client cannot mistake a filtered resource for a sparse one.
+			if opts.summary != "" || len(opts.elements) > 0 {
+				node, err := resource.New(subsetIdx, converted)
+				if err != nil {
+					return nil, fmt.Errorf("rest: subsetting a bundle entry: %w", err)
+				}
+				trimmed, err := nodeObject(opts.subset(node))
+				if err != nil {
+					return nil, err
+				}
+				converted = trimmed
+			}
+			entry["resource"] = converted
 		}
 		if e.mode != "" {
 			entry["search"] = map[string]any{"mode": e.mode}
@@ -128,47 +158,49 @@ func buildBundle(idx *conformance.Index, bundleType string, total *int, entries 
 	return resource.New(idx, obj)
 }
 
-// pagingLinks builds self, first, previous, next, and last.
+// nodeObject unwraps a document back to its underlying map, for embedding one
+// document inside another.
+func nodeObject(node *resource.Node) (map[string]any, error) {
+	raw, err := node.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	var out map[string]any
+	dec := json.NewDecoder(strings.NewReader(string(raw)))
+	dec.UseNumber()
+	if err := dec.Decode(&out); err != nil {
+		return nil, err
+	}
+	converted, _ := resource.ConvertNumbers(out).(map[string]any)
+	return converted, nil
+}
+
+// pagingLinks builds self and, when there is more to fetch, next.
 //
-// Paging is by offset in M2. That is honest but not stable under concurrent
-// writes: a resource created between two page fetches shifts everything after
-// it. Cursor paging replaces this when search is completed; the link shape a
-// client sees does not change, which is the point of expressing paging as
-// opaque links rather than as documented parameters.
-func pagingLinks(requestURL *url.URL, total int, q storage.SearchQuery) []any {
-	pageSize := q.Count
-	if pageSize <= 0 {
-		pageSize = defaultPageSize
-	}
-	withOffset := func(offset int) string {
-		u := *requestURL
-		values := u.Query()
-		values.Set("_count", strconv.Itoa(pageSize))
-		values.Set("_offset", strconv.Itoa(offset))
-		u.RawQuery = values.Encode()
-		return u.String()
-	}
+// Paging is by cursor: the next link carries an opaque token encoding where the
+// previous page stopped, so a resource created between two fetches cannot shift
+// the ones after it. Offset paging, which this replaced, silently repeats or
+// skips rows under concurrent writes -- and a conformance suite paging through
+// a dataset someone else is writing to will find that.
+//
+// There is deliberately no "last" link, and no "previous". Both need an offset
+// to point at, which a keyset cursor does not have; a client that needs to go
+// back keeps the links it followed. Clients are told to follow links rather
+// than construct them, which is what makes this substitutable at all.
+func pagingLinks(ctx bundleContext) []any {
 	link := func(relation, target string) any {
 		return map[string]any{"relation": relation, "url": target}
 	}
-
-	links := []any{link("self", requestURL.String())}
-	if total <= pageSize && q.Offset == 0 {
+	links := []any{link("self", ctx.request.String())}
+	if ctx.cursor == "" {
 		return links
 	}
-	links = append(links, link("first", withOffset(0)))
-	if q.Offset > 0 {
-		previous := q.Offset - pageSize
-		if previous < 0 {
-			previous = 0
-		}
-		links = append(links, link("previous", withOffset(previous)))
-	}
-	if q.Offset+pageSize < total {
-		links = append(links, link("next", withOffset(q.Offset+pageSize)))
-	}
-	if last := ((total - 1) / pageSize) * pageSize; last > 0 {
-		links = append(links, link("last", withOffset(last)))
-	}
-	return links
+	next := *ctx.request
+	values := next.Query()
+	values.Set("_cursor", ctx.cursor)
+	// An offset would contradict the cursor; the cursor already says where to
+	// resume.
+	values.Del("_offset")
+	next.RawQuery = values.Encode()
+	return append(links, link("next", next.String()))
 }

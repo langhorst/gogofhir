@@ -562,3 +562,65 @@ func NumberRange(text string) (low, high float64, err error) {
 // Normalize folds a string the way the index does, so a query value and a
 // stored value are compared on equal terms.
 func Normalize(s string) string { return normalize(s) }
+
+// FullText returns the two bodies the full-text index holds: the rendered
+// narrative that _text searches, and every text value in the resource, which is
+// what _content searches.
+//
+// Both are plain text. The narrative arrives as XHTML, so its markup is
+// stripped -- indexing tag names would make "div" match every resource.
+func (e *Extractor) FullText(node *resource.Node) (narrative, content string) {
+	var narrativeParts, contentParts []string
+	for _, text := range node.Children("text") {
+		for _, div := range text.Children("div") {
+			if p, ok := div.Primitive(); ok {
+				narrativeParts = append(narrativeParts, stripMarkup(p.String()))
+			}
+		}
+	}
+	collectText(node, &contentParts, 0)
+	return strings.Join(narrativeParts, " "), strings.Join(contentParts, " ")
+}
+
+// collectText walks a resource gathering every primitive string value.
+//
+// Numbers, booleans, and dates are skipped: they are searchable through their
+// own typed indexes, and folding them into free text produces matches nobody
+// asked for -- a search for "1974" hitting every resource with that birth year
+// as well as every one with it in a note.
+func collectText(node fhirpath.Node, out *[]string, depth int) {
+	if depth > 40 {
+		return
+	}
+	if value, ok := node.Primitive(); ok {
+		if s, isString := value.(fhirpath.String_); isString {
+			if text := strings.TrimSpace(string(s)); text != "" {
+				*out = append(*out, stripMarkup(text))
+			}
+		}
+		return
+	}
+	for _, child := range node.Children("") {
+		collectText(child, out, depth+1)
+	}
+}
+
+// stripMarkup removes XML tags and collapses whitespace, leaving the words.
+func stripMarkup(s string) string {
+	var b strings.Builder
+	depth := 0
+	for _, r := range s {
+		switch {
+		case r == '<':
+			depth++
+			b.WriteByte(' ')
+		case r == '>':
+			if depth > 0 {
+				depth--
+			}
+		case depth == 0:
+			b.WriteRune(r)
+		}
+	}
+	return strings.Join(strings.Fields(b.String()), " ")
+}

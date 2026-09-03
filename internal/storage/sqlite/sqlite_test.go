@@ -278,7 +278,7 @@ func TestSearchByIndexedParameters(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, total, err := store.Search(ctx, tc.query)
+			got, total, _, err := store.Search(ctx, tc.query)
 			if err != nil {
 				t.Fatalf("Search: %v", err)
 			}
@@ -302,7 +302,7 @@ func TestSearchByDateRange(t *testing.T) {
 		DateLow:  time.Date(1974, 1, 1, 0, 0, 0, 0, time.UTC).UnixMicro(),
 		DateHigh: time.Date(1974, 12, 31, 23, 59, 59, 0, time.UTC).UnixMicro(),
 	}
-	_, total, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+	_, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{year},
 	}}})
 	if err != nil {
@@ -316,7 +316,7 @@ func TestSearchByDateRange(t *testing.T) {
 		DateLow:  time.Date(1980, 1, 1, 0, 0, 0, 0, time.UTC).UnixMicro(),
 		DateHigh: time.Date(1980, 12, 31, 0, 0, 0, 0, time.UTC).UnixMicro(),
 	}
-	_, total, err = store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+	_, total, _, err = store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{otherYear},
 	}}})
 	if err != nil {
@@ -338,7 +338,7 @@ func TestIndexesFollowTheCurrentVersion(t *testing.T) {
 
 	byFamily := func(text string) int {
 		t.Helper()
-		_, total, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+		_, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString, Values: []storage.MatchValue{{Text: text}},
 		}}})
 		if err != nil {
@@ -381,15 +381,18 @@ func TestSearchPagingAndSort(t *testing.T) {
 		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
 		Count:  2,
 	}
-	page1, total, err := store.Search(ctx, q)
+	page1, total, cursor, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if total != 4 {
 		t.Errorf("total = %d, want 4 (the count ignores paging)", total)
 	}
-	q.Offset = 2
-	page2, _, err := store.Search(ctx, q)
+	if cursor == "" {
+		t.Fatal("a full page returned no cursor")
+	}
+	q.Cursor = cursor
+	page2, _, _, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -403,5 +406,107 @@ func TestSearchPagingAndSort(t *testing.T) {
 		if i >= len(order) || order[i] != want[i] {
 			t.Fatalf("sorted order = %v, want %v", order, want)
 		}
+	}
+}
+
+// Cursor paging resumes by value rather than by position, so a resource
+// inserted between two page fetches cannot shift the rows that follow. This is
+// the whole reason for cursors: with an offset, inserting a row that sorts
+// inside the first page pushes one past the boundary and the client never sees
+// it.
+func TestCursorPagingIsStableUnderWrites(t *testing.T) {
+	ctx := context.Background()
+	store := newStore(t)
+	for _, family := range []string{"Alpha", "Charlie", "Echo", "Golf"} {
+		if _, err := store.Create(ctx, patient(t, "p-"+family, family)); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	q := storage.SearchQuery{
+		Type:   "Patient",
+		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
+		Count:  2,
+	}
+	page1, _, cursor, err := store.Search(ctx, q)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Someone inserts a resource sorting inside the page already returned.
+	if _, err := store.Create(ctx, patient(t, "p-Bravo", "Bravo")); err != nil {
+		t.Fatal(err)
+	}
+
+	q.Cursor = cursor
+	page2, _, _, err := store.Search(ctx, q)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	counts := map[string]int{}
+	var seen []string
+	for _, r := range append(page1, page2...) {
+		family := eval(t, doc(t, string(r.Content)), "Patient.name.family")
+		counts[family]++
+		seen = append(seen, family)
+	}
+	for family, n := range counts {
+		if n > 1 {
+			t.Errorf("%s appeared %d times across pages: %v", family, n, seen)
+		}
+	}
+	for _, want := range []string{"Alpha", "Charlie", "Echo", "Golf"} {
+		if counts[want] == 0 {
+			t.Errorf("%s was skipped: %v", want, seen)
+		}
+	}
+}
+
+// A cursor made for one sort order cannot be replayed against another: its
+// values would be compared against the wrong expressions.
+func TestCursorRejectsMismatchedSort(t *testing.T) {
+	ctx := context.Background()
+	store := newStore(t)
+	for i := 0; i < 3; i++ {
+		if _, err := store.Create(ctx, patient(t, fmt.Sprintf("p%d", i), fmt.Sprintf("F%d", i))); err != nil {
+			t.Fatal(err)
+		}
+	}
+	q := storage.SearchQuery{
+		Type:   "Patient",
+		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
+		Count:  1,
+	}
+	_, _, cursor, err := store.Search(ctx, q)
+	if err != nil {
+		t.Fatal(err)
+	}
+	q.SortBy = nil
+	q.Cursor = cursor
+	if _, _, _, err := store.Search(ctx, q); err == nil {
+		t.Error("a cursor from a different sort order was accepted")
+	}
+	if _, _, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Cursor: "not-base64!"}); err == nil {
+		t.Error("a malformed cursor was accepted")
+	}
+}
+
+// _total=none skips the count, which is a second evaluation of the predicate.
+func TestSkipTotal(t *testing.T) {
+	ctx := context.Background()
+	store := newStore(t)
+	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
+		t.Fatal(err)
+	}
+	results, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", SkipTotal: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(results) != 1 {
+		t.Errorf("results = %d, want 1", len(results))
+	}
+	if total != -1 {
+		t.Errorf("total = %d, want -1 to mean it was not computed", total)
 	}
 }

@@ -343,16 +343,67 @@ func TestSearchPagingLinks(t *testing.T) {
 	if len(entries) != 2 {
 		t.Errorf("entries = %d, want 2", len(entries))
 	}
-	links := map[string]bool{}
-	for _, raw := range bundle["link"].([]any) {
-		link, _ := raw.(map[string]any)
-		links[link["relation"].(string)] = true
-	}
-	for _, want := range []string{"self", "first", "next", "last"} {
-		if !links[want] {
+	links := bundleLinks(t, bundle)
+	// Paging is by cursor, so there is a self and a next but no first, previous
+	// or last: those need an offset to point at, which a keyset cursor has not
+	// got. Clients follow links rather than build them.
+	for _, want := range []string{"self", "next"} {
+		if links[want] == "" {
 			t.Errorf("missing %q link; have %v", want, links)
 		}
 	}
+	if !strings.Contains(links["next"], "_cursor=") {
+		t.Errorf("next link is not a cursor: %s", links["next"])
+	}
+}
+
+// Walking every page must visit each resource exactly once, and terminate.
+func TestPagingWalksEveryResourceOnce(t *testing.T) {
+	c := newServer(t)
+	const count = 7
+	for i := 0; i < count; i++ {
+		c.createPatient(fmt.Sprintf("M%d", i), fmt.Sprintf("Family%d", i))
+	}
+
+	seen := map[string]int{}
+	next := "/Patient?_count=2&_sort=family"
+	for pages := 0; next != "" && pages < 20; pages++ {
+		bundle := c.expect(http.StatusOK, "GET", next, "").json(t)
+		for _, raw := range bundle["entry"].([]any) {
+			entry, _ := raw.(map[string]any)
+			res, _ := entry["resource"].(map[string]any)
+			seen[res["id"].(string)]++
+		}
+		links := bundleLinks(t, bundle)
+		next = ""
+		if raw := links["next"]; raw != "" {
+			// The link is absolute; the test client wants a path.
+			if i := strings.Index(raw, "/Patient"); i >= 0 {
+				next = raw[i:]
+			}
+		}
+	}
+	if len(seen) != count {
+		t.Errorf("paging visited %d resources, want %d", len(seen), count)
+	}
+	for id, n := range seen {
+		if n != 1 {
+			t.Errorf("%s was returned %d times", id, n)
+		}
+	}
+}
+
+func bundleLinks(t *testing.T, bundle map[string]any) map[string]string {
+	t.Helper()
+	out := map[string]string{}
+	links, _ := bundle["link"].([]any)
+	for _, raw := range links {
+		link, _ := raw.(map[string]any)
+		relation, _ := link["relation"].(string)
+		target, _ := link["url"].(string)
+		out[relation] = target
+	}
+	return out
 }
 
 func TestSearchRejectsUnknownParameter(t *testing.T) {

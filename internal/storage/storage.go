@@ -71,12 +71,21 @@ type HistoryQuery struct {
 // -- modifiers, prefixes, chaining -- happens above, and rendering to SQL
 // happens inside a backend. Neither end knows about the other.
 type SearchQuery struct {
-	Type    string
-	Params  []ParamMatch
-	Count   int
-	Offset  int
-	SortBy  []SortKey
-	Summary bool
+	Type   string
+	Params []ParamMatch
+	Count  int
+	Offset int
+	SortBy []SortKey
+
+	// Cursor resumes a previous page. When set, Offset is ignored: paging is by
+	// keyset rather than by offset, so a resource created between two page
+	// fetches cannot shift the ones after it.
+	Cursor string
+
+	// SkipTotal omits the count query, for _total=none. Counting is a second
+	// full scan of the predicate, and a client paging through results rarely
+	// needs it more than once.
+	SkipTotal bool
 }
 
 // ParamMatch is one indexed parameter constrained to a value.
@@ -88,6 +97,15 @@ type ParamMatch struct {
 	// Values are alternatives: a match succeeds if any of them does, which is
 	// how FHIR's comma-separated "or" works.
 	Values []MatchValue
+	// Negate inverts the whole match, for the :not modifier. It negates the
+	// parameter rather than each value, which is the difference between "has no
+	// value in this list" and "has some value not in this list" -- the
+	// specification means the former.
+	Negate bool
+	// TextSearch redirects a token parameter to the string index, for the :text
+	// modifier: extraction writes a CodeableConcept's text there under the same
+	// parameter code.
+	TextSearch bool
 }
 
 // MatchValue is one alternative within a ParamMatch.
@@ -95,9 +113,12 @@ type MatchValue struct {
 	// System and Code together match a token; Code alone matches any system.
 	System string
 	Code   string
-	// Text matches a string index, by prefix unless Exact is set.
+	// Text matches a string index. Match says how.
 	Text  string
 	Exact bool
+	// Match selects the string comparison: prefix (the default), exact, or
+	// contains.
+	Match StringMatch
 	// Reference matches a reference index by target type and id, or by the
 	// reference URL when the query gives an absolute one.
 	RefType string
@@ -114,10 +135,28 @@ type MatchValue struct {
 	// Prefix is the comparison the value carries: eq, ne, gt, lt, ge, le, sa,
 	// eb, or ap. Empty means eq.
 	Prefix string
+	// Prefix scoping for uri parameters: Above matches the stored value's
+	// ancestors, Below its descendants.
+	URIAbove bool
+	URIBelow bool
+
 	// Missing, when set, matches resources that have (or lack) the parameter
 	// rather than any particular value.
 	Missing *bool
 }
+
+// StringMatch is how a string index value is compared.
+type StringMatch int
+
+const (
+	// MatchPrefix is FHIR's default for string parameters: the stored value
+	// starts with the query value, compared on the folded form.
+	MatchPrefix StringMatch = iota
+	// MatchExact compares the value as written, case and accents included.
+	MatchExact
+	// MatchContains looks anywhere in the value, for the :contains modifier.
+	MatchContains
+)
 
 // SortKey is one ordering term.
 type SortKey struct {
@@ -143,6 +182,11 @@ const (
 	IndexQuantity  IndexKind = "quantity"
 	IndexURI       IndexKind = "uri"
 	IndexNumber    IndexKind = "number"
+	// IndexFullText backs _text and _content. It is not a typed index table
+	// like the others but a full-text index, and it is the one place the two
+	// backends genuinely diverge: SQLite uses FTS5 and PostgreSQL will use
+	// tsvector. Everything else is ordinary B-tree lookups on both.
+	IndexFullText IndexKind = "fulltext"
 )
 
 // IndexEntry is one extracted, indexable value.
@@ -211,9 +255,11 @@ type Backend interface {
 	// History returns versions newest first.
 	History(ctx context.Context, q HistoryQuery) ([]*Resource, error)
 
-	// Search returns the current versions matching a query, and the total
-	// number of matches irrespective of paging.
-	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, err error)
+	// Search returns the current versions matching a query, the total number of
+	// matches irrespective of paging, and a cursor for the next page (empty
+	// when there is none). Total is -1 when the query asked for it to be
+	// skipped.
+	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, nextCursor string, err error)
 
 	// Close releases the backend's resources.
 	Close() error

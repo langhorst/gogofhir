@@ -324,6 +324,14 @@ func (s *Store) reindex(ctx context.Context, tx *sql.Tx, pid int64, node *resour
 	if err := s.clearIndex(ctx, tx, pid); err != nil {
 		return err
 	}
+	narrative, content := s.extractor.FullText(node)
+	if narrative != "" || content != "" {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO idx_fulltext (rowid, narrative, content) VALUES (?, ?, ?)`,
+			pid, narrative, content); err != nil {
+			return fmt.Errorf("storage: full-text indexing: %w", err)
+		}
+	}
 	for _, entry := range s.extractor.Extract(node) {
 		spec, ok := indexTables[entry.Kind]
 		if !ok {
@@ -367,6 +375,11 @@ func (s *Store) clearIndex(ctx context.Context, tx *sql.Tx, pid int64) error {
 		if _, err := tx.ExecContext(ctx, "DELETE FROM "+spec.table+" WHERE pid = ?", pid); err != nil {
 			return err
 		}
+	}
+	// The full-text table is keyed by rowid rather than a pid column, so it is
+	// cleared separately.
+	if _, err := tx.ExecContext(ctx, "DELETE FROM idx_fulltext WHERE rowid = ?", pid); err != nil {
+		return err
 	}
 	return nil
 }
