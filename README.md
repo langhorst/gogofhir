@@ -7,9 +7,10 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M0 (foundation).** The conformance pipeline is working end to end —
-> both FHIR releases are vendored, compiled, embedded, and covered by tests.
-> There is no HTTP server yet; the REST layer is M2. See [Milestones](#milestones).
+> **Status: M1 (FHIRPath), in progress.** The conformance pipeline is complete,
+> and the FHIRPath lexer and parser are done — proven against every expression
+> the specification publishes. The evaluator is next. There is no HTTP server
+> yet; the REST layer is M2. See [Milestones](#milestones).
 
 ## Why
 
@@ -136,7 +137,8 @@ regenerate it.
 
 - [x] **M0 — Foundation.** Module, build, CI, vendoring, conformance compiler.
 - [ ] **M1 — FHIRPath.** Full engine. Done when the official R4 and R5 test
-      suites pass.
+      suites pass. *Lexer and parser complete: all 4636 FHIRPath expressions
+      published across both releases parse and round-trip. Evaluator next.*
 - [ ] **M2 — Storage + REST core.** CRUD, versioning, history, conditional
       operations, ETag concurrency, CapabilityStatement.
 - [ ] **M3 — Search fundamentals.** All nine parameter types, modifiers,
