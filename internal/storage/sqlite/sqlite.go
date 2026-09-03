@@ -18,6 +18,10 @@
 //   - Only one writer at a time. Reads are concurrent under WAL.
 //   - Full-text search (_text, _content) will need FTS5 here and tsvector
 //     there; it is the one genuinely divergent feature.
+//   - LIKE is case-insensitive for ASCII here and case-sensitive there, so
+//     string matching runs against the pre-folded "norm" column rather than
+//     relying on the operator. That is deliberate portability, not caution.
+//   - "ESCAPE '\'" on LIKE is standard and behaves identically on both.
 package sqlite
 
 import (
@@ -311,13 +315,13 @@ var indexTables = map[storage.IndexKind]struct {
 	table   string
 	columns []string
 }{
-	storage.IndexString:    {"idx_string", []string{"code", "norm", "exact"}},
-	storage.IndexToken:     {"idx_token", []string{"code", "system", "value"}},
-	storage.IndexReference: {"idx_reference", []string{"code", "target_type", "target_id", "url"}},
-	storage.IndexDate:      {"idx_date", []string{"code", "low", "high"}},
-	storage.IndexQuantity:  {"idx_quantity", []string{"code", "low", "high", "system", "unit"}},
-	storage.IndexURI:       {"idx_uri", []string{"code", "value"}},
-	storage.IndexNumber:    {"idx_number", []string{"code", "low", "high"}},
+	storage.IndexString:    {"idx_string", []string{"code", "seq", "norm", "exact"}},
+	storage.IndexToken:     {"idx_token", []string{"code", "seq", "system", "value"}},
+	storage.IndexReference: {"idx_reference", []string{"code", "seq", "target_type", "target_id", "url"}},
+	storage.IndexDate:      {"idx_date", []string{"code", "seq", "low", "high"}},
+	storage.IndexQuantity:  {"idx_quantity", []string{"code", "seq", "low", "high", "system", "unit"}},
+	storage.IndexURI:       {"idx_uri", []string{"code", "seq", "value"}},
+	storage.IndexNumber:    {"idx_number", []string{"code", "seq", "low", "high"}},
 }
 
 func (s *Store) reindex(ctx context.Context, tx *sql.Tx, pid int64, node *resource.Node) error {
@@ -353,19 +357,19 @@ func (s *Store) reindex(ctx context.Context, tx *sql.Tx, pid int64, node *resour
 func indexValues(e storage.IndexEntry) []any {
 	switch e.Kind {
 	case storage.IndexString:
-		return []any{e.Code, e.Normalized, e.Exact}
+		return []any{e.Code, e.Seq, e.Normalized, e.Exact}
 	case storage.IndexToken:
-		return []any{e.Code, e.System, e.Value}
+		return []any{e.Code, e.Seq, e.System, e.Value}
 	case storage.IndexReference:
-		return []any{e.Code, e.RefType, e.RefID, e.RefURL}
+		return []any{e.Code, e.Seq, e.RefType, e.RefID, e.RefURL}
 	case storage.IndexDate:
-		return []any{e.Code, e.DateLow, e.DateHigh}
+		return []any{e.Code, e.Seq, e.DateLow, e.DateHigh}
 	case storage.IndexQuantity:
-		return []any{e.Code, e.NumLow, e.NumHigh, e.QuantitySystem, e.QuantityCode}
+		return []any{e.Code, e.Seq, e.NumLow, e.NumHigh, e.QuantitySystem, e.QuantityCode}
 	case storage.IndexURI:
-		return []any{e.Code, e.URI}
+		return []any{e.Code, e.Seq, e.URI}
 	case storage.IndexNumber:
-		return []any{e.Code, e.NumLow, e.NumHigh}
+		return []any{e.Code, e.Seq, e.NumLow, e.NumHigh}
 	}
 	return nil
 }

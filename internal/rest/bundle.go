@@ -42,6 +42,11 @@ type bundleContext struct {
 	total   int
 	cursor  string
 	options searchOptions
+	// included are the resources _include and _revinclude pulled in. They are
+	// kept separate from the matches so the bundle can mark them, which is the
+	// whole point: a client must be able to tell what answered its query from
+	// what merely came with it.
+	included []*storage.Resource
 }
 
 // searchBundle builds a searchset Bundle with the paging links a client follows.
@@ -54,8 +59,17 @@ func searchBundle(idx *conformance.Index, ctx bundleContext, results []*storage.
 			mode:    "match",
 		})
 	}
+	for _, res := range ctx.included {
+		entries = append(entries, bundleEntry{
+			fullURL: fmt.Sprintf("%s/%s/%s", ctx.base, res.Type, res.ID),
+			content: res.Content,
+			mode:    "include",
+		})
+	}
 	var total *int
 	if ctx.total >= 0 {
+		// The total counts matches only. Included resources are context, not
+		// results, and counting them would make paging arithmetic nonsense.
 		total = &ctx.total
 	}
 	return buildBundle(idx, "searchset", total, entries, pagingLinks(ctx), ctx.options, idx)

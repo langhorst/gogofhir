@@ -371,12 +371,26 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 		// _summary=count wants the number and nothing else.
 		results, cursor = nil, ""
 	}
+
+	// Includes resolve against the matches, after paging: a client asking for
+	// twenty results and their subjects wants the subjects of those twenty, not
+	// of every resource that matched.
+	var included []*storage.Resource
+	if len(opts.includes) > 0 && len(results) > 0 {
+		included, err = s.Store.Include(r.Context(), results, opts.includes)
+		if err != nil {
+			s.failStorage(w, r, err)
+			return
+		}
+	}
+
 	bundle, err := searchBundle(s.Index, bundleContext{
-		base:    s.base(r),
-		request: r.URL,
-		total:   total,
-		cursor:  cursor,
-		options: opts,
+		base:     s.base(r),
+		request:  r.URL,
+		total:    total,
+		cursor:   cursor,
+		options:  opts,
+		included: included,
 	}, results)
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the search bundle failed: %v", err)

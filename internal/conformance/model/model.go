@@ -66,6 +66,9 @@ type Index struct {
 
 	once          sync.Once
 	resourceTypes []string
+
+	byURLOnce sync.Once
+	byURL     map[string]*SearchParam
 }
 
 // TypeDef is one StructureDefinition reduced to what the server needs.
@@ -156,7 +159,11 @@ type Invariant struct {
 
 // SearchParam is one SearchParameter reduced to what search needs.
 type SearchParam struct {
-	Code string   `json:"code"`
+	Code string `json:"code"`
+	// URL is the parameter's canonical identifier. Composite parameters name
+	// their components by URL rather than by code, so the lookup is needed to
+	// find out what type each component is.
+	URL  string   `json:"url,omitempty"`
 	Base []string `json:"base"`
 	// Type is one of the nine FHIR search parameter types: number, date,
 	// string, token, reference, composite, quantity, uri, special.
@@ -261,6 +268,23 @@ func (i *Index) SearchParamsFor(resourceType string) []*SearchParam {
 	}
 	slices.SortFunc(out, func(a, b *SearchParam) int { return strings.Compare(a.Code, b.Code) })
 	return out
+}
+
+// SearchParamByURL finds a parameter by its canonical URL, which is how a
+// composite parameter refers to its components.
+func (i *Index) SearchParamByURL(url string) (*SearchParam, bool) {
+	i.byURLOnce.Do(func() {
+		i.byURL = map[string]*SearchParam{}
+		for _, params := range i.SearchParams {
+			for _, p := range params {
+				if p.URL != "" {
+					i.byURL[p.URL] = p
+				}
+			}
+		}
+	})
+	p, ok := i.byURL[url]
+	return p, ok
 }
 
 // Invariants returns every constraint that applies to a type, walking the base

@@ -318,6 +318,7 @@ func compileSearchParam(res map[string]any) (*model.SearchParam, bool) {
 	}
 	sp := &model.SearchParam{
 		Code:       code,
+		URL:        str(res, "url"),
 		Base:       base,
 		Type:       typ,
 		Expression: str(res, "expression"),
@@ -337,10 +338,10 @@ func compileSearchParam(res map[string]any) (*model.SearchParam, bool) {
 			})
 		}
 	}
-	// A non-composite parameter with no expression selects nothing and cannot
-	// be indexed. The "special" ones (_text, _content, near) are implemented by
-	// hand rather than by expression, so they are kept.
-	if sp.Expression == "" && typ != "composite" && typ != "special" {
+	// A parameter with no expression selects nothing and cannot be indexed.
+	// The "special" ones (_text, _content, near) are implemented by hand rather
+	// than by expression, so they are kept regardless.
+	if sp.Expression == "" && typ != "special" {
 		return nil, false
 	}
 	return sp, true

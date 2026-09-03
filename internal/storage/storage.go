@@ -86,6 +86,51 @@ type SearchQuery struct {
 	// full scan of the predicate, and a client paging through results rarely
 	// needs it more than once.
 	SkipTotal bool
+
+	// Filter is the _filter expression, ANDed with Params. It is a tree rather
+	// than a list because _filter is the one part of FHIR search that can say
+	// "or" and "not" across whole parameters -- the query string itself can
+	// only express a conjunction.
+	Filter *FilterExpr
+}
+
+// FilterExpr is a boolean combination of parameter matches, from _filter.
+//
+// A node is either a leaf holding one Match, or an operator with Operands.
+// "not" takes exactly one operand.
+type FilterExpr struct {
+	// Op is FilterAnd, FilterOr, or FilterNot; empty for a leaf.
+	Op       FilterOp
+	Operands []*FilterExpr
+	Match    *ParamMatch
+}
+
+// FilterOp is a boolean connective in a _filter expression.
+type FilterOp string
+
+const (
+	FilterAnd FilterOp = "and"
+	FilterOr  FilterOp = "or"
+	FilterNot FilterOp = "not"
+)
+
+// IncludeSpec is one _include or _revinclude request.
+type IncludeSpec struct {
+	// Reverse distinguishes _revinclude (find resources pointing at the
+	// matches) from _include (find resources the matches point at).
+	Reverse bool
+	// SourceType is the resource type holding the reference. For _include it is
+	// the type being searched; for _revinclude it is the type doing the
+	// referencing.
+	SourceType string
+	// Code is the reference search parameter to follow. Empty with Wildcard
+	// set means every reference.
+	Code     string
+	Wildcard bool
+	// TargetType optionally restricts which referenced type is pulled in.
+	TargetType string
+	// Iterate repeats the expansion over what it finds, for :iterate.
+	Iterate bool
 }
 
 // ParamMatch is one indexed parameter constrained to a value.
@@ -106,6 +151,47 @@ type ParamMatch struct {
 	// modifier: extraction writes a CodeableConcept's text there under the same
 	// parameter code.
 	TextSearch bool
+
+	// Chain turns this into a join through a reference: the resources this
+	// parameter points at must themselves match Chain's parameters. It is how
+	// "subject.name=peter" is expressed.
+	Chain *Chain
+	// Has is the reverse join: some resource must reference this one and match.
+	// It is how "_has:Observation:subject:code=1234" is expressed.
+	Has *Has
+	// Composite holds the alternatives of a composite parameter, of which any
+	// one satisfies the match. Within an alternative every component must be
+	// satisfied by the *same* occurrence, which is what makes a composite
+	// different from writing the components as separate parameters.
+	Composite []CompositeMatch
+}
+
+// CompositeMatch is one alternative of a composite parameter: the component
+// matches that a single occurrence of the composite's base expression has to
+// satisfy together.
+type CompositeMatch struct {
+	Components []ParamMatch
+}
+
+// Chain is a forward reference join, from "subject.name=peter" or
+// "subject:Patient.name=peter". Chains nest, so Params may contain further
+// chained matches.
+type Chain struct {
+	// TargetType restricts which referenced type is followed, from the
+	// "subject:Patient" form. Empty follows any.
+	TargetType string
+	Params     []ParamMatch
+}
+
+// Has is a reverse reference join, from "_has:Observation:subject:code=1234":
+// find resources that some Observation points at through its subject
+// parameter, where that Observation matches the remaining criteria.
+type Has struct {
+	// SourceType is the referencing resource type.
+	SourceType string
+	// Code is the reference parameter on the source that points back here.
+	Code   string
+	Params []ParamMatch
 }
 
 // MatchValue is one alternative within a ParamMatch.
@@ -156,6 +242,9 @@ const (
 	MatchExact
 	// MatchContains looks anywhere in the value, for the :contains modifier.
 	MatchContains
+	// MatchEndsWith anchors at the end. No query-string modifier produces it;
+	// it exists for _filter's "ew" operator.
+	MatchEndsWith
 )
 
 // SortKey is one ordering term.
@@ -226,6 +315,10 @@ type IndexEntry struct {
 
 	// URI
 	URI string
+
+	// Seq groups the rows that came from the same occurrence of a composite
+	// parameter's base expression. Ordinary parameters leave it zero.
+	Seq int
 }
 
 // Backend is the persistence contract.
@@ -260,6 +353,11 @@ type Backend interface {
 	// when there is none). Total is -1 when the query asked for it to be
 	// skipped.
 	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, nextCursor string, err error)
+
+	// Include resolves _include and _revinclude against a set of matches,
+	// returning the additional resources to place in the bundle. Resources
+	// already among the seeds are not returned again.
+	Include(ctx context.Context, seeds []*Resource, specs []IncludeSpec) ([]*Resource, error)
 
 	// Close releases the backend's resources.
 	Close() error

@@ -49,13 +49,17 @@ func NewExtractor(idx *conformance.Index) *Extractor {
 func (e *Extractor) Extract(node *resource.Node) []IndexEntry {
 	resourceType := node.FHIRType()
 	ctx := resource.NewContext(e.idx, node)
+	ctx.ResolveReference = resolveForIndexing
 
 	var out []IndexEntry
 	for _, sp := range e.idx.SearchParamsFor(resourceType) {
+		if sp.Type == "composite" {
+			out = append(out, e.extractComposite(node, ctx, sp)...)
+			continue
+		}
 		kind, ok := indexKindFor(sp.Type)
 		if !ok {
-			// Composite parameters are assembled from their components at query
-			// time, and "special" ones (_text, _content, near) are implemented
+			// The "special" parameters (_text, _content, near) are implemented
 			// by hand rather than by expression.
 			continue
 		}
@@ -77,6 +81,80 @@ func (e *Extractor) Extract(node *resource.Node) []IndexEntry {
 	return out
 }
 
+// extractComposite indexes a composite parameter's components, tagging every
+// row from one occurrence of the base expression with the same sequence number.
+//
+// A composite asks about a single occurrence: code-value-quantity means "the
+// code and the value of the same measurement", not "some code and some value
+// anywhere in the resource". Without the sequence the two are
+// indistinguishable, and the query degenerates into an AND of unrelated
+// conditions -- which quietly returns wrong results rather than failing.
+func (e *Extractor) extractComposite(node *resource.Node, ctx *fhirpath.Context, sp *conformance.SearchParam) []IndexEntry {
+	base := e.expression(sp)
+	if base == nil || len(sp.Components) == 0 {
+		return nil
+	}
+	occurrences, err := fhirpath.EvalNode(base, node, ctx)
+	if err != nil {
+		return nil
+	}
+
+	var out []IndexEntry
+	for seq, occurrence := range occurrences {
+		for i, component := range sp.Components {
+			target, ok := e.idx.SearchParamByURL(component.Definition)
+			if !ok {
+				continue
+			}
+			kind, ok := indexKindFor(target.Type)
+			if !ok {
+				continue
+			}
+			expr := e.componentExpression(component.Definition, component.Expression)
+			if expr == nil {
+				continue
+			}
+			values, err := fhirpath.Eval(expr, fhirpath.Collection{occurrence}, ctx)
+			if err != nil {
+				continue
+			}
+			code := CompositeComponentCode(sp.Code, i)
+			for _, v := range values {
+				for _, entry := range entriesFor(&conformance.SearchParam{Code: code}, kind, v) {
+					entry.Seq = seq
+					out = append(out, entry)
+				}
+			}
+		}
+	}
+	return out
+}
+
+// CompositeComponentCode is the synthetic code a composite's nth component is
+// indexed under. Query building uses the same function, so the two cannot drift.
+func CompositeComponentCode(code string, n int) string {
+	return code + "$" + strconv.Itoa(n)
+}
+
+// componentExpression parses a composite component's expression, cached by the
+// component's canonical URL.
+func (e *Extractor) componentExpression(definition, expression string) fhirpath.Expr {
+	key := "component:" + definition + ":" + expression
+	if expr, ok := e.compiled[key]; ok {
+		return expr
+	}
+	if e.unusable[key] {
+		return nil
+	}
+	expr, err := fhirpath.Parse(expression)
+	if err != nil {
+		e.unusable[key] = true
+		return nil
+	}
+	e.compiled[key] = expr
+	return expr
+}
+
 func (e *Extractor) expression(sp *conformance.SearchParam) fhirpath.Expr {
 	key := strings.Join(sp.Base, ",") + "/" + sp.Code
 	if expr, ok := e.compiled[key]; ok {
@@ -93,6 +171,38 @@ func (e *Extractor) expression(sp *conformance.SearchParam) fhirpath.Expr {
 	e.compiled[key] = expr
 	return expr
 }
+
+// resolveForIndexing answers resolve() during extraction.
+//
+// Around fifty published search parameters are written as
+// "subject.where(resolve() is Patient)" -- the type-narrowing idiom that makes
+// Observation.patient distinct from Observation.subject. Without an answer to
+// resolve(), every one of them indexes nothing, and the parameters silently
+// return no results.
+//
+// Actually loading the referenced resource would make indexing depend on what
+// else is stored, and would leave an index wrong until the target arrives.
+// Instead the reference's own type prefix answers the question: "Patient/123"
+// is a Patient whether or not that Patient exists. That is all the idiom asks,
+// and it keeps a write self-contained.
+func resolveForIndexing(ref string) fhirpath.Node {
+	typeName, _ := splitReference(ref)
+	if typeName == "" {
+		return nil
+	}
+	return referenceStub{typeName: typeName}
+}
+
+// referenceStub stands in for a referenced resource during indexing. It knows
+// its type and nothing else, which is exactly what "resolve() is X" needs; any
+// attempt to navigate into it yields empty rather than a wrong answer.
+type referenceStub struct{ typeName string }
+
+func (r referenceStub) TypeName() string                  { return "FHIR." + r.typeName }
+func (r referenceStub) String() string                    { return r.typeName }
+func (r referenceStub) FHIRType() string                  { return r.typeName }
+func (r referenceStub) Children(string) []fhirpath.Node   { return nil }
+func (r referenceStub) Primitive() (fhirpath.Value, bool) { return nil, false }
 
 // indexKindFor maps a search parameter type onto the index it uses.
 func indexKindFor(paramType string) (IndexKind, bool) {

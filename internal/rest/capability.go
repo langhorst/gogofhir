@@ -77,6 +77,8 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 				map[string]any{"name": "_summary", "type": "token"},
 				map[string]any{"name": "_elements", "type": "string"},
 				map[string]any{"name": "_total", "type": "token"},
+				map[string]any{"name": "_filter", "type": "string",
+					"documentation": "Filter expressions, with and/or/not over the parameters below."},
 			},
 		}},
 	}
@@ -108,10 +110,11 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		map[string]any{"name": "_content", "type": "special",
 			"documentation": "Full-text search over the resource's text values."},
 	}
+	var includes []any
 	for _, sp := range s.Index.SearchParamsFor(typeName) {
-		if _, indexed := indexKindFor(sp.Type); !indexed {
-			// Composite and "special" parameters are declared by the
-			// specification but not yet indexed here. Advertising them would
+		if _, indexed := indexKindFor(sp.Type); !indexed && sp.Type != "composite" {
+			// The "special" parameters -- near, and the like -- are declared by
+			// the specification but not indexed here. Advertising them would
 			// promise searches that return nothing.
 			continue
 		}
@@ -119,6 +122,9 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 			"name": sp.Code,
 			"type": sp.Type,
 		})
+		if sp.Type == "reference" {
+			includes = append(includes, typeName+":"+sp.Code)
+		}
 	}
 
 	entry := map[string]any{
@@ -133,5 +139,11 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		"conditionalRead":   "modified-since",
 	}
 	entry["searchParam"] = params
+	if len(includes) > 0 {
+		entry["searchInclude"] = includes
+	}
+	// searchRevInclude is deliberately absent: every reference parameter on
+	// every type that can point here would qualify, and the list is quadratic
+	// in the number of resource types. _revinclude is supported regardless.
 	return entry
 }

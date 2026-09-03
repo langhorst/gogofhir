@@ -24,7 +24,7 @@ import (
 var controlParams = map[string]bool{
 	"_format": true, "_count": true, "_offset": true, "_sort": true,
 	"_summary": true, "_total": true, "_pretty": true, "_elements": true,
-	"_cursor": true,
+	"_cursor": true, "_include": true, "_revinclude": true, "_filter": true,
 }
 
 // searchOptions are the response-shaping choices a query carries.
@@ -36,6 +36,9 @@ type searchOptions struct {
 	elements []string
 	// countOnly is _summary=count: the total without any entries.
 	countOnly bool
+	// includes are the _include and _revinclude specifications to resolve
+	// after the matches are known.
+	includes []storage.IncludeSpec
 }
 
 // subset applies _summary and _elements to a resource on its way out.
@@ -62,20 +65,16 @@ func parseSearch(idx *conformance.Index, resourceType string, values url.Values)
 	var opts searchOptions
 
 	for rawName, rawValues := range values {
-		name, modifier, _ := strings.Cut(rawName, ":")
+		name, _, _ := strings.Cut(rawName, ":")
 		if controlParams[name] {
 			continue
 		}
-		sp, kind, err := resolveParam(idx, resourceType, name)
-		if err != nil {
-			return q, opts, err
-		}
 		for _, raw := range rawValues {
-			match, err := parseParam(sp, kind, modifier, raw)
+			matches, err := parseOneParam(idx, resourceType, rawName, raw)
 			if err != nil {
 				return q, opts, err
 			}
-			q.Params = append(q.Params, match)
+			q.Params = append(q.Params, matches...)
 		}
 	}
 
@@ -83,6 +82,32 @@ func parseSearch(idx *conformance.Index, resourceType string, values url.Values)
 		return q, opts, err
 	}
 	return q, opts, nil
+}
+
+// parseOneParam dispatches on the shape of a parameter name: a reverse chain,
+// a forward chain, or a plain parameter.
+//
+// The dot binds before the colon: in "subject:Patient.family" the modifier
+// belongs to the reference, not to the chained parameter.
+func parseOneParam(idx *conformance.Index, resourceType, rawName, raw string) ([]storage.ParamMatch, error) {
+	return parseNamedParam(idx, resourceType, rawName, queryLeaf(idx, raw))
+}
+
+// queryLeaf builds the innermost parameter of a query-string search, where the
+// name may carry a modifier and the value is a comma-separated alternative
+// list.
+func queryLeaf(idx *conformance.Index, raw string) leafBuilder {
+	return func(resourceType, name string) (storage.ParamMatch, error) {
+		base, modifier, _ := strings.Cut(name, ":")
+		if sp, ok := idx.SearchParam(resourceType, base); ok && sp.Type == "composite" {
+			return parseComposite(idx, sp, modifier, raw)
+		}
+		sp, kind, err := resolveParam(idx, resourceType, base)
+		if err != nil {
+			return storage.ParamMatch{}, err
+		}
+		return parseParam(sp, kind, modifier, raw)
+	}
 }
 
 // resolveParam finds a search parameter and the index it uses. _id and
@@ -240,22 +265,48 @@ func checkModifier(sp *conformance.SearchParam, kind storage.IndexKind, modifier
 // splitAlternatives splits on commas, honouring the backslash escape the
 // specification defines so a value containing a literal comma survives.
 func splitAlternatives(raw string) []string {
+	parts := splitEscaped(raw, ',')
+	for i, part := range parts {
+		parts[i] = unescapeValue(part)
+	}
+	return parts
+}
+
+// splitEscaped splits on a separator, skipping over backslash-escaped
+// characters but leaving the escapes in place.
+//
+// Escapes survive because a composite value is split twice -- on the comma
+// first, then on the "$" -- and unescaping in between would turn a literal
+// "\$" into a separator for the second pass.
+func splitEscaped(raw string, sep byte) []string {
 	var out []string
-	var current strings.Builder
+	start := 0
 	for i := 0; i < len(raw); i++ {
 		switch {
 		case raw[i] == '\\' && i+1 < len(raw):
-			current.WriteByte(raw[i+1])
 			i++
-		case raw[i] == ',':
-			out = append(out, current.String())
-			current.Reset()
-		default:
-			current.WriteByte(raw[i])
+		case raw[i] == sep:
+			out = append(out, raw[start:i])
+			start = i + 1
 		}
 	}
-	out = append(out, current.String())
-	return out
+	return append(out, raw[start:])
+}
+
+// unescapeValue removes the backslash escapes once a value is no longer going
+// to be split.
+func unescapeValue(raw string) string {
+	if !strings.Contains(raw, "\\") {
+		return raw
+	}
+	var b strings.Builder
+	for i := 0; i < len(raw); i++ {
+		if raw[i] == '\\' && i+1 < len(raw) {
+			i++
+		}
+		b.WriteByte(raw[i])
+	}
+	return b.String()
 }
 
 func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValue, error) {
@@ -435,6 +486,47 @@ func parseControls(idx *conformance.Index, resourceType string, values url.Value
 		// returned. That satisfies the request: an estimate may be exact.
 	default:
 		return &searchError{fmt.Sprintf("_total must be none, estimate, or accurate, got %q", total)}
+	}
+
+	for rawName, rawValues := range values {
+		base, modifier, _ := strings.Cut(rawName, ":")
+		if base != "_include" && base != "_revinclude" {
+			continue
+		}
+		if modifier != "" && modifier != "iterate" && modifier != "recurse" {
+			return &searchError{fmt.Sprintf(
+				"the only modifier %s accepts is :iterate, got :%s", base, modifier)}
+		}
+		for _, raw := range rawValues {
+			spec, err := parseInclude(idx, resourceType, raw, base == "_revinclude", modifier != "")
+			if err != nil {
+				return err
+			}
+			opts.includes = append(opts.includes, spec)
+		}
+	}
+
+	// Several _filter parameters are a conjunction, like any other repeated
+	// search parameter.
+	for _, raw := range values["_filter"] {
+		expr, err := parseFilter(idx, resourceType, raw)
+		if err != nil {
+			return err
+		}
+		if expr == nil {
+			continue
+		}
+		switch {
+		case q.Filter == nil:
+			q.Filter = expr
+		case q.Filter.Op == storage.FilterAnd:
+			q.Filter.Operands = append(q.Filter.Operands, expr)
+		default:
+			q.Filter = &storage.FilterExpr{
+				Op:       storage.FilterAnd,
+				Operands: []*storage.FilterExpr{q.Filter, expr},
+			}
+		}
 	}
 
 	if err := parseSubsetOptions(values, opts); err != nil {

@@ -32,8 +32,9 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		where = append(where, "r.resource_type = ?")
 		args = append(args, q.Type)
 	}
+	scope := &renderScope{alias: "r"}
 	for _, p := range q.Params {
-		clause, clauseArgs, err := renderParam(p)
+		clause, clauseArgs, err := renderParam(p, scope)
 		if err != nil {
 			return nil, 0, "", err
 		}
@@ -42,6 +43,16 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		}
 		where = append(where, clause)
 		args = append(args, clauseArgs...)
+	}
+	if q.Filter != nil {
+		clause, clauseArgs, err := renderFilter(q.Filter, scope)
+		if err != nil {
+			return nil, 0, "", err
+		}
+		if clause != "" {
+			where = append(where, clause)
+			args = append(args, clauseArgs...)
+		}
 	}
 	condition := strings.Join(where, " AND ")
 
@@ -297,17 +308,53 @@ func quote(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'
 
 // ---- predicates ----
 
+// renderScope tracks which resource row predicates are being written against,
+// and hands out unique table aliases.
+//
+// Chained and reverse-chained searches join to another resource, and the
+// predicates on the far side are the same predicates -- so every renderer takes
+// a scope rather than assuming the outer "r".
+type renderScope struct {
+	alias string
+	n     int
+	// depth bounds how far chains may nest. A chain is a join per level, and a
+	// deeply nested one from an untrusted query is a cheap way to make the
+	// server do expensive work.
+	depth int
+}
+
+const maxChainDepth = 4
+
+func (sc *renderScope) nested(alias string) *renderScope {
+	return &renderScope{alias: alias, n: sc.n, depth: sc.depth + 1}
+}
+
+func (sc *renderScope) newAlias(prefix string) string {
+	sc.n++
+	return fmt.Sprintf("%s%d", prefix, sc.n)
+}
+
 // renderParam turns one parameter match into an EXISTS clause.
-func renderParam(p storage.ParamMatch) (string, []any, error) {
+func renderParam(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
+	if p.Chain != nil {
+		return renderChain(p, sc)
+	}
+	if p.Has != nil {
+		return renderHas(p, sc)
+	}
+	if len(p.Composite) > 0 {
+		return renderComposite(p, sc)
+	}
+
 	switch p.Code {
 	case "_id":
-		return renderResourceColumn("r.fhir_id", p)
+		return renderResourceColumn(sc.alias+".fhir_id", p)
 	case "_lastUpdated":
-		return renderLastUpdated(p)
+		return renderLastUpdated(p, sc)
 	}
 
 	if p.Kind == storage.IndexFullText {
-		return renderFullText(p)
+		return renderFullText(p, sc)
 	}
 
 	kind := p.Kind
@@ -321,31 +368,27 @@ func renderParam(p storage.ParamMatch) (string, []any, error) {
 		return "", nil, fmt.Errorf("storage: no index for parameter %q", p.Code)
 	}
 
+	x := sc.newAlias("x")
+
 	// :missing asks about presence rather than value.
 	if len(p.Values) == 1 && p.Values[0].Missing != nil {
-		clause := fmt.Sprintf("EXISTS (SELECT 1 FROM %s x WHERE x.pid = r.pid AND x.code = ?)", spec.table)
+		clause := fmt.Sprintf("EXISTS (SELECT 1 FROM %s %s WHERE %s.pid = %s.pid AND %s.code = ?)",
+			spec.table, x, x, sc.alias, x)
 		if *p.Values[0].Missing {
 			clause = "NOT " + clause
 		}
 		return clause, []any{p.Code}, nil
 	}
 
-	var alternatives []string
-	var args []any
-	for _, v := range p.Values {
-		clause, clauseArgs, err := renderValue(kind, v)
-		if err != nil {
-			return "", nil, err
-		}
-		alternatives = append(alternatives, clause)
-		args = append(args, clauseArgs...)
+	inner, args, err := renderAlternatives(kind, p.Values, x)
+	if err != nil {
+		return "", nil, err
 	}
-	if len(alternatives) == 0 {
+	if inner == "" {
 		return "", nil, nil
 	}
-	inner := strings.Join(alternatives, " OR ")
-	clause := fmt.Sprintf("EXISTS (SELECT 1 FROM %s x WHERE x.pid = r.pid AND x.code = ? AND (%s))",
-		spec.table, inner)
+	clause := fmt.Sprintf("EXISTS (SELECT 1 FROM %s %s WHERE %s.pid = %s.pid AND %s.code = ? AND (%s))",
+		spec.table, x, x, sc.alias, x, inner)
 	if p.Negate {
 		// :not negates the parameter, not each value: "has no value among
 		// these", rather than "has some value that is not among these". The
@@ -356,6 +399,141 @@ func renderParam(p storage.ParamMatch) (string, []any, error) {
 	return clause, append([]any{p.Code}, args...), nil
 }
 
+// renderAlternatives renders one parameter's values as a disjunction, for use
+// inside an EXISTS over its index table. It returns an empty clause when there
+// is nothing to match, which the caller reads as "no constraint".
+func renderAlternatives(kind storage.IndexKind, values []storage.MatchValue, alias string) (string, []any, error) {
+	var alternatives []string
+	var args []any
+	for _, v := range values {
+		clause, clauseArgs, err := renderValue(kind, v, alias)
+		if err != nil {
+			return "", nil, err
+		}
+		alternatives = append(alternatives, clause)
+		args = append(args, clauseArgs...)
+	}
+	if len(alternatives) == 0 {
+		return "", nil, nil
+	}
+	return strings.Join(alternatives, " OR "), args, nil
+}
+
+// renderComposite requires a composite's components to be satisfied by one and
+// the same occurrence.
+//
+// code-value-quantity asks about a single measurement -- this code with this
+// value -- not about a code somewhere in the resource and a value somewhere
+// else in it. Extraction tags every row from one occurrence of the composite's
+// base expression with a shared seq, and the join here is on (pid, seq): the
+// first component anchors the occurrence and the rest are correlated to it.
+// Matching on pid alone would return resources that have no such measurement,
+// which is worse than failing because it looks like an answer.
+func renderComposite(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
+	var clauses []string
+	var args []any
+	for _, alternative := range p.Composite {
+		clause, clauseArgs, err := renderCompositeAlternative(alternative, sc)
+		if err != nil {
+			return "", nil, err
+		}
+		if clause == "" {
+			continue
+		}
+		clauses = append(clauses, clause)
+		args = append(args, clauseArgs...)
+	}
+	if len(clauses) == 0 {
+		return "", nil, nil
+	}
+	clause := "(" + strings.Join(clauses, " OR ") + ")"
+	if p.Negate {
+		clause = "NOT " + clause
+	}
+	return clause, args, nil
+}
+
+func renderCompositeAlternative(alternative storage.CompositeMatch, sc *renderScope) (string, []any, error) {
+	type leg struct {
+		table, alias, condition string
+		args                    []any
+	}
+	legs := make([]leg, 0, len(alternative.Components))
+	for _, component := range alternative.Components {
+		spec, ok := indexTables[component.Kind]
+		if !ok {
+			return "", nil, fmt.Errorf("storage: no index for composite component %q", component.Code)
+		}
+		alias := sc.newAlias("cp")
+		inner, innerArgs, err := renderAlternatives(component.Kind, component.Values, alias)
+		if err != nil {
+			return "", nil, err
+		}
+		condition := f("%s.code = ?", alias)
+		legArgs := append([]any{component.Code}, innerArgs...)
+		if inner != "" {
+			condition += " AND (" + inner + ")"
+		}
+		legs = append(legs, leg{spec.table, alias, condition, legArgs})
+	}
+	if len(legs) == 0 {
+		return "", nil, nil
+	}
+
+	head := legs[0]
+	conditions := []string{f("%s.pid = %s.pid", head.alias, sc.alias), head.condition}
+	args := append([]any{}, head.args...)
+	for _, l := range legs[1:] {
+		conditions = append(conditions, f(
+			"EXISTS (SELECT 1 FROM %s %s WHERE %s.pid = %s.pid AND %s.seq = %s.seq AND %s)",
+			l.table, l.alias, l.alias, head.alias, l.alias, head.alias, l.condition))
+		args = append(args, l.args...)
+	}
+	return f("EXISTS (SELECT 1 FROM %s %s WHERE %s)",
+		head.table, head.alias, strings.Join(conditions, " AND ")), args, nil
+}
+
+// renderFilter renders a _filter expression tree.
+//
+// The leaves are ordinary parameter matches, so everything the query string can
+// express is available inside a filter; the tree only adds the connectives. An
+// operand that renders to nothing is dropped rather than treated as false --
+// the same reading renderParam gives an unconstrained parameter.
+func renderFilter(e *storage.FilterExpr, sc *renderScope) (string, []any, error) {
+	if e == nil {
+		return "", nil, nil
+	}
+	if e.Match != nil {
+		return renderParam(*e.Match, sc)
+	}
+
+	var clauses []string
+	var args []any
+	for _, operand := range e.Operands {
+		clause, clauseArgs, err := renderFilter(operand, sc)
+		if err != nil {
+			return "", nil, err
+		}
+		if clause == "" {
+			continue
+		}
+		clauses = append(clauses, clause)
+		args = append(args, clauseArgs...)
+	}
+	if len(clauses) == 0 {
+		return "", nil, nil
+	}
+
+	switch e.Op {
+	case storage.FilterNot:
+		return "NOT (" + strings.Join(clauses, " AND ") + ")", args, nil
+	case storage.FilterOr:
+		return "(" + strings.Join(clauses, " OR ") + ")", args, nil
+	default:
+		return "(" + strings.Join(clauses, " AND ") + ")", args, nil
+	}
+}
+
 // renderFullText builds the _text and _content predicates.
 //
 // FTS5 has its own query language, and a user's search terms are not written in
@@ -363,7 +541,7 @@ func renderParam(p storage.ParamMatch) (string, []any, error) {
 // rather than as words. Each term is therefore quoted as a phrase and the terms
 // combined with AND, which gives "all of these words appear" -- the semantics a
 // client expects from a text search.
-func renderFullText(p storage.ParamMatch) (string, []any, error) {
+func renderFullText(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	column := "content"
 	if p.Code == "_text" {
 		column = "narrative"
@@ -378,8 +556,8 @@ func renderFullText(p storage.ParamMatch) (string, []any, error) {
 		// FTS5 requires the table's own name on the left of MATCH; an alias is
 		// not a column and the parser rejects it.
 		alternatives = append(alternatives,
-			"EXISTS (SELECT 1 FROM idx_fulltext"+
-				" WHERE idx_fulltext.rowid = r.pid AND idx_fulltext MATCH ?)")
+			f("EXISTS (SELECT 1 FROM idx_fulltext"+
+				" WHERE idx_fulltext.rowid = %s.pid AND idx_fulltext MATCH ?)", sc.alias))
 		args = append(args, query)
 	}
 	if len(alternatives) == 0 {
@@ -423,11 +601,12 @@ func renderResourceColumn(column string, p storage.ParamMatch) (string, []any, e
 	return clause, args, nil
 }
 
-func renderLastUpdated(p storage.ParamMatch) (string, []any, error) {
+func renderLastUpdated(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
+	column := sc.alias + ".last_updated"
 	var terms []string
 	var args []any
 	for _, v := range p.Values {
-		term, termArgs := rangeComparison("r.last_updated", "r.last_updated", v.Prefix, v.DateLow, v.DateHigh)
+		term, termArgs := rangeComparison(column, column, v.Prefix, v.DateLow, v.DateHigh)
 		terms = append(terms, term)
 		args = append(args, termArgs...)
 	}
@@ -438,69 +617,164 @@ func renderLastUpdated(p storage.ParamMatch) (string, []any, error) {
 }
 
 // renderValue builds the condition for one alternative, inside the EXISTS.
-func renderValue(kind storage.IndexKind, v storage.MatchValue) (string, []any, error) {
+func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string, []any, error) {
 	switch kind {
 	case storage.IndexToken:
 		switch {
 		case v.System != "" && v.Code != "":
-			return "(x.system = ? AND x.value = ?)", []any{v.System, v.Code}, nil
+			return f("(%s.system = ? AND %s.value = ?)", x, x), []any{v.System, v.Code}, nil
 		case v.System != "":
 			// "system|" matches any code in that system.
-			return "x.system = ?", []any{v.System}, nil
+			return f("%s.system = ?", x), []any{v.System}, nil
 		default:
-			return "x.value = ?", []any{v.Code}, nil
+			return f("%s.value = ?", x), []any{v.Code}, nil
 		}
 
 	case storage.IndexString:
 		switch v.Match {
 		case storage.MatchExact:
-			return "x.exact = ?", []any{v.Text}, nil
+			return f("%s.exact = ?", x), []any{v.Text}, nil
 		case storage.MatchContains:
-			return `x.norm LIKE ? ESCAPE '\'`, []any{"%" + escapeLike(v.Text) + "%"}, nil
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + escapeLike(v.Text) + "%"}, nil
+		case storage.MatchEndsWith:
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{"%" + escapeLike(v.Text)}, nil
 		default:
 			// FHIR string search matches by prefix, on the folded form.
-			return `x.norm LIKE ? ESCAPE '\'`, []any{escapeLike(v.Text) + "%"}, nil
+			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{escapeLike(v.Text) + "%"}, nil
 		}
 
 	case storage.IndexReference:
 		switch {
 		case v.RefType != "" && v.RefID != "":
-			return "(x.target_type = ? AND x.target_id = ?)", []any{v.RefType, v.RefID}, nil
+			return f("(%s.target_type = ? AND %s.target_id = ?)", x, x), []any{v.RefType, v.RefID}, nil
 		case v.RefID != "":
 			// A bare id matches whatever type it turns out to be.
-			return "(x.target_id = ? OR x.url = ?)", []any{v.RefID, v.RefID}, nil
+			return f("(%s.target_id = ? OR %s.url = ?)", x, x), []any{v.RefID, v.RefID}, nil
 		default:
-			return "x.url = ?", []any{v.RefURL}, nil
+			return f("%s.url = ?", x), []any{v.RefURL}, nil
 		}
 
 	case storage.IndexURI:
 		switch {
 		case v.URIBelow:
 			// :below matches the value and anything under it.
-			return `x.value LIKE ? ESCAPE '\'`, []any{escapeLike(v.URI) + "%"}, nil
+			return f(`%s.value LIKE ? ESCAPE '\'`, x), []any{escapeLike(v.URI) + "%"}, nil
 		case v.URIAbove:
 			// :above matches the value and its ancestors, which is a prefix
 			// test with the operands the other way round. SQLite has no
-			// "starts-with" operator, so the comparison is expressed as the
-			// query value beginning with the stored one.
-			return "? LIKE x.value || '%'", []any{v.URI}, nil
+			// "starts-with" operator, so it is expressed as the query value
+			// beginning with the stored one.
+			return f("? LIKE %s.value || '%%'", x), []any{v.URI}, nil
 		default:
-			return "x.value = ?", []any{v.URI}, nil
+			return f("%s.value = ?", x), []any{v.URI}, nil
 		}
 
 	case storage.IndexDate:
-		clause, args := rangeComparison("x.low", "x.high", v.Prefix, v.DateLow, v.DateHigh)
+		clause, args := rangeComparison(x+".low", x+".high", v.Prefix, v.DateLow, v.DateHigh)
 		return clause, args, nil
 
 	case storage.IndexNumber, storage.IndexQuantity:
-		clause, args := rangeComparisonFloat("x.low", "x.high", v.Prefix, v.NumLow, v.NumHigh)
+		clause, args := rangeComparisonFloat(x+".low", x+".high", v.Prefix, v.NumLow, v.NumHigh)
 		if kind == storage.IndexQuantity && v.QuantityCode != "" {
-			clause = "(" + clause + " AND (x.unit = ? OR x.system = ?))"
+			clause = f("(%s AND (%s.unit = ? OR %s.system = ?))", clause, x, x)
 			args = append(args, v.QuantityCode, v.QuantitySystem)
 		}
 		return clause, args, nil
 	}
 	return "", nil, fmt.Errorf("storage: unsupported index kind %q", kind)
+}
+
+// f is fmt.Sprintf, named short because these SQL fragments are mostly alias
+// substitution and the formatting call would otherwise dominate the line.
+func f(format string, args ...any) string { return fmt.Sprintf(format, args...) }
+
+// renderChain joins through a reference and applies the far side's predicates.
+//
+// "subject.name=peter" is two questions: which resources does subject point at,
+// and do those match name=peter. The join carries the second question into a
+// nested scope, where the same renderers run against the joined row.
+func renderChain(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
+	if sc.depth >= maxChainDepth {
+		return "", nil, fmt.Errorf("storage: search chain is deeper than %d levels", maxChainDepth)
+	}
+	ref := sc.newAlias("ch")
+	target := sc.newAlias("ct")
+
+	conditions := []string{
+		f("%s.pid = %s.pid", ref, sc.alias),
+		f("%s.code = ?", ref),
+		f("%s.deleted = 0", target),
+	}
+	args := []any{p.Code}
+	if p.Chain.TargetType != "" {
+		conditions = append(conditions, f("%s.target_type = ?", ref))
+		args = append(args, p.Chain.TargetType)
+	}
+
+	inner := sc.nested(target)
+	for _, nested := range p.Chain.Params {
+		clause, clauseArgs, err := renderParam(nested, inner)
+		if err != nil {
+			return "", nil, err
+		}
+		if clause == "" {
+			continue
+		}
+		conditions = append(conditions, clause)
+		args = append(args, clauseArgs...)
+	}
+	sc.n = inner.n
+
+	clause := f("EXISTS (SELECT 1 FROM idx_reference %s"+
+		" JOIN resource %s ON %s.resource_type = %s.target_type AND %s.fhir_id = %s.target_id"+
+		" WHERE %s)",
+		ref, target, target, ref, target, ref, strings.Join(conditions, " AND "))
+	if p.Negate {
+		clause = "NOT " + clause
+	}
+	return clause, args, nil
+}
+
+// renderHas is the reverse join: some resource points at this one and matches.
+func renderHas(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
+	if sc.depth >= maxChainDepth {
+		return "", nil, fmt.Errorf("storage: search chain is deeper than %d levels", maxChainDepth)
+	}
+	source := sc.newAlias("hs")
+	ref := sc.newAlias("hr")
+
+	conditions := []string{
+		f("%s.pid = %s.pid", ref, source),
+		f("%s.resource_type = ?", source),
+		f("%s.deleted = 0", source),
+		f("%s.code = ?", ref),
+		// The reference must point back at the row in scope. Matching both the
+		// type and the id keeps "Patient/1" from also matching "Group/1".
+		f("%s.target_type = %s.resource_type", ref, sc.alias),
+		f("%s.target_id = %s.fhir_id", ref, sc.alias),
+	}
+	args := []any{p.Has.SourceType, p.Has.Code}
+
+	inner := sc.nested(source)
+	for _, nested := range p.Has.Params {
+		clause, clauseArgs, err := renderParam(nested, inner)
+		if err != nil {
+			return "", nil, err
+		}
+		if clause == "" {
+			continue
+		}
+		conditions = append(conditions, clause)
+		args = append(args, clauseArgs...)
+	}
+	sc.n = inner.n
+
+	clause := f("EXISTS (SELECT 1 FROM resource %s JOIN idx_reference %s ON %s.pid = %s.pid WHERE %s)",
+		source, ref, ref, source, strings.Join(conditions, " AND "))
+	if p.Negate {
+		clause = "NOT " + clause
+	}
+	return clause, args, nil
 }
 
 // rangeComparison implements the FHIR search prefixes as interval algebra over

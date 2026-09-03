@@ -7,12 +7,13 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M3 complete.** `gogofhir serve` gives you CRUD, versioning,
-> history, conditional operations, optimistic concurrency, and full search —
-> every indexed parameter type with its modifiers, full-text, `_summary`,
-> `_elements`, `_total`, and cursor-stable paging — over 158 resource types, in
-> JSON and XML. The FHIRPath engine passes **1966 of 1998** official HL7
-> conformance tests. See [Milestones](#milestones).
+> **Status: M4 complete.** `gogofhir serve` gives you CRUD, versioning,
+> history, conditional operations, optimistic concurrency, and the whole of
+> search — every indexed parameter type with its modifiers, full-text,
+> chaining, `_has`, `_include`/`_revinclude`, composites, `_filter`,
+> `_summary`, `_elements`, `_total`, and cursor-stable paging — over 158
+> resource types, in JSON and XML. The FHIRPath engine passes **1966 of 1998**
+> official HL7 conformance tests. See [Milestones](#milestones).
 
 ## Why
 
@@ -151,9 +152,53 @@ hierarchy. Answering them with an empty result would read as "no matching
 resources", which is a different and misleading claim, so they return a 400
 saying what is missing.
 
-Chaining, `_has`, `_include`/`_revinclude`, and composite parameters arrive
-with M4. Parameters that are declared but not yet indexed are deliberately
-absent from the CapabilityStatement rather than advertised and broken.
+### Beyond one resource
+
+**Chaining** follows a reference and applies the far side's criteria:
+`Observation?subject:Patient.family=chal`, or `patient.family=chal` where the
+reference has a single target. A reference that could point at several types is
+resolved against the one that defines the next parameter, and a genuine
+ambiguity is a 400 naming the candidates — `subject.family` matches both
+`Practitioner` and `Patient`, and guessing would silently search the wrong one.
+Chains nest to four levels; deeper is refused, because each level is another
+join and an untrusted query should not be able to buy that cheaply.
+
+**`_has`** is the same join reversed:
+`Patient?_has:Observation:subject:code=29463-7` finds the patients some
+matching observation points at.
+
+**`_include` and `_revinclude`** run after the match query rather than as part
+of it, so an include never changes which resources matched. Entries carry
+`search.mode` — `match` or `include` — because a client that cannot tell them
+apart cannot tell which resources answered its query. `:iterate` follows what
+an earlier include found, bounded to five rounds with cycle detection: FHIR
+reference graphs contain cycles, and following them unbounded is a request that
+never finishes.
+
+**Composite parameters** ask about one occurrence.
+`component-code-value-quantity=http://loinc.org|8480-6$lt100` must not match a
+blood pressure of 120/80: the code and the value have to come from the *same*
+component, even though both conditions are individually satisfied. Extraction
+tags every row from one occurrence of the composite's base expression with a
+shared sequence number, and the query joins on it. Matching the components
+independently is the classic way this returns a confidently wrong answer.
+
+**`_filter`** is the one part of search with its own grammar — `and`, `or`,
+`not(…)`, grouping, and comparison operators — over the same parameters,
+chains, and `_has` clauses:
+
+```
+GET /Patient?_filter=(name eq "Chalmers" or name eq "Nowak") and birthdate gt 1970
+GET /Observation?_filter=patient.family sw "Chal" and value-quantity gt 60
+```
+
+`eq` on a string is equality rather than the prefix match a bare parameter
+performs, since the operator says what it means; `co`, `sw`, and `ew` are the
+substring forms. The operators that need terminology — `in`, `ni`, `ss`, `sb`
+— are refused for the same reason the modifiers are.
+
+Parameters that are declared but not indexed are deliberately absent from the
+CapabilityStatement rather than advertised and broken.
 
 ## Storage
 
@@ -175,6 +220,10 @@ correctness:
   stored `70` where `[69.5, 70.5)` and `[70.5, 71.5)` would otherwise touch.
 - **The logical id is separate from the surrogate key.** Clients choose
   arbitrary ids and those ids appear in references, but joins want an integer.
+- **Composite components carry a sequence number.** Every index row records
+  which occurrence of a composite's base expression it came from, so a
+  composite query can require its components to agree on one. Ordinary
+  parameters leave it at zero and never consult it.
 
 Indexes are written in the same transaction as the resource, so an index can
 never describe a version that is not stored, and they follow the current
@@ -341,8 +390,8 @@ regenerate it.
 - [x] **M3 — Search fundamentals.** Every indexed parameter type with its
       modifiers and prefixes, full-text, `_summary`, `_elements`, `_total`,
       multi-key sorting, and cursor-stable paging.
-- [ ] **M4 — Search advanced.** Chaining, `_has`, `_include`/`_revinclude`,
-      composites, `_filter`.
+- [x] **M4 — Search advanced.** Chaining, `_has`, `_include`/`_revinclude`
+      with `:iterate`, composite parameters, and `_filter`.
 - [ ] **M5 — Transactions & batch.** v1 complete.
 - [ ] **M6 — Validation.** `$validate`, profiles, invariants, bindings.
 - [ ] **M7 — PostgreSQL, US Core, SMART.**
