@@ -178607,6 +178607,57 @@
     ]
    }
   },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind",
+   "name": "MIFConceptRelationshipKind",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "Component",
+     "ComponentOf",
+     "DefinitionallyQualifiedBy",
+     "DefinitionallyQualifies",
+     "Generalizes",
+     "GreaterThan",
+     "GroupedBy",
+     "InGroup",
+     "LessThan",
+     "NonDefinitionallyQualifiedBy",
+     "NonDefinitionallyQualifies",
+     "Other",
+     "Specializes"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity",
+   "name": "MIFConceptRelationshipReflexivity",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "irreflexive",
+     "reflexive"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry",
+   "name": "MIFConceptRelationshipSymmetry",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "antisymmetric",
+     "symmetric"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity",
+   "name": "MIFConceptRelationshipTransitivity",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "antitransitive",
+     "transitive"
+    ]
+   }
+  },
   "http://terminology.hl7.org/ValueSet/synthesis-type": {
    "url": "http://terminology.hl7.org/ValueSet/synthesis-type",
    "name": "StatisticSynthesisType",
@@ -188545,6 +188596,442 @@
     {
      "path": "component.dataAbsentReason",
      "mustSupport": true
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp",
+   "name": "AssociatedConceptProperty",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    },
+    {
+     "type": "element",
+     "expression": "ValueSet"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "min": 2,
+     "max": "2",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension",
+     "slice": "name",
+     "min": 1,
+     "max": "1"
+    },
+    {
+     "path": "extension.extension",
+     "slice": "name",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension.url",
+     "slice": "name",
+     "fixed": "name"
+    },
+    {
+     "path": "extension.value",
+     "slice": "name",
+     "min": 1,
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    },
+    {
+     "path": "extension",
+     "slice": "value",
+     "min": 1,
+     "max": "1"
+    },
+    {
+     "path": "extension.extension",
+     "slice": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension.url",
+     "slice": "value",
+     "fixed": "value"
+    },
+    {
+     "path": "extension.value",
+     "slice": "value",
+     "min": 1,
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp"
+    },
+    {
+     "path": "value",
+     "max": "0"
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName",
+   "name": "SupportedConceptRelationshipInverseName",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable",
+   "name": "SupportedConceptRelationshipIsNavigable",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "boolean"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity",
+   "name": "SupportedConceptRelationshipReflexivity",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind",
+   "name": "SupportedConceptRelationshipRelationshipKind",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry",
+   "name": "SupportedConceptRelationshipSymmetry",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity",
+   "name": "SupportedConceptRelationshipTransitivity",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title",
+   "name": "NamingSystemTitle",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "NamingSystem"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version",
+   "name": "NamingSystemVersion",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "NamingSystem"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
     }
    ]
   }

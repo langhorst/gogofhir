@@ -317,8 +317,33 @@ target that overstates what it verified is one nobody can rely on.
 - **Slices within slices are reported as unchecked**, and named, rather than
   passed over.
 
-Profiles come from the release's own package, compiled from their published
-snapshots — generating a snapshot from a differential means replaying a chain of
+### Implementation guides
+
+Profiles are not limited to the ones a FHIR release ships. Any published guide
+vendored beside the core package is compiled into the same index and validated
+by the same engine, and the `CapabilityStatement` advertises what it found under
+`supportedProfile`, which is how a client discovers that the server understands
+a guide at all.
+
+```sh
+curl -X POST -H 'Content-Type: application/fhir+json' --data @patient.json \
+  'http://localhost:8080/Patient/$validate?profile=http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips'
+```
+
+The **International Patient Summary** (`hl7.fhir.uv.ips@2.0.0`, 29 profiles) is
+vendored to prove the path end to end on a real guide.
+
+**US Core is not, and that is a blocked door rather than a choice.** It is
+published only on `packages.fhir.org`, which this environment's egress policy
+refuses; npm carries nothing but a name placeholder; and the `HL7/US-Core`
+repository holds FSH source that needs SUSHI and the IG Publisher to build,
+which themselves need the blocked registry. Wherever that registry is
+reachable, adding it is one entry in `third_party/packages.lock` and no code
+change — which is what vendoring IPS demonstrates. Until then, claiming US Core
+conformance would be claiming something nobody here has run.
+
+Profiles come from the release's own package and from any vendored guide,
+compiled from their published snapshots — generating a snapshot from a differential means replaying a chain of
 constraints down a derivation tree, and the packages already ship the answer.
 Slices are assigned by discriminator (`value`, `pattern`, `type`, `exists`); a
 discriminator this server cannot evaluate makes the whole assignment
@@ -459,6 +484,7 @@ so vendoring is unencumbered.
 | R4 4.0.1 | `google/fhir`, `spec/hl7.fhir.core/4.0.1/package` | commit `74fce953` |
 | R5 5.0.0 | npm `hl7.fhir.r5.core@5.0.0` | sha256 `09f22107…` |
 | Terminology | npm `hl7.terminology.r4` / `.r5` @7.0.1 | sha256 `170c546f…` / `b34d9c6b…` |
+| IPS (R4) | npm `hl7.fhir.uv.ips@2.0.0` | sha256 `4a5cff17…` |
 
 The terminology package is vendored alongside each release because R5 moved
 most of its code systems out of core and into it. Without it, two thirds of
@@ -483,8 +509,8 @@ consults and discards examples, narrative, and terminology.
 | Resource types | 146 | 158 |
 | Datatypes | 61 | 69 |
 | Search parameter bindings | 1716 | 1988 |
-| Profiles | 441 | 64 |
-| Value set expansions | 334 of 346 | 357 of 373 |
+| Profiles | 479 | 73 |
+| Value set expansions | 344 of 356 | 361 of 377 |
 | Invariants | 241 | 383 |
 | Compartments | 5 | 5 |
 | Index size | 2.3 MB | 3.9 MB |
@@ -607,7 +633,11 @@ regenerate it.
       with slicing, and the terminology policy.
 - [x] **M7a — PostgreSQL.** One SQL implementation for both engines, and the
       storage and REST suites passing identically on each.
-- [ ] **M7b — US Core.** Profile conformance against the published package.
+- [x] **M7b — Implementation guides.** Any published guide vendored beside the
+      core package compiles into the index and validates through the same
+      engine, advertised as `supportedProfile`. Proven on the International
+      Patient Summary; **US Core itself is unreachable from this environment**
+      and is one lock-file entry wherever it is not.
 - [ ] **M7c — SMART App Launch.** OAuth2, to make Inferno meaningful.
 
 FHIRPath comes first because everything depends on it: search extraction,

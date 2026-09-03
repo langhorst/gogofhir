@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/langhorst/gogofhir/internal/resource"
@@ -140,6 +141,12 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 		"conditionalDelete": "single",
 		"conditionalRead":   "modified-since",
 	}
+	// The profiles this server can validate a resource of this type against.
+	// A client discovering an implementation guide's profiles here is how it
+	// learns the server understands that guide at all.
+	if profiles := s.profilesFor(typeName); len(profiles) > 0 {
+		entry["supportedProfile"] = profiles
+	}
 	entry["operation"] = []any{
 		map[string]any{
 			"name":       "validate",
@@ -154,4 +161,24 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 	// every type that can point here would qualify, and the list is quadratic
 	// in the number of resource types. _revinclude is supported regardless.
 	return entry
+}
+
+// profilesFor lists the profiles that constrain a resource type, sorted.
+//
+// Extension definitions are excluded: they constrain Extension rather than a
+// resource, and a client looking for the profiles it can claim conformance to
+// is not looking for those.
+func (s *Server) profilesFor(typeName string) []any {
+	var urls []string
+	for url, profile := range s.Index.Profiles {
+		if profile.Type == typeName {
+			urls = append(urls, url)
+		}
+	}
+	slices.Sort(urls)
+	out := make([]any, len(urls))
+	for i, url := range urls {
+		out[i] = url
+	}
+	return out
 }

@@ -129765,9 +129765,141 @@
     ]
    }
   },
+  "http://hl7.org/fhir/uv/ips/ValueSet/diagnostics-report-status-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/diagnostics-report-status-uv-ips",
+   "name": "DiagnosticReportStatusUvIps",
+   "systems": {
+    "http://hl7.org/fhir/diagnostic-report-status": [
+     "amended",
+     "appended",
+     "cancelled",
+     "corrected",
+     "final",
+     "partial",
+     "preliminary",
+     "registered",
+     "unknown"
+    ]
+   }
+  },
+  "http://hl7.org/fhir/uv/ips/ValueSet/edd-method-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/edd-method-uv-ips",
+   "name": "PregnancyExpectedDeliveryDateMethodUvIps",
+   "systems": {
+    "http://loinc.org": [
+     "11778-8",
+     "11779-6",
+     "11780-4"
+    ]
+   }
+  },
+  "http://hl7.org/fhir/uv/ips/ValueSet/imaging-study-status-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/imaging-study-status-uv-ips",
+   "name": "ImagingStudyStatusUvIps",
+   "systems": {
+    "http://hl7.org/fhir/imagingstudy-status": [
+     "available",
+     "cancelled",
+     "registered",
+     "unknown"
+    ]
+   }
+  },
+  "http://hl7.org/fhir/uv/ips/ValueSet/pregnancies-summary-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/pregnancies-summary-uv-ips",
+   "name": "PregnanciesSummaryUvIps",
+   "systems": {
+    "http://loinc.org": [
+     "11612-9",
+     "11613-7",
+     "11614-5",
+     "11636-8",
+     "11637-6",
+     "11638-4",
+     "11639-2",
+     "11640-0",
+     "33065-4"
+    ]
+   }
+  },
+  "http://hl7.org/fhir/uv/ips/ValueSet/problem-type-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/problem-type-uv-ips",
+   "name": "ProblemTypeUvIps",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/condition-category": [
+     "problem-list-item"
+    ]
+   }
+  },
+  "http://hl7.org/fhir/uv/ips/ValueSet/results-status-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/ValueSet/results-status-uv-ips",
+   "name": "ResultsStatusUvIps",
+   "systems": {
+    "http://hl7.org/fhir/observation-status": [
+     "amended",
+     "cancelled",
+     "corrected",
+     "final",
+     "preliminary",
+     "registered",
+     "unknown"
+    ]
+   }
+  },
   "http://loinc.org/vs/LL379-9": {
    "url": "http://loinc.org/vs/LL379-9",
    "unresolvable": "the package does not define this value set"
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind",
+   "name": "MIFConceptRelationshipKind",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "Component",
+     "ComponentOf",
+     "DefinitionallyQualifiedBy",
+     "DefinitionallyQualifies",
+     "Generalizes",
+     "GreaterThan",
+     "GroupedBy",
+     "InGroup",
+     "LessThan",
+     "NonDefinitionallyQualifiedBy",
+     "NonDefinitionallyQualifies",
+     "Other",
+     "Specializes"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity",
+   "name": "MIFConceptRelationshipReflexivity",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "irreflexive",
+     "reflexive"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry",
+   "name": "MIFConceptRelationshipSymmetry",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "antisymmetric",
+     "symmetric"
+    ]
+   }
+  },
+  "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity": {
+   "url": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity",
+   "name": "MIFConceptRelationshipTransitivity",
+   "systems": {
+    "http://terminology.hl7.org/CodeSystem/hl7TermMaintInfra": [
+     "antitransitive",
+     "transitive"
+    ]
+   }
   },
   "http://terminology.hl7.org/ValueSet/v2-0493": {
    "url": "http://terminology.hl7.org/ValueSet/v2-0493",
@@ -157362,6 +157494,8144 @@
        "targets": [
         "Resource"
        ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips",
+   "name": "AllergyIntoleranceUvIps",
+   "type": "AllergyIntolerance",
+   "base": "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension",
+     "slice": "abatement",
+     "max": "1"
+    },
+    {
+     "path": "clinicalStatus",
+     "mustSupport": true
+    },
+    {
+     "path": "type",
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "min": 1,
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/allergies-intolerances-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "patient",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "patient.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "patient.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "onset",
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "onset",
+     "slice": "onsetDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "recorder",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "asserter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reaction",
+     "mustSupport": true
+    },
+    {
+     "path": "reaction.manifestation",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/allergy-reaction-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "reaction.severity",
+     "mustSupport": true
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips",
+   "name": "BundleUvIps",
+   "type": "Bundle",
+   "base": "http://hl7.org/fhir/StructureDefinition/Bundle",
+   "elements": [
+    {
+     "path": "",
+     "invariants": [
+      {
+       "key": "bdl-ips-1",
+       "severity": "error",
+       "human": "An IPS document must have no additional Composition (including Composition subclass) resources besides the first.",
+       "expression": "entry.tail().where(resource is Composition).empty()"
+      }
+     ]
+    },
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "identifier",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "type",
+     "fixed": "document"
+    },
+    {
+     "path": "timestamp",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "entry",
+     "min": 2,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "resource"
+       },
+       {
+        "type": "profile",
+        "path": "resource"
+       }
+      ]
+     }
+    },
+    {
+     "path": "entry.fullUrl",
+     "min": 1
+    },
+    {
+     "path": "entry.search",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "max": "0"
+    },
+    {
+     "path": "entry",
+     "slice": "composition",
+     "min": 1,
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "composition",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "composition",
+     "min": 1,
+     "types": [
+      {
+       "code": "Composition"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "composition",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "composition",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "composition",
+     "max": "0"
+    },
+    {
+     "path": "entry",
+     "slice": "patient",
+     "min": 1,
+     "max": "1"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "patient",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "patient",
+     "min": 1,
+     "types": [
+      {
+       "code": "Patient"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "patient",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "patient",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "patient",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "allergyintolerance",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "allergyintolerance",
+     "min": 1,
+     "types": [
+      {
+       "code": "AllergyIntolerance"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "allergyintolerance",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "allergyintolerance",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "allergyintolerance",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "careplan",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "careplan",
+     "min": 1,
+     "types": [
+      {
+       "code": "CarePlan"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "careplan",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "careplan",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "careplan",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "clinicalimpression",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "clinicalimpression",
+     "min": 1,
+     "types": [
+      {
+       "code": "ClinicalImpression"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "clinicalimpression",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "clinicalimpression",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "clinicalimpression",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "condition",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "condition",
+     "min": 1,
+     "types": [
+      {
+       "code": "Condition"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "condition",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "condition",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "condition",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "consent",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "consent",
+     "min": 1,
+     "types": [
+      {
+       "code": "Consent"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "consent",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "consent",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "consent",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "device",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "device",
+     "min": 1,
+     "types": [
+      {
+       "code": "Device"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "device",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "device",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "device",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "deviceusestatement",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "deviceusestatement",
+     "min": 1,
+     "types": [
+      {
+       "code": "DeviceUseStatement"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "deviceusestatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "deviceusestatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "deviceusestatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "diagnosticreport",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "diagnosticreport",
+     "min": 1,
+     "types": [
+      {
+       "code": "DiagnosticReport"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "diagnosticreport",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "diagnosticreport",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "diagnosticreport",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "documentreference",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "documentreference",
+     "min": 1,
+     "types": [
+      {
+       "code": "DocumentReference"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "documentreference",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "documentreference",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "documentreference",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "flag",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "flag",
+     "min": 1,
+     "types": [
+      {
+       "code": "Flag"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "flag",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "flag",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "flag",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "imagingstudy",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "imagingstudy",
+     "min": 1,
+     "types": [
+      {
+       "code": "ImagingStudy"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "imagingstudy",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "imagingstudy",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "imagingstudy",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "immunization",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "immunization",
+     "min": 1,
+     "types": [
+      {
+       "code": "Immunization"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "immunization",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "immunization",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "immunization",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "immunizationrecommendation",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "immunizationrecommendation",
+     "min": 1,
+     "types": [
+      {
+       "code": "ImmunizationRecommendation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "immunizationrecommendation",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "immunizationrecommendation",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "immunizationrecommendation",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "medication",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "medication",
+     "min": 1,
+     "types": [
+      {
+       "code": "Medication"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "medication",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "medication",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "medication",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "medicationrequest",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "medicationrequest",
+     "min": 1,
+     "types": [
+      {
+       "code": "MedicationRequest"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "medicationrequest",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "medicationrequest",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "medicationrequest",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "medicationstatement",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "medicationstatement",
+     "min": 1,
+     "types": [
+      {
+       "code": "MedicationStatement"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "medicationstatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "medicationstatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "medicationstatement",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "practitioner",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "practitioner",
+     "min": 1,
+     "types": [
+      {
+       "code": "Practitioner"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "practitioner",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "practitioner",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "practitioner",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "practitionerrole",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "practitionerrole",
+     "min": 1,
+     "types": [
+      {
+       "code": "PractitionerRole"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "practitionerrole",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "practitionerrole",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "practitionerrole",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "procedure",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "procedure",
+     "min": 1,
+     "types": [
+      {
+       "code": "Procedure"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "procedure",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "procedure",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "procedure",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-pregnancy-edd",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-pregnancy-edd",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-pregnancy-edd",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-pregnancy-edd",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-pregnancy-edd",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-pregnancy-outcome",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-pregnancy-outcome",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-pregnancy-outcome",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-pregnancy-outcome",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-pregnancy-outcome",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-pregnancy-status",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-pregnancy-status",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-pregnancy-status",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-pregnancy-status",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-pregnancy-status",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-alcohol-use",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-alcohol-use",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-alcohol-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-alcohol-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-alcohol-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-tobacco-use",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-tobacco-use",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-tobacco-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-tobacco-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-tobacco-use",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-results-laboratory-pathology",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-results-laboratory-pathology",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-results-laboratory-pathology",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-results-laboratory-pathology",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-results-laboratory-pathology",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-results-radiology",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-results-radiology",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-results-radiology",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-results-radiology",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-results-radiology",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "observation-vital-signs",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "observation-vital-signs",
+     "min": 1,
+     "types": [
+      {
+       "code": "Observation"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "observation-vital-signs",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "observation-vital-signs",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "observation-vital-signs",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "organization",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "organization",
+     "min": 1,
+     "types": [
+      {
+       "code": "Organization"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "organization",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "organization",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "organization",
+     "max": "0"
+    },
+    {
+     "path": "entry.fullUrl",
+     "slice": "specimen",
+     "min": 1
+    },
+    {
+     "path": "entry.resource",
+     "slice": "specimen",
+     "min": 1,
+     "types": [
+      {
+       "code": "Specimen"
+      }
+     ]
+    },
+    {
+     "path": "entry.search",
+     "slice": "specimen",
+     "max": "0"
+    },
+    {
+     "path": "entry.request",
+     "slice": "specimen",
+     "max": "0"
+    },
+    {
+     "path": "entry.response",
+     "slice": "specimen",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/CodeableConcept-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/CodeableConcept-uv-ips",
+   "name": "CodeableConceptIPS",
+   "type": "CodeableConcept",
+   "base": "http://hl7.org/fhir/StructureDefinition/CodeableConcept",
+   "elements": [
+    {
+     "path": "extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "coding",
+     "mustSupport": true
+    },
+    {
+     "path": "text",
+     "mustSupport": true
+    },
+    {
+     "path": "text.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Coding-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Coding-uv-ips",
+   "name": "CodingIPS",
+   "type": "Coding",
+   "base": "http://hl7.org/fhir/StructureDefinition/Coding",
+   "elements": [
+    {
+     "path": "extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "system",
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "mustSupport": true
+    },
+    {
+     "path": "display.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips",
+   "name": "CompositionUvIps",
+   "type": "Composition",
+   "base": "http://hl7.org/fhir/StructureDefinition/Composition",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "meta.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "meta.profile",
+     "types": [
+      {
+       "code": "canonical",
+       "targets": [
+        "StructureDefinition|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "text",
+     "mustSupport": true
+    },
+    {
+     "path": "identifier",
+     "mustSupport": true
+    },
+    {
+     "path": "status",
+     "mustSupport": true
+    },
+    {
+     "path": "type",
+     "pattern": {
+      "coding": [
+       {
+        "code": "60591-5",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "date",
+     "mustSupport": true
+    },
+    {
+     "path": "author",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "title",
+     "mustSupport": true
+    },
+    {
+     "path": "attester",
+     "mustSupport": true
+    },
+    {
+     "path": "attester.mode",
+     "mustSupport": true
+    },
+    {
+     "path": "attester.time",
+     "mustSupport": true
+    },
+    {
+     "path": "attester.party",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "custodian",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "relatesTo.target",
+     "types": [
+      {
+       "code": "Identifier"
+      },
+      {
+       "code": "Reference",
+       "targets": [
+        "Composition",
+        "Composition-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "event",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "code"
+       }
+      ]
+     }
+    },
+    {
+     "path": "event.detail",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "event",
+     "slice": "careProvisioningEvent",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "event.code",
+     "slice": "careProvisioningEvent",
+     "min": 1,
+     "max": "1",
+     "pattern": {
+      "coding": [
+       {
+        "code": "PCPR",
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActClass"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "event.period",
+     "slice": "careProvisioningEvent",
+     "mustSupport": true
+    },
+    {
+     "path": "event.detail",
+     "slice": "careProvisioningEvent",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section",
+     "min": 3,
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "code"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionProblems",
+     "min": 1,
+     "max": "1",
+     "mustSupport": true,
+     "invariants": [
+      {
+       "key": "ips-comp-1",
+       "severity": "error",
+       "human": "Either section.entry or emptyReason are present",
+       "expression": "(entry.reference.exists() or emptyReason.exists())",
+       "path": "section"
+      }
+     ]
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionProblems",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionProblems",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionProblems",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "11450-4",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionProblems",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionProblems/problem",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.emptyReason",
+     "slice": "sectionProblems",
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionProblems",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionAllergies",
+     "min": 1,
+     "max": "1",
+     "mustSupport": true,
+     "invariants": [
+      {
+       "key": "ips-comp-1",
+       "severity": "error",
+       "human": "Either section.entry or emptyReason are present",
+       "expression": "(entry.reference.exists() or emptyReason.exists())",
+       "path": "section"
+      }
+     ]
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionAllergies",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionAllergies",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionAllergies",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "48765-2",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionAllergies",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionAllergies",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionAllergies",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAllergies",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "AllergyIntolerance",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAllergies/allergyOrIntolerance",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "AllergyIntolerance-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.emptyReason",
+     "slice": "sectionAllergies",
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionAllergies",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionMedications",
+     "min": 1,
+     "max": "1",
+     "mustSupport": true,
+     "invariants": [
+      {
+       "key": "ips-comp-1",
+       "severity": "error",
+       "human": "Either section.entry or emptyReason are present",
+       "expression": "(entry.reference.exists() or emptyReason.exists())",
+       "path": "section"
+      }
+     ]
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionMedications",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionMedications",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionMedications",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "10160-0",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionMedications",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionMedications",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionMedications",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionMedications",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationStatement",
+        "MedicationRequest",
+        "MedicationAdministration",
+        "MedicationDispense",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionMedications/medicationStatementOrRequest",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationStatement-uv-ips",
+        "MedicationRequest-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.emptyReason",
+     "slice": "sectionMedications",
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionMedications",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionImmunizations",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionImmunizations",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionImmunizations",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionImmunizations",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "11369-6",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionImmunizations",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionImmunizations",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionImmunizations",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionImmunizations",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Immunization",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionImmunizations/immunization",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Immunization-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionImmunizations",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionResults",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionResults",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionResults",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionResults",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "30954-2",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionResults",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionResults",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionResults",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionResults",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation",
+        "DiagnosticReport",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "resolve()"
+       },
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionResults/results-observation-laboratory-pathology",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-results-laboratory-pathology-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionResults/results-observation-radiology",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-results-radiology-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionResults/results-diagnosticReport",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DiagnosticReport-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionResults",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionProceduresHx",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionProceduresHx",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionProceduresHx",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionProceduresHx",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "47519-4",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionProceduresHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionProceduresHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionProceduresHx",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionProceduresHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Procedure",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionProceduresHx/procedure",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Procedure-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionProceduresHx",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionMedicalDevices",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionMedicalDevices",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionMedicalDevices",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionMedicalDevices",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "46264-8",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionMedicalDevices",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionMedicalDevices",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionMedicalDevices",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionMedicalDevices",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DeviceUseStatement",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionMedicalDevices/deviceStatement",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DeviceUseStatement-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionMedicalDevices",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionAdvanceDirectives",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionAdvanceDirectives",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionAdvanceDirectives",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionAdvanceDirectives",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "42348-3",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionAdvanceDirectives",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionAdvanceDirectives",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionAdvanceDirectives",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAdvanceDirectives",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Consent",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAdvanceDirectives/advanceDirectivesConsent",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Consent"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionAdvanceDirectives",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionAlerts",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionAlerts",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionAlerts",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionAlerts",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "104605-1",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionAlerts",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionAlerts",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionAlerts",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAlerts",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Flag",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionAlerts/alertsFlag",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Flag-alert-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionAlerts",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionFunctionalStatus",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionFunctionalStatus",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionFunctionalStatus",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionFunctionalStatus",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "47420-5",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionFunctionalStatus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionFunctionalStatus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionFunctionalStatus",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionFunctionalStatus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition",
+        "ClinicalImpression",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionFunctionalStatus/disability",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionFunctionalStatus/functionalAssessment",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ClinicalImpression"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionFunctionalStatus",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionPastProblems",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionPastProblems",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionPastProblems",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionPastProblems",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "11348-0",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionPastProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionPastProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionPastProblems",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPastProblems",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPastProblems/pastProblem",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionPastProblems",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionPregnancyHx",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionPregnancyHx",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionPregnancyHx",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionPregnancyHx",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "10162-6",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionPregnancyHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionPregnancyHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionPregnancyHx",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPregnancyHx",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPregnancyHx/pregnancyStatus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-pregnancy-status-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPregnancyHx/pregnancyOutcome",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-pregnancy-outcome-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionPregnancyHx",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionPatientStory",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionPatientStory",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionPatientStory",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionPatientStory",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "81338-6",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionPatientStory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionPatientStory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionPatientStory",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPatientStory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionPatientStory",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionPlanOfCare",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionPlanOfCare",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionPlanOfCare",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionPlanOfCare",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "18776-5",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionPlanOfCare",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionPlanOfCare",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionPlanOfCare",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPlanOfCare",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan",
+        "ImmunizationRecommendation",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPlanOfCare/carePlan",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionPlanOfCare/immunizationRecommendation",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ImmunizationRecommendation"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionPlanOfCare",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionSocialHistory",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionSocialHistory",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionSocialHistory",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionSocialHistory",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "29762-2",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionSocialHistory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionSocialHistory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionSocialHistory",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionSocialHistory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionSocialHistory/smokingTobaccoUse",
+     "max": "1",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-tobaccouse-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionSocialHistory/alcoholUse",
+     "max": "1",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-alcoholuse-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionSocialHistory",
+     "max": "0"
+    },
+    {
+     "path": "section",
+     "slice": "sectionVitalSigns",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "section.extension",
+     "slice": "sectionVitalSigns",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.title",
+     "slice": "sectionVitalSigns",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.code",
+     "slice": "sectionVitalSigns",
+     "min": 1,
+     "pattern": {
+      "coding": [
+       {
+        "code": "8716-3",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "section.author",
+     "slice": "sectionVitalSigns",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Device|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.focus",
+     "slice": "sectionVitalSigns",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.text",
+     "slice": "sectionVitalSigns",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionVitalSigns",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation",
+        "DocumentReference"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "section.entry",
+     "slice": "sectionVitalSigns/vitalSign",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "vitalsigns"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "section.section",
+     "slice": "sectionVitalSigns",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips",
+   "name": "ConditionUvIps",
+   "type": "Condition",
+   "base": "http://hl7.org/fhir/StructureDefinition/Condition",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "clinicalStatus",
+     "mustSupport": true
+    },
+    {
+     "path": "category",
+     "binding": {
+      "strength": "extensible",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/problem-type-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "severity",
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "min": 1,
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/problems-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "bodySite",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/body-site"
+     }
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "onset",
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "onset",
+     "slice": "onsetDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "recorder",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "asserter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "stage.assessment",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ClinicalImpression|4.0.1",
+        "DiagnosticReport|4.0.1",
+        "Observation|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "evidence.detail",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Device-observer-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Device-observer-uv-ips",
+   "name": "DeviceObserverUvIps",
+   "type": "Device",
+   "base": "http://hl7.org/fhir/StructureDefinition/Device",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "identifier",
+     "mustSupport": true
+    },
+    {
+     "path": "definition",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DeviceDefinition|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "manufacturer",
+     "mustSupport": true
+    },
+    {
+     "path": "modelNumber",
+     "mustSupport": true
+    },
+    {
+     "path": "patient",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "owner",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "parent",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Device-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Device-uv-ips",
+   "name": "DeviceUvIps",
+   "type": "Device",
+   "base": "http://hl7.org/fhir/StructureDefinition/Device",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "definition",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DeviceDefinition|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "type",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medical-devices-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "patient",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "owner",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "parent",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips",
+   "name": "DeviceUseStatementUvIps",
+   "type": "DeviceUseStatement",
+   "base": "http://hl7.org/fhir/StructureDefinition/DeviceUseStatement",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ServiceRequest|4.0.1",
+        "Procedure|4.0.1",
+        "Claim|4.0.1",
+        "Observation|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "DocumentReference|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "timing",
+     "min": 1,
+     "types": [
+      {
+       "code": "Period"
+      },
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "timing",
+     "slice": "timingDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "source",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1",
+        "DiagnosticReport|4.0.1",
+        "DocumentReference|4.0.1",
+        "Media|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
+   "name": "DiagnosticReportUvIps",
+   "type": "DiagnosticReport",
+   "base": "http://hl7.org/fhir/StructureDefinition/DiagnosticReport",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "status",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/diagnostics-report-status-uv-ips"
+     }
+    },
+    {
+     "path": "code",
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips",
+        "Group"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "effective",
+     "slice": "effectiveDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner-uv-ips",
+        "PractitionerRole-uv-ips",
+        "Organization-uv-ips",
+        "CareTeam"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "resultsInterpreter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "result",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1"
+       ]
+      }
+     ],
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "profile",
+        "path": "resolve()"
+       }
+      ]
+     }
+    },
+    {
+     "path": "result",
+     "slice": "observation-results",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-results-laboratory-pathology-uv-ips",
+        "Observation-results-radiology-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "imagingStudy",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "media.link",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Media|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Flag-alert-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Flag-alert-uv-ips",
+   "name": "FlagAlertUvIps",
+   "type": "Flag",
+   "base": "http://hl7.org/fhir/StructureDefinition/Flag",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension",
+     "slice": "flag-priority",
+     "max": "1",
+     "mustSupport": true
+    },
+    {
+     "path": "status",
+     "fixed": "active"
+    },
+    {
+     "path": "category",
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "Location|4.0.1",
+        "Group|4.0.1",
+        "Organization|4.0.1",
+        "Practitioner|4.0.1",
+        "PlanDefinition|4.0.1",
+        "Medication|4.0.1",
+        "Procedure|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "author",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "Organization|4.0.1",
+        "Patient|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/ImagingStudy-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/ImagingStudy-uv-ips",
+   "name": "ImagingStudyUvIps",
+   "type": "ImagingStudy",
+   "base": "http://hl7.org/fhir/StructureDefinition/ImagingStudy",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "identifier",
+     "mustSupport": true
+    },
+    {
+     "path": "status",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/imaging-study-status-uv-ips"
+     }
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips",
+        "Group"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "started",
+     "mustSupport": true
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "ServiceRequest|4.0.1",
+        "Appointment|4.0.1",
+        "AppointmentResponse|4.0.1",
+        "Task|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "referrer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "interpreter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "endpoint",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Endpoint|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "procedureReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Procedure|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "procedureCode",
+     "mustSupport": true
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reasonCode",
+     "mustSupport": true
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1",
+        "Media|4.0.1",
+        "DiagnosticReport|4.0.1",
+        "DocumentReference|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "series",
+     "mustSupport": true
+    },
+    {
+     "path": "series.uid",
+     "mustSupport": true
+    },
+    {
+     "path": "series.modality",
+     "mustSupport": true
+    },
+    {
+     "path": "series.endpoint",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Endpoint|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "series.specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "series.performer.actor",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "Device|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "series.instance",
+     "mustSupport": true
+    },
+    {
+     "path": "series.instance.uid",
+     "mustSupport": true
+    },
+    {
+     "path": "series.instance.sopClass",
+     "mustSupport": true
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips",
+   "name": "ImmunizationUvIps",
+   "type": "Immunization",
+   "base": "http://hl7.org/fhir/StructureDefinition/Immunization",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "status",
+     "mustSupport": true
+    },
+    {
+     "path": "vaccineCode",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/vaccines-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "patient",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "patient.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "patient.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "occurrence",
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "occurrence",
+     "slice": "occurrenceDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "manufacturer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "site",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/body-site"
+     }
+    },
+    {
+     "path": "route",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/route-codes"
+     }
+    },
+    {
+     "path": "performer.actor",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1",
+        "DiagnosticReport|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reaction.detail",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "protocolApplied.authority",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "protocolApplied.targetDisease",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/target-diseases-uv-ips"
+     }
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Medication-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Medication-uv-ips",
+   "name": "MedicationIPS",
+   "type": "Medication",
+   "base": "http://hl7.org/fhir/StructureDefinition/Medication",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "min": 1,
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medication-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "manufacturer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "form",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/medication-form-codes"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "ingredient",
+     "mustSupport": true
+    },
+    {
+     "path": "ingredient.item",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medicine-active-substances-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "ingredient.strength",
+     "mustSupport": true
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips",
+   "name": "MedicationRequestIPS",
+   "type": "MedicationRequest",
+   "base": "http://hl7.org/fhir/StructureDefinition/MedicationRequest",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "doNotPerform",
+     "pattern": false
+    },
+    {
+     "path": "reported",
+     "types": [
+      {
+       "code": "boolean"
+      },
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "medication",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      },
+      {
+       "code": "Reference",
+       "targets": [
+        "Medication-uv-ips"
+       ]
+      }
+     ],
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medication-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "supportingInformation",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "requester",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Device|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "Patient|4.0.1",
+        "Device|4.0.1",
+        "RelatedPerson|4.0.1",
+        "CareTeam|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "recorder",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "MedicationRequest|4.0.1",
+        "ServiceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "insurance",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Coverage|4.0.1",
+        "ClaimResponse|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "dosageInstruction",
+     "mustSupport": true
+    },
+    {
+     "path": "dosageInstruction.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "dosageInstruction.text",
+     "mustSupport": true
+    },
+    {
+     "path": "dosageInstruction.timing",
+     "mustSupport": true
+    },
+    {
+     "path": "dosageInstruction.route",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/route-codes"
+     }
+    },
+    {
+     "path": "dosageInstruction.doseAndRate.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "dispenseRequest.performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "priorPrescription",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "detectedIssue",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DetectedIssue|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "eventHistory",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Provenance|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips",
+   "name": "MedicationStatementIPS",
+   "type": "MedicationStatement",
+   "base": "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationRequest|4.0.1",
+        "CarePlan|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Observation|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "medication",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      },
+      {
+       "code": "Reference",
+       "targets": [
+        "Medication-uv-ips"
+       ]
+      }
+     ],
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/medication-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "context",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1",
+        "EpisodeOfCare|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "effective",
+     "slice": "effectiveDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "informationSource",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1",
+        "DiagnosticReport|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "dosage",
+     "mustSupport": true
+    },
+    {
+     "path": "dosage.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "dosage.text",
+     "mustSupport": true
+    },
+    {
+     "path": "dosage.timing",
+     "mustSupport": true
+    },
+    {
+     "path": "dosage.route",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/route-codes"
+     }
+    },
+    {
+     "path": "dosage.doseAndRate.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-alcoholuse-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-alcoholuse-uv-ips",
+   "name": "ObservationAlcoholUseUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "pattern": {
+      "coding": [
+       {
+        "code": "74013-4",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueQuantity",
+     "types": [
+      {
+       "code": "Quantity"
+      }
+     ]
+    },
+    {
+     "path": "specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-edd-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-edd-uv-ips",
+   "name": "ObservationPregnancyEddUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/edd-method-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "bodySite",
+     "max": "0"
+    },
+    {
+     "path": "method",
+     "max": "0"
+    },
+    {
+     "path": "specimen",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "referenceRange",
+     "max": "0"
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips",
+   "name": "ObservationPregnancyOutcomeUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/pregnancies-summary-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueQuantity",
+     "types": [
+      {
+       "code": "Quantity"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "bodySite",
+     "max": "0"
+    },
+    {
+     "path": "specimen",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "referenceRange",
+     "max": "0"
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-status-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-status-uv-ips",
+   "name": "ObservationPregnancyStatusUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "pattern": {
+      "coding": [
+       {
+        "code": "82810-3",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueCodeableConcept",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      }
+     ],
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/pregnancy-status-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "bodySite",
+     "max": "0"
+    },
+    {
+     "path": "specimen",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "max": "0",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "referenceRange",
+     "max": "0"
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-pregnancy-edd-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "hasMember.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "hasMember.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-laboratory-pathology-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-laboratory-pathology-uv-ips",
+   "name": "ObservationResultsLaboratoryPathologyUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "",
+     "invariants": [
+      {
+       "key": "ips-2",
+       "severity": "error",
+       "human": "At least one of these Observation elements shall be provided:  \"value\", \"dataAbsentReason\", \"hasMember\" or \"component\"",
+       "expression": "value.exists() or hasMember.exists() or component.exists() or dataAbsentReason.exists()"
+      },
+      {
+       "key": "ips-3",
+       "severity": "error",
+       "human": "If observation has components, at least one of these Observation.component elements shall be provided:  \"value\" or \"dataAbsentReason\"",
+       "expression": "component.exists() implies (component.value.exists() or component.dataAbsentReason.exists())"
+      }
+     ]
+    },
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "status",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-status-uv-ips"
+     }
+    },
+    {
+     "path": "category",
+     "min": 1,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "category",
+     "slice": "laboratory",
+     "min": 1,
+     "max": "1",
+     "pattern": {
+      "coding": [
+       {
+        "code": "laboratory",
+        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-laboratory-pathology-observations-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips",
+        "Group",
+        "Device",
+        "Location"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      },
+      {
+       "code": "Period"
+      }
+     ],
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "effective",
+     "slice": "effectiveDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner-uv-ips",
+        "PractitionerRole-uv-ips",
+        "Organization-uv-ips",
+        "CareTeam",
+        "Patient-uv-ips",
+        "RelatedPerson"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueString",
+     "types": [
+      {
+       "code": "string"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "value",
+     "slice": "valueQuantity",
+     "types": [
+      {
+       "code": "Quantity"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "value",
+     "slice": "valueCodeableConcept",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      }
+     ],
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-coded-values-laboratory-pathology-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-results-laboratory-pathology-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "mustSupport": true
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-radiology-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-radiology-uv-ips",
+   "name": "ObservationResultsRadiologyUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "",
+     "invariants": [
+      {
+       "key": "hasMemberOrComponent",
+       "severity": "error",
+       "human": "component and hasMember are mutually exclusive",
+       "expression": "hasMember.empty() or component.empty()"
+      }
+     ]
+    },
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ImagingStudy-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "status",
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-status-uv-ips"
+     }
+    },
+    {
+     "path": "category",
+     "min": 1,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "category",
+     "slice": "radiology",
+     "min": 1,
+     "max": "1",
+     "pattern": {
+      "coding": [
+       {
+        "code": "imaging",
+        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-radiology-observations-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      },
+      {
+       "code": "Period"
+      }
+     ],
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     },
+     "invariants": [
+      {
+       "key": "ips-1",
+       "severity": "error",
+       "human": "Datetime must be at least to day.",
+       "expression": "$this.ofType(dateTime).empty() or ($this as dateTime).toString().length() \u003e= 8",
+       "path": "effective[x]"
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "slice": "effectiveDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner-uv-ips",
+        "PractitionerRole-uv-ips",
+        "Organization-uv-ips",
+        "CareTeam",
+        "Patient-uv-ips",
+        "RelatedPerson"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueString",
+     "types": [
+      {
+       "code": "string"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device-observer-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation-results-radiology-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "mustSupport": true
+    },
+    {
+     "path": "component.code",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-radiology-component-uv-ips"
+     }
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-tobaccouse-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-tobaccouse-uv-ips",
+   "name": "ObservationTobaccoUseUvIps",
+   "type": "Observation",
+   "base": "http://hl7.org/fhir/StructureDefinition/Observation",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "DeviceRequest|4.0.1",
+        "ImmunizationRecommendation|4.0.1",
+        "MedicationRequest|4.0.1",
+        "NutritionOrder|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "MedicationAdministration|4.0.1",
+        "MedicationDispense|4.0.1",
+        "MedicationStatement|4.0.1",
+        "Procedure|4.0.1",
+        "Immunization|4.0.1",
+        "ImagingStudy|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "pattern": {
+      "coding": [
+       {
+        "code": "72166-2",
+        "system": "http://loinc.org"
+       }
+      ]
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "min": 1,
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "focus",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Resource|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "effective",
+     "min": 1,
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "performer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1",
+        "Organization|4.0.1",
+        "CareTeam|4.0.1",
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "value",
+     "slice": "valueCodeableConcept",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      }
+     ],
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/current-smoking-status-uv-ips"
+     }
+    },
+    {
+     "path": "specimen",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "device",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "DeviceMetric|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "hasMember",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Observation|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "derivedFrom",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DocumentReference|4.0.1",
+        "ImagingStudy|4.0.1",
+        "Media|4.0.1",
+        "QuestionnaireResponse|4.0.1",
+        "Observation|4.0.1",
+        "MolecularSequence|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "component",
+     "max": "0"
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Organization-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Organization-uv-ips",
+   "name": "OrganizationUvIps",
+   "type": "Organization",
+   "base": "http://hl7.org/fhir/StructureDefinition/Organization",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "name",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "telecom",
+     "mustSupport": true
+    },
+    {
+     "path": "address",
+     "mustSupport": true
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "endpoint",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Endpoint|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Patient-uv-ips",
+   "name": "PatientUvIps",
+   "type": "Patient",
+   "base": "http://hl7.org/fhir/StructureDefinition/Patient",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "identifier",
+     "mustSupport": true
+    },
+    {
+     "path": "name",
+     "min": 1,
+     "mustSupport": true,
+     "invariants": [
+      {
+       "key": "ips-pat-1",
+       "severity": "error",
+       "human": "Patient.name.given, Patient.name.family or Patient.name.text SHALL be present",
+       "expression": "family.exists() or given.exists() or text.exists()",
+       "path": "name"
+      }
+     ]
+    },
+    {
+     "path": "name.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "name.use",
+     "mustSupport": true
+    },
+    {
+     "path": "name.text",
+     "mustSupport": true
+    },
+    {
+     "path": "name.family",
+     "mustSupport": true
+    },
+    {
+     "path": "name.given",
+     "mustSupport": true
+    },
+    {
+     "path": "telecom",
+     "mustSupport": true
+    },
+    {
+     "path": "gender",
+     "mustSupport": true
+    },
+    {
+     "path": "birthDate",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "address",
+     "mustSupport": true
+    },
+    {
+     "path": "contact.organization",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "generalPractitioner",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "managingOrganization",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "link.other",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Practitioner-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Practitioner-uv-ips",
+   "name": "PractitionerUvIps",
+   "type": "Practitioner",
+   "base": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "name",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "name.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "name.family",
+     "mustSupport": true
+    },
+    {
+     "path": "name.given",
+     "mustSupport": true
+    },
+    {
+     "path": "telecom",
+     "mustSupport": true
+    },
+    {
+     "path": "address",
+     "mustSupport": true
+    },
+    {
+     "path": "qualification.issuer",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/PractitionerRole-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/PractitionerRole-uv-ips",
+   "name": "PractitionerRoleUvIps",
+   "type": "PractitionerRole",
+   "base": "http://hl7.org/fhir/StructureDefinition/PractitionerRole",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "practitioner",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "organization",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "code",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/healthcare-professional-roles-uv-ips"
+     }
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "healthcareService",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "HealthcareService|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "endpoint",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Endpoint|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips",
+   "name": "ProcedureUvIps",
+   "type": "Procedure",
+   "base": "http://hl7.org/fhir/StructureDefinition/Procedure",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "instantiatesCanonical",
+     "types": [
+      {
+       "code": "canonical",
+       "targets": [
+        "PlanDefinition|4.0.1",
+        "ActivityDefinition|4.0.1",
+        "Measure|4.0.1",
+        "OperationDefinition|4.0.1",
+        "Questionnaire|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "basedOn",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "CarePlan|4.0.1",
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "partOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Procedure|4.0.1",
+        "Observation|4.0.1",
+        "MedicationAdministration|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "code",
+     "min": 1,
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/procedures-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "encounter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Encounter|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "performed",
+     "min": 1,
+     "mustSupport": true,
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "type",
+        "path": "$this"
+       }
+      ]
+     }
+    },
+    {
+     "path": "performed",
+     "slice": "performedDateTime",
+     "types": [
+      {
+       "code": "dateTime"
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "recorder",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "asserter",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient|4.0.1",
+        "RelatedPerson|4.0.1",
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "performer.actor",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips",
+        "RelatedPerson",
+        "Device-observer-uv-ips",
+        "Practitioner-uv-ips",
+        "PractitionerRole-uv-ips",
+        "Organization-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "performer.onBehalfOf",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Organization-uv-ips"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "location",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Location|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "reasonReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1",
+        "Observation|4.0.1",
+        "Procedure|4.0.1",
+        "DiagnosticReport|4.0.1",
+        "DocumentReference|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "bodySite",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/ValueSet/body-site"
+     }
+    },
+    {
+     "path": "report",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "DiagnosticReport|4.0.1",
+        "DocumentReference|4.0.1",
+        "Composition|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "complicationDetail",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Condition|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "focalDevice.manipulated",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "usedReference",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Device|4.0.1",
+        "Medication|4.0.1",
+        "Substance|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://hl7.org/fhir/uv/ips/StructureDefinition/Specimen-uv-ips": {
+   "url": "http://hl7.org/fhir/uv/ips/StructureDefinition/Specimen-uv-ips",
+   "name": "SpecimenUvIps",
+   "type": "Specimen",
+   "base": "http://hl7.org/fhir/StructureDefinition/Specimen",
+   "elements": [
+    {
+     "path": "id",
+     "types": [
+      {
+       "code": "id"
+      }
+     ]
+    },
+    {
+     "path": "type",
+     "min": 1,
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-specimen-type-uv-ips"
+     },
+     "mustSupport": true
+    },
+    {
+     "path": "subject",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Patient-uv-ips"
+       ]
+      }
+     ],
+     "mustSupport": true
+    },
+    {
+     "path": "subject.extension",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "subject.reference",
+     "min": 1,
+     "mustSupport": true
+    },
+    {
+     "path": "parent",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Specimen|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "request",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "ServiceRequest|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "collection.collector",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Practitioner|4.0.1",
+        "PractitionerRole|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "collection.method",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/results-specimen-collection-method-uv-ips"
+     }
+    },
+    {
+     "path": "collection.bodySite",
+     "binding": {
+      "strength": "preferred",
+      "valueSet": "http://hl7.org/fhir/uv/ips/ValueSet/body-site-uv-ips"
+     }
+    },
+    {
+     "path": "processing.additive",
+     "types": [
+      {
+       "code": "Reference",
+       "targets": [
+        "Substance|4.0.1"
+       ]
+      }
+     ]
+    },
+    {
+     "path": "container.additive",
+     "types": [
+      {
+       "code": "CodeableConcept"
+      },
+      {
+       "code": "Reference",
+       "targets": [
+        "Substance|4.0.1"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp",
+   "name": "AssociatedConceptProperty",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    },
+    {
+     "type": "element",
+     "expression": "ValueSet"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "min": 2,
+     "max": "2",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension",
+     "slice": "name",
+     "min": 1,
+     "max": "1"
+    },
+    {
+     "path": "extension.extension",
+     "slice": "name",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension.url",
+     "slice": "name",
+     "fixed": "name"
+    },
+    {
+     "path": "extension.value",
+     "slice": "name",
+     "min": 1,
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    },
+    {
+     "path": "extension",
+     "slice": "value",
+     "min": 1,
+     "max": "1"
+    },
+    {
+     "path": "extension.extension",
+     "slice": "value",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "extension.url",
+     "slice": "value",
+     "fixed": "value"
+    },
+    {
+     "path": "extension.value",
+     "slice": "value",
+     "min": 1,
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-assocConceptProp"
+    },
+    {
+     "path": "value",
+     "max": "0"
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName",
+   "name": "SupportedConceptRelationshipInverseName",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable",
+   "name": "SupportedConceptRelationshipIsNavigable",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "boolean"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity",
+   "name": "SupportedConceptRelationshipReflexivity",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipReflexivity"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind",
+   "name": "SupportedConceptRelationshipRelationshipKind",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipKind"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry",
+   "name": "SupportedConceptRelationshipSymmetry",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipSymmetry"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity",
+   "name": "SupportedConceptRelationshipTransitivity",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "CodeSystem.property"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "code"
+      }
+     ],
+     "binding": {
+      "strength": "required",
+      "valueSet": "http://terminology.hl7.org/ValueSet/mif-conceptRelationshipTransitivity"
+     }
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title",
+   "name": "NamingSystemTitle",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "NamingSystem"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-title"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
+      }
+     ]
+    }
+   ]
+  },
+  "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version": {
+   "url": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version",
+   "name": "NamingSystemVersion",
+   "type": "Extension",
+   "base": "http://hl7.org/fhir/StructureDefinition/Extension",
+   "contexts": [
+    {
+     "type": "element",
+     "expression": "NamingSystem"
+    }
+   ],
+   "elements": [
+    {
+     "path": "extension",
+     "max": "0",
+     "slicing": {
+      "rules": "open",
+      "discriminators": [
+       {
+        "type": "value",
+        "path": "url"
+       }
+      ]
+     }
+    },
+    {
+     "path": "url",
+     "fixed": "http://terminology.hl7.org/StructureDefinition/ext-namingsystem-version"
+    },
+    {
+     "path": "value",
+     "types": [
+      {
+       "code": "string"
       }
      ]
     }

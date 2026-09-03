@@ -23,7 +23,20 @@
     "uncheckable only because the codes live in a package we did not fetch --",
     "which the validator would report as 'not checked' rather than checking.",
     "THO is versioned independently of the FHIR releases and is pinned here",
-    "explicitly; it is also CC0-1.0."
+    "explicitly; it is also CC0-1.0.",
+    "",
+    "Implementation guides are vendored the same way, into <release>-<name>",
+    "directories. confgen reads every such directory alongside the core package,",
+    "taking profiles and terminology from them and leaving the type system to",
+    "core.",
+    "",
+    "US Core is NOT here, and not for want of trying: it is published only on",
+    "packages.fhir.org, which this environment's egress policy blocks; npm holds",
+    "nothing but a name placeholder; and the HL7/US-Core repository carries FSH",
+    "source that needs SUSHI and the IG Publisher to build, which themselves need",
+    "the blocked registry. Wherever that registry is reachable, adding it is one",
+    "entry in this list. The International Patient Summary below exercises the",
+    "same machinery on a real, comparably shaped guide."
   ],
   "packages": [
     {
@@ -66,6 +79,17 @@
       "source": "tarball",
       "url": "https://registry.npmjs.org/hl7.terminology.r5/-/hl7.terminology.r5-7.0.1.tgz",
       "sha256": "b34d9c6bdf108884e1d5ba535765e7b5cd93009f0af9f3b7e5eba38e5ae7a70b",
+      "subdir": "package"
+    },
+    {
+      "id": "hl7.fhir.uv.ips",
+      "version": "2.0.0",
+      "fhirVersion": "r4",
+      "dir": "r4-ips",
+      "license": "CC0-1.0",
+      "source": "tarball",
+      "url": "https://registry.npmjs.org/hl7.fhir.uv.ips/-/hl7.fhir.uv.ips-2.0.0.tgz",
+      "sha256": "4a5cff17580f869140614ac51097d81540c63644d550ced8d4cd9b9bce7345c4",
       "subdir": "package"
     }
   ],

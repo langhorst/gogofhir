@@ -49,12 +49,18 @@ func run(release model.Release, src, out string) error {
 	if err != nil {
 		return fmt.Errorf("reading package %s (run `make vendor`): %w", pkgDir, err)
 	}
-	// The terminology package alongside it, if vendored. R5 moved most of its
-	// code systems out of core and into THO, so without it two thirds of R5's
-	// required bindings would be uncheckable only because the codes live in a
-	// package that was not read.
-	termDir := filepath.Join(src, string(release)+"-terminology")
-	termEntries, _ := os.ReadDir(termDir)
+	// Every package vendored alongside the core one: the HL7 terminology, and
+	// any implementation guide. They contribute profiles and terminology; the
+	// type system comes from core alone.
+	//
+	// Terminology matters more than it sounds. R5 moved most of its code
+	// systems out of core and into THO, so without that package two thirds of
+	// R5's required bindings would be uncheckable purely because the codes live
+	// somewhere that was not read.
+	supplements, err := supplementaryPackages(src, release)
+	if err != nil {
+		return err
+	}
 
 	idx := &model.Index{
 		Release:      release,
@@ -67,28 +73,50 @@ func run(release model.Release, src, out string) error {
 	terms := newTerminology()
 	var pending []map[string]any
 	var stats struct {
-		types, params, compartments, invariants, profiles, valueSets, unresolvable, skipped int
+		types, params, compartments, invariants, profiles, valueSets int
+		unresolvable, supplemented, skipped                          int
 	}
 
-	// Terminology is read first so a core definition of the same URL wins: the
+	// Supplements are read first so a core definition of the same URL wins: the
 	// release's own value sets are authoritative for the release.
-	for _, e := range termEntries {
-		name := e.Name()
-		if e.IsDir() || !strings.HasSuffix(name, ".json") {
-			continue
-		}
-		if !strings.HasPrefix(name, "ValueSet-") && !strings.HasPrefix(name, "CodeSystem-") {
-			continue
-		}
-		raw, err := os.ReadFile(filepath.Join(termDir, name))
+	for _, dir := range supplements {
+		entries, err := os.ReadDir(dir)
 		if err != nil {
 			return err
 		}
-		var res map[string]any
-		if err := json.Unmarshal(raw, &res); err != nil {
-			return fmt.Errorf("parsing %s: %w", name, err)
+		for _, e := range entries {
+			name := e.Name()
+			if e.IsDir() || !strings.HasSuffix(name, ".json") {
+				continue
+			}
+			switch {
+			case strings.HasPrefix(name, "ValueSet-"),
+				strings.HasPrefix(name, "CodeSystem-"),
+				strings.HasPrefix(name, "StructureDefinition-"):
+			default:
+				continue
+			}
+			raw, err := os.ReadFile(filepath.Join(dir, name))
+			if err != nil {
+				return err
+			}
+			var res map[string]any
+			if err := json.Unmarshal(raw, &res); err != nil {
+				return fmt.Errorf("parsing %s: %w", name, err)
+			}
+			switch str(res, "resourceType") {
+			case "ValueSet", "CodeSystem":
+				terms.add(res)
+			case "StructureDefinition":
+				// Only profiles: a guide does not redefine the type system, and
+				// one that shipped a base type would silently replace the
+				// release's own.
+				if str(res, "derivation") == "constraint" {
+					pending = append(pending, res)
+					stats.supplemented++
+				}
+			}
 		}
-		terms.add(res)
 	}
 
 	for _, e := range entries {
@@ -215,10 +243,34 @@ func run(release model.Release, src, out string) error {
 	}
 
 	fmt.Printf("  %s (%s): %d types, %d search parameters, %d compartments, %d invariants,\n"+
-		"      %d profiles, %d value sets (%d unresolvable offline) (%d resources skipped), %d KiB\n",
+		"      %d profiles (%d from vendored guides), %d value sets (%d unresolvable offline),\n"+
+		"      (%d resources skipped), %d KiB\n",
 		release, idx.FHIRVersion, stats.types, stats.params, stats.compartments, stats.invariants,
-		stats.profiles, stats.valueSets, stats.unresolvable, stats.skipped, len(encoded)/1024)
+		stats.profiles, stats.supplemented, stats.valueSets, stats.unresolvable,
+		stats.skipped, len(encoded)/1024)
 	return nil
+}
+
+// supplementaryPackages lists the vendored packages that go with a release: any
+// directory named "<release>-<something>" beside the core one.
+//
+// Naming them by convention rather than by another list keeps the lock file the
+// single place a package is declared -- vendorpkg writes the directory, and
+// this finds it.
+func supplementaryPackages(src string, release model.Release) ([]string, error) {
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return nil, fmt.Errorf("reading %s: %w", src, err)
+	}
+	prefix := string(release) + "-"
+	var out []string
+	for _, e := range entries {
+		if e.IsDir() && strings.HasPrefix(e.Name(), prefix) {
+			out = append(out, filepath.Join(src, e.Name()))
+		}
+	}
+	slices.Sort(out)
+	return out, nil
 }
 
 // boundValueSets collects the value sets that required and extensible bindings
