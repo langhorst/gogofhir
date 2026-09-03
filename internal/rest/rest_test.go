@@ -26,6 +26,11 @@ import (
 type client struct {
 	t    *testing.T
 	base string
+	// index and store are kept so a test can start a second server over the
+	// same data -- which is how the SMART tests seed unauthenticated and then
+	// exercise the same resources behind authorization.
+	index *conformance.Index
+	store storage.Backend
 }
 
 func newServer(t *testing.T) *client {
@@ -49,7 +54,45 @@ func serve(t *testing.T, server *rest.Server) *client {
 	server.Index, server.Store = idx, store
 	srv := httptest.NewServer(server.Handler())
 	t.Cleanup(srv.Close)
-	return &client{t: t, base: srv.URL}
+	return &client{t: t, base: srv.URL, index: idx, store: store}
+}
+
+// serveOn starts a second server over an existing one's store, so a test can
+// seed data unauthenticated and then exercise the same data behind
+// authorization.
+func serveOn(t *testing.T, existing *client, server *rest.Server) *client {
+	t.Helper()
+	server.Index, server.Store = existing.index, existing.store
+	srv := httptest.NewServer(server.Handler())
+	t.Cleanup(srv.Close)
+	return &client{t: t, base: srv.URL, index: existing.index, store: existing.store}
+}
+
+// unguarded serves the same data with no authorization, for the fixture
+// inspection a test needs to do outside the token it is exercising.
+func (c *client) unguarded(t *testing.T) *client {
+	t.Helper()
+	return serveOn(t, c, &rest.Server{})
+}
+
+// form posts an application/x-www-form-urlencoded body, which is what the
+// OAuth token endpoint takes.
+func (c *client) form(want int, path, body string) *response {
+	c.t.Helper()
+	resp := c.do("POST", path, body, "Content-Type", "application/x-www-form-urlencoded")
+	if resp.status != want {
+		c.t.Fatalf("POST %s: status %d, want %d\nbody: %s", path, resp.status, want, resp.body)
+	}
+	return resp
+}
+
+// totalAuth reads a search bundle's total with headers, for the authorized
+// searches.
+func (c *client) totalAuth(t *testing.T, query string, headers []string) float64 {
+	t.Helper()
+	bundle := c.expect(http.StatusOK, "GET", query, "", headers...).json(t)
+	total, _ := bundle["total"].(float64)
+	return total
 }
 
 // schemaCounter names a private schema per test, so a PostgreSQL run starts
@@ -124,12 +167,20 @@ func (c *client) do(method, path, body string, headers ...string) *response {
 		c.t.Fatalf("building request: %v", err)
 	}
 	if body != "" {
+		// Callers may override this -- the OAuth token endpoint takes a form --
+		// so it is set before the explicit headers rather than after.
 		req.Header.Set("Content-Type", "application/fhir+json")
 	}
 	for i := 0; i+1 < len(headers); i += 2 {
 		req.Header.Set(headers[i], headers[i+1])
 	}
-	resp, err := http.DefaultClient.Do(req)
+	// Redirects are not followed: an authorization response is a 302 to the
+	// app's own redirect URI, which is a location no test is listening on, and
+	// the point is to read the code out of it rather than to go there.
+	http1 := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	resp, err := http1.Do(req)
 	if err != nil {
 		c.t.Fatalf("%s %s: %v", method, path, err)
 	}

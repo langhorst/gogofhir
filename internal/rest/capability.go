@@ -65,6 +65,7 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 		"format":      []any{"application/fhir+json", "application/fhir+xml"},
 		"rest": []any{map[string]any{
 			"mode":     "server",
+			"security": s.security(),
 			"resource": resources,
 			"interaction": []any{
 				map[string]any{"code": "transaction"},
@@ -181,4 +182,37 @@ func (s *Server) profilesFor(typeName string) []any {
 		out[i] = url
 	}
 	return out
+}
+
+// security describes how the server is protected.
+//
+// With SMART on, the OAuth endpoints are declared through the extension the
+// specification defines -- which is what a client reads to find them when it
+// has only a FHIR base URL -- and the "SMART-on-FHIR" code says which flavour
+// of protection this is. With SMART off it says so plainly rather than saying
+// nothing, because a client cannot tell an open server from one whose
+// CapabilityStatement is merely incomplete.
+func (s *Server) security() map[string]any {
+	if s.SMART == nil {
+		return map[string]any{
+			"cors":        true,
+			"description": "no authorization: this server is open, which is the default for development",
+		}
+	}
+	return map[string]any{
+		"cors": true,
+		"service": []any{map[string]any{
+			"coding": []any{map[string]any{
+				"system": "http://terminology.hl7.org/CodeSystem/restful-security-service",
+				"code":   "SMART-on-FHIR",
+			}},
+		}},
+		"extension": []any{map[string]any{
+			"url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+			"extension": []any{
+				map[string]any{"url": "authorize", "valueUri": s.SMART.AuthorizeURL()},
+				map[string]any{"url": "token", "valueUri": s.SMART.TokenURL()},
+			},
+		}},
+	}
 }

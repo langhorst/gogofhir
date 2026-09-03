@@ -592,6 +592,10 @@ func (s *Server) dispatch(outer *http.Request, handler http.Handler, entry *txEn
 	// look like it arrived where the outer one did.
 	req.Host, req.TLS = outer.Host, outer.TLS
 	req.Header.Set("X-Forwarded-Proto", schemeOf(outer))
+	// The entry inherits the bundle's authorization: it was checked once, when
+	// the transaction arrived, and re-presenting the token to ourselves would
+	// prove nothing.
+	req = withGrant(req, grantFrom(outer))
 
 	rec := &recorder{header: http.Header{}}
 	handler.ServeHTTP(rec, req)

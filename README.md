@@ -7,7 +7,7 @@ behaves.
 
 The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 
-> **Status: M7a complete.** `gogofhir serve` gives you CRUD, versioning,
+> **Status: M7 complete.** `gogofhir serve` gives you CRUD, versioning,
 > history, conditional operations, optimistic concurrency, atomic transaction
 > and batch bundles, the whole of search — every indexed parameter type with its
 > modifiers, full-text, chaining, `_has`, `_include`/`_revinclude`, composites,
@@ -15,9 +15,9 @@ The name is a Dhalsim joke. Go for Go, go for let's go, fhir for FHIR.
 > `$validate` against the type system, the specification's invariants, embedded
 > value sets, and profiles with slicing. Over 158 resource types, in JSON and
 > XML, on **SQLite or PostgreSQL** — one implementation, with both engines
-> passing the identical storage and REST suites. The FHIRPath engine passes
-> **1966 of 1998** official HL7 conformance tests. See
-> [Milestones](#milestones).
+> passing the identical storage and REST suites — and **SMART App Launch** with
+> scope and patient-compartment enforcement. The FHIRPath engine passes **1966
+> of 1998** official HL7 conformance tests. See [Milestones](#milestones).
 
 ## Why
 
@@ -64,6 +64,7 @@ make build                            # no network, no vendored packages needed
 # Stricter, for a conformance run:
 #   -validate-writes       refuse resources with validation errors
 #   -strict-terminology    a binding that cannot be checked offline is an error
+#   -smart                 require SMART access tokens (needs -base-url)
 #   -fhir r4               serve R4 instead of R5
 ```
 
@@ -376,6 +377,73 @@ reference implementation's own message wording and issue counts, which a second
 implementation does not reproduce by writing better code. Matching it means
 building a message-equivalence mapping, which is its own piece of work.
 
+## SMART App Launch
+
+Off unless asked for. This server exists to be developed against, and one that
+demands an access token before it will answer `GET /Patient` is one a developer
+spends the first afternoon working around. Turned on, it is the whole flow,
+because a conformance target that only pretends to authorize is worse than one
+that does not try.
+
+```sh
+gogofhir serve -smart -base-url https://fhir.example.org   -smart-client my-app -smart-redirect https://app.example.org/redirect   -smart-patient 1a2b3c
+```
+
+- **Discovery.** `.well-known/smart-configuration` and, in the
+  `CapabilityStatement`, `security.service = SMART-on-FHIR` with the OAuth URIs
+  extension — which is what a client with only a FHIR base URL reads to find
+  the endpoints. Both stay reachable without a token, since they are how an app
+  learns it needs one.
+- **A built-in authorization server.** Authorization code with PKCE, refresh
+  tokens, and client credentials for backend services. Making you stand up
+  Keycloak first would mean nobody points Inferno at this. It holds no session
+  state: an authorization code is a short-lived signed token carrying the grant
+  it will become, so there is nothing to clean up and no way for two replicas to
+  disagree about which codes are outstanding.
+- **Both scope syntaxes.** SMART v2 (`patient/Observation.rs`) is what to
+  write; v1 (`user/*.read`) is what most existing apps send, and both are
+  enforced identically. A v2 scope carrying a search filter is *refused* rather
+  than accepted and ignored, which would silently widen it to the whole type.
+- **Tokens are RS256 with a published JWKS**, so a real client library can
+  verify them. The key is generated per process: there is no key file to
+  manage, leak, or forget to rotate, and a restart simply invalidates
+  outstanding tokens.
+
+### The patient compartment
+
+This is the part a server that checks only scopes gets wrong. A
+`patient/Observation.rs` token may read Observations — but only the ones in its
+launch patient's compartment, and enforcing the scope without the compartment
+leaks every other patient to any app that asks.
+
+The confinement is a query rewrite, built from the release's own
+`CompartmentDefinition`s rather than a hardcoded table. A resource is usually in
+a patient's compartment through *several* parameters — an Observation through
+`subject` or `performer` — so it becomes a `_filter` disjunction over all of
+them, `AND`ed with whatever the client asked for:
+
+```
+GET /Observation?code=29463-7
+  → …&_filter=(subject eq Patient/1a2b3c or performer eq Patient/1a2b3c)
+```
+
+Taking only the first parameter would be the tempting simplification and the
+wrong one: it hides a patient's own records from an app entitled to see them,
+which reads as data loss rather than as a permission error. A type in no
+compartment at all is refused rather than searched unconfined — the failure mode
+has to be closed. And a resource outside the compartment is `404`, not `403`:
+telling an app that something it may not see nonetheless exists is itself a
+disclosure.
+
+Authorization wraps the whole router rather than each handler, so a route added
+later cannot be added unguarded. A transaction is authorized once, at the
+bundle, and its entries inherit that grant.
+
+**Known divergence:** SMART Backend Services authenticates a client with a
+signed JWT assertion against a registered public key; this server accepts a
+client secret instead. The flow, the scopes and the tokens are the real thing —
+only the client's own authentication is simpler.
+
 ## Storage
 
 **SQLite and PostgreSQL, from one implementation.** `-db fhir.db` for a file,
@@ -638,7 +706,9 @@ regenerate it.
       engine, advertised as `supportedProfile`. Proven on the International
       Patient Summary; **US Core itself is unreachable from this environment**
       and is one lock-file entry wherever it is not.
-- [ ] **M7c — SMART App Launch.** OAuth2, to make Inferno meaningful.
+- [x] **M7c — SMART App Launch.** Discovery, a built-in authorization server
+      with PKCE, scope enforcement in both syntaxes, and patient compartment
+      confinement built from the release's own compartment definitions.
 
 FHIRPath comes first because everything depends on it: search extraction,
 `_filter`, invariants, and subscription criteria are all FHIRPath. It is also

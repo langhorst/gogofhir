@@ -9,6 +9,7 @@
 //
 //	gogofhir serve       [-fhir r5] [-addr :8080] [-db fhir.db | postgres://...]
 //	                     [-validate-writes] [-strict-terminology]
+//	                     [-smart -base-url https://host]
 //	gogofhir conformance [-fhir r5]
 //	gogofhir version
 package main
@@ -29,6 +30,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/rest"
+	"github.com/langhorst/gogofhir/internal/smart"
 	"github.com/langhorst/gogofhir/internal/storage/postgres"
 	"github.com/langhorst/gogofhir/internal/storage/sqlite"
 	"github.com/langhorst/gogofhir/internal/storage/sqlstore"
@@ -72,6 +74,16 @@ func runServe(args []string) int {
 		"treat a binding this server cannot check offline as an error rather than a warning")
 	validateWrites := fs.Bool("validate-writes", false,
 		"reject a create or update whose resource has validation errors")
+	smartAuth := fs.Bool("smart", false,
+		"require SMART App Launch access tokens and enforce their scopes")
+	smartClient := fs.String("smart-client", "gogofhir-test-client",
+		"client id registered with the built-in authorization server")
+	smartSecret := fs.String("smart-secret", "",
+		"client secret; empty registers a public client, which must use PKCE")
+	smartRedirect := fs.String("smart-redirect", "http://localhost:4567/inferno/redirect",
+		"comma-separated redirect URIs the client may use")
+	smartPatient := fs.String("smart-patient", "",
+		"patient id handed to patient-scoped tokens as launch context")
 	_ = fs.Parse(args)
 
 	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
@@ -93,6 +105,33 @@ func runServe(args []string) int {
 		Index: idx, Store: store, BaseURL: *baseURL, Log: log,
 		StrictTerminology: *strictTerminology,
 		ValidateWrites:    *validateWrites,
+	}
+	if *smartAuth {
+		issuer := *baseURL
+		if issuer == "" {
+			// The issuer has to be an absolute URL a client can reach, and
+			// without -base-url there is nothing to derive one from.
+			log.Error("-smart needs -base-url, since tokens and discovery are written against it")
+			return 1
+		}
+		keys, err := smart.NewKeys()
+		if err != nil {
+			log.Error("generating the signing key", "error", err)
+			return 1
+		}
+		server.SMART = smart.New(smart.Config{
+			Issuer: strings.TrimSuffix(issuer, "/"),
+			Keys:   keys,
+			Clients: map[string]smart.Client{*smartClient: {
+				ID:           *smartClient,
+				Secret:       *smartSecret,
+				RedirectURIs: strings.Split(*smartRedirect, ","),
+			}},
+			Patient: *smartPatient,
+		})
+		log.Info("SMART App Launch enabled",
+			"client", *smartClient, "confidential", *smartSecret != "",
+			"launchPatient", *smartPatient)
 	}
 	httpServer := &http.Server{
 		Addr:    *addr,

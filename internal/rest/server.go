@@ -13,6 +13,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
+	"github.com/langhorst/gogofhir/internal/smart"
 	"github.com/langhorst/gogofhir/internal/storage"
 	"github.com/langhorst/gogofhir/internal/validate"
 )
@@ -43,6 +44,12 @@ type Server struct {
 	// around rather than with.
 	ValidateWrites bool
 
+	// SMART, when set, requires an access token on every interaction and
+	// enforces its scopes. Nil leaves the server open, which is the default for
+	// the same reason validation is off: a developer should not have to
+	// negotiate an OAuth flow before their first GET.
+	SMART *smart.Server
+
 	// validator is built by Handler and shared by every request, including the
 	// scoped servers a transaction runs its entries through -- it caches
 	// compiled expressions and patterns, and is safe for concurrent use.
@@ -63,6 +70,9 @@ func (s *Server) Handler() http.Handler {
 		s.validator.StrictTerminology = s.StrictTerminology
 	}
 	mux := http.NewServeMux()
+	if s.SMART != nil {
+		s.SMART.Routes(mux)
+	}
 
 	mux.HandleFunc("GET /metadata", s.handleCapabilities)
 	mux.HandleFunc("GET /_history", s.handleSystemHistory)
@@ -91,7 +101,9 @@ func (s *Server) Handler() http.Handler {
 	// including the ones the router produces.
 	mux.HandleFunc("/", s.handleUnknownRoute)
 
-	return mux
+	// Authorization wraps the whole router rather than each handler, so a route
+	// added later cannot be added unguarded.
+	return s.guard(mux)
 }
 
 func (s *Server) handleUnknownRoute(w http.ResponseWriter, r *http.Request) {

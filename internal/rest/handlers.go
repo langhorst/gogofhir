@@ -21,7 +21,12 @@ func (s *Server) handleRead(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	res, err := s.Store.Read(r.Context(), resourceType, r.PathValue("id"))
+	id := r.PathValue("id")
+	if !s.permits(r, resourceType, id, grantFrom(r)) {
+		s.outOfCompartment(w, r, resourceType, id)
+		return
+	}
+	res, err := s.Store.Read(r.Context(), resourceType, id)
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -64,7 +69,12 @@ func (s *Server) handleVRead(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	res, err := s.Store.VRead(r.Context(), resourceType, r.PathValue("id"), r.PathValue("vid"))
+	id := r.PathValue("id")
+	if !s.permits(r, resourceType, id, grantFrom(r)) {
+		s.outOfCompartment(w, r, resourceType, id)
+		return
+	}
+	res, err := s.Store.VRead(r.Context(), resourceType, id, r.PathValue("vid"))
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -151,6 +161,10 @@ func (s *Server) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := r.PathValue("id")
+	if !s.permits(r, resourceType, id, grantFrom(r)) {
+		s.outOfCompartment(w, r, resourceType, id)
+		return
+	}
 	node, ok := s.readResource(w, r)
 	if !ok {
 		return
@@ -202,7 +216,12 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	_, res, err := s.Store.Delete(r.Context(), resourceType, r.PathValue("id"),
+	id := r.PathValue("id")
+	if !s.permits(r, resourceType, id, grantFrom(r)) {
+		s.outOfCompartment(w, r, resourceType, id)
+		return
+	}
+	_, res, err := s.Store.Delete(r.Context(), resourceType, id,
 		parseETag(r.Header.Get("If-Match")))
 	if err != nil {
 		if errors.Is(err, storage.ErrConflict) && r.Header.Get("If-Match") != "" {
@@ -357,6 +376,16 @@ func (s *Server) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType string, values url.Values) {
+	// A patient-scoped token sees one patient's compartment, which is a
+	// restriction on the query rather than on the parameters: the scope says
+	// the app may read Observations, and the compartment says which ones.
+	values, inCompartment := s.confine(values, resourceType, grantFrom(r))
+	if !inCompartment {
+		s.fail(w, r, http.StatusForbidden,
+			"%s is not in the patient compartment, so a patient-scoped token cannot search it",
+			resourceType)
+		return
+	}
 	q, opts, err := parseSearch(s.Index, resourceType, values)
 	if err != nil {
 		var se *searchError
@@ -416,7 +445,12 @@ func (s *Server) handleInstanceHistory(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	s.history(w, r, storage.HistoryQuery{Type: resourceType, ID: r.PathValue("id")})
+	id := r.PathValue("id")
+	if !s.permits(r, resourceType, id, grantFrom(r)) {
+		s.outOfCompartment(w, r, resourceType, id)
+		return
+	}
+	s.history(w, r, storage.HistoryQuery{Type: resourceType, ID: id})
 }
 
 func (s *Server) handleTypeHistory(w http.ResponseWriter, r *http.Request) {
