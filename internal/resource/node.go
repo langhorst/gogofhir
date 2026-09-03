@@ -15,6 +15,7 @@ package resource
 import (
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/fhirpath"
@@ -388,4 +389,83 @@ func (n *Node) resourceDefFor(item any) *conformance.TypeDef {
 	}
 	def, _ := n.idx.Type(typeName)
 	return def
+}
+
+// ---- identity and metadata ----
+
+// ID returns the resource's logical id, or "" if it has none.
+func (n *Node) ID() string {
+	obj, ok := n.value.(map[string]any)
+	if !ok {
+		return ""
+	}
+	id, _ := obj["id"].(string)
+	return id
+}
+
+// SetID sets the resource's logical id.
+func (n *Node) SetID(id string) {
+	if obj, ok := n.value.(map[string]any); ok {
+		obj["id"] = id
+	}
+}
+
+// SetMeta stamps meta.versionId and meta.lastUpdated, which the server owns:
+// a client may send them, but the values it sends are never authoritative.
+func (n *Node) SetMeta(versionID string, lastUpdated time.Time) {
+	obj, ok := n.value.(map[string]any)
+	if !ok {
+		return
+	}
+	meta, _ := obj["meta"].(map[string]any)
+	if meta == nil {
+		meta = map[string]any{}
+		obj["meta"] = meta
+	}
+	meta["versionId"] = versionID
+	// FHIR instants are written to at least seconds with a timezone; this uses
+	// milliseconds in UTC, which is what servers conventionally emit.
+	meta["lastUpdated"] = lastUpdated.UTC().Format("2006-01-02T15:04:05.000Z07:00")
+}
+
+// Meta returns the stored versionId and lastUpdated, if present.
+func (n *Node) Meta() (versionID, lastUpdated string) {
+	obj, ok := n.value.(map[string]any)
+	if !ok {
+		return "", ""
+	}
+	meta, _ := obj["meta"].(map[string]any)
+	if meta == nil {
+		return "", ""
+	}
+	versionID, _ = meta["versionId"].(string)
+	lastUpdated, _ = meta["lastUpdated"].(string)
+	return versionID, lastUpdated
+}
+
+// Clone returns a deep copy, so a caller can stamp metadata onto a document
+// without disturbing the one it was handed.
+func (n *Node) Clone() *Node {
+	c := *n
+	c.value = deepCopy(n.value)
+	return &c
+}
+
+func deepCopy(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(x))
+		for k, item := range x {
+			out[k] = deepCopy(item)
+		}
+		return out
+	case []any:
+		out := make([]any, len(x))
+		for i, item := range x {
+			out[i] = deepCopy(item)
+		}
+		return out
+	default:
+		return v
+	}
 }

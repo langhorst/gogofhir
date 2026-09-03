@@ -1,0 +1,220 @@
+// Package storage persists FHIR resources and the indexes search runs against.
+//
+// The Backend interface is the only thing the rest of the server talks to, and
+// no SQL appears outside its implementations. That boundary is deliberate:
+// SQLite is the sole backend through v1 and PostgreSQL arrives later, and a
+// second backend retrofitted onto a query layer that has quietly grown
+// SQLite-specific habits is exactly how a "portable" abstraction turns out not
+// to be. Keeping the query surface expressed as values rather than strings is
+// what makes the later port a translation rather than a rewrite.
+package storage
+
+import (
+	"context"
+	"errors"
+	"time"
+
+	"github.com/langhorst/gogofhir/internal/resource"
+)
+
+// Errors the REST layer maps onto status codes.
+var (
+	// ErrNotFound: no such resource. 404.
+	ErrNotFound = errors.New("storage: resource not found")
+	// ErrDeleted: the resource existed and was deleted. 410 Gone, which is
+	// distinct from 404 and observable to clients.
+	ErrDeleted = errors.New("storage: resource deleted")
+	// ErrConflict: an If-Match precondition did not hold. 409.
+	ErrConflict = errors.New("storage: version conflict")
+	// ErrDuplicate: a create would collide with an existing id. 409.
+	ErrDuplicate = errors.New("storage: resource already exists")
+	// ErrMultipleMatches: a conditional operation matched more than one
+	// resource, which the specification makes an error rather than a choice.
+	ErrMultipleMatches = errors.New("storage: conditional operation matched multiple resources")
+)
+
+// Resource is one stored version of a resource.
+type Resource struct {
+	Type string
+	// ID is the logical id a client sees, which is an arbitrary string chosen
+	// by the client or the server -- not the storage key.
+	ID string
+	// VersionID counts from 1 and increments on every write, including the
+	// delete that tombstones a resource.
+	VersionID   int64
+	LastUpdated time.Time
+	// Deleted marks a tombstone: the row records that a version existed and was
+	// removed, which history and 410 responses both need.
+	Deleted bool
+	// Content is the canonical JSON of this version, with meta.versionId and
+	// meta.lastUpdated already stamped. Empty for a tombstone.
+	Content []byte
+}
+
+// HistoryQuery selects a slice of the version history.
+type HistoryQuery struct {
+	// Type and ID narrow the scope: both empty is system-wide history, Type
+	// alone is type-wide, both set is one resource's history.
+	Type string
+	ID   string
+	// Since restricts to versions updated at or after this instant.
+	Since time.Time
+	// Count is the maximum number of entries; zero means the backend default.
+	Count int
+	// Offset skips entries, for paging.
+	Offset int
+}
+
+// SearchQuery is a conjunction of parameter matches.
+//
+// This is the query *plan*, not a query string: parsing the FHIR search syntax
+// -- modifiers, prefixes, chaining -- happens above, and rendering to SQL
+// happens inside a backend. Neither end knows about the other.
+type SearchQuery struct {
+	Type    string
+	Params  []ParamMatch
+	Count   int
+	Offset  int
+	SortBy  []SortKey
+	Summary bool
+}
+
+// ParamMatch is one indexed parameter constrained to a value.
+type ParamMatch struct {
+	// Code is the search parameter's name, as it appears in a query string.
+	Code string
+	// Kind is the index the match runs against.
+	Kind IndexKind
+	// Values are alternatives: a match succeeds if any of them does, which is
+	// how FHIR's comma-separated "or" works.
+	Values []MatchValue
+}
+
+// MatchValue is one alternative within a ParamMatch.
+type MatchValue struct {
+	// System and Code together match a token; Code alone matches any system.
+	System string
+	Code   string
+	// Text matches a string index, by prefix unless Exact is set.
+	Text  string
+	Exact bool
+	// Reference matches a reference index by target type and id, or by the
+	// reference URL when the query gives an absolute one.
+	RefType string
+	RefID   string
+	RefURL  string
+	// DateLow and DateHigh bound a date range in microseconds since the epoch.
+	DateLow, DateHigh int64
+	// NumLow and NumHigh bound a number or quantity range.
+	NumLow, NumHigh float64
+	// QuantitySystem and QuantityCode narrow a quantity to a unit.
+	QuantitySystem, QuantityCode string
+	// URI matches a uri index exactly.
+	URI string
+	// Prefix is the comparison the value carries: eq, ne, gt, lt, ge, le, sa,
+	// eb, or ap. Empty means eq.
+	Prefix string
+	// Missing, when set, matches resources that have (or lack) the parameter
+	// rather than any particular value.
+	Missing *bool
+}
+
+// SortKey is one ordering term.
+type SortKey struct {
+	Code       string
+	Kind       IndexKind
+	Descending bool
+}
+
+// IndexKind names one of the search index tables.
+//
+// FHIR defines nine search parameter types, and each is indexed differently:
+// a token needs a system and a code, a date needs a range, a reference needs a
+// target type and id. Splitting them into typed tables -- rather than one
+// stringly-typed table or engine-specific JSON indexes -- is what keeps the
+// schema portable and the queries ordinary B-tree lookups.
+type IndexKind string
+
+const (
+	IndexString    IndexKind = "string"
+	IndexToken     IndexKind = "token"
+	IndexReference IndexKind = "reference"
+	IndexDate      IndexKind = "date"
+	IndexQuantity  IndexKind = "quantity"
+	IndexURI       IndexKind = "uri"
+	IndexNumber    IndexKind = "number"
+)
+
+// IndexEntry is one extracted, indexable value.
+type IndexEntry struct {
+	Code string
+	Kind IndexKind
+
+	// Token
+	System string
+	Value  string
+
+	// String: Normalized is folded for matching, Exact keeps the original.
+	Normalized string
+	Exact      string
+
+	// Reference
+	RefType string
+	RefID   string
+	RefURL  string
+
+	// DateLow and DateHigh bound the instant range a date covers, in
+	// microseconds since the epoch.
+	//
+	// Dates are ranges because "2024" denotes a year rather than an instant:
+	// storing a point makes every prefix comparison subtly wrong, and it is the
+	// single most common way FHIR date search goes astray. Microseconds keep
+	// the column an ordinary integer, which both engines index identically.
+	DateLow, DateHigh int64
+
+	// NumLow and NumHigh bound a number or quantity, which are ranges for the
+	// same reason: a result recorded as 1.1 means [1.05, 1.15).
+	NumLow, NumHigh float64
+
+	// Quantity
+	QuantitySystem string
+	QuantityCode   string
+
+	// URI
+	URI string
+}
+
+// Backend is the persistence contract.
+//
+// Every method takes a context so a slow query cannot outlive its request.
+type Backend interface {
+	// Create stores a new resource, assigning version 1. The node's id must
+	// already be set. It returns ErrDuplicate if the id is taken.
+	Create(ctx context.Context, node *resource.Node) (*Resource, error)
+
+	// Update stores a new version, creating the resource if absent (which FHIR
+	// permits: a PUT to an unused id is a create). ifMatch, when non-empty, is
+	// the version the caller believes is current; a mismatch is ErrConflict.
+	Update(ctx context.Context, node *resource.Node, ifMatch string) (created bool, res *Resource, err error)
+
+	// Read returns the current version, or ErrDeleted if it is a tombstone.
+	Read(ctx context.Context, resourceType, id string) (*Resource, error)
+
+	// VRead returns one specific version, tombstones included.
+	VRead(ctx context.Context, resourceType, id, versionID string) (*Resource, error)
+
+	// Delete tombstones a resource. Deleting an absent resource succeeds and
+	// reports existed=false, which the specification requires so that delete is
+	// idempotent.
+	Delete(ctx context.Context, resourceType, id, ifMatch string) (existed bool, res *Resource, err error)
+
+	// History returns versions newest first.
+	History(ctx context.Context, q HistoryQuery) ([]*Resource, error)
+
+	// Search returns the current versions matching a query, and the total
+	// number of matches irrespective of paging.
+	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, err error)
+
+	// Close releases the backend's resources.
+	Close() error
+}
