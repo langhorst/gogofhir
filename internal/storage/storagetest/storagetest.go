@@ -26,8 +26,12 @@ import (
 // database of its own: the tests assume nothing is left over from the last one.
 type Open func(t *testing.T) storage.Backend
 
-// open is the factory the running suite was given.
-var open Open
+// suite is one run of the conformance tests against one backend factory.
+//
+// The factory travels in a value rather than a package variable so two
+// backends can be exercised in one process, and so nothing stops a caller
+// running the tests in parallel.
+type suite struct{ open Open }
 
 // Run executes the whole storage conformance suite against a backend.
 //
@@ -37,44 +41,40 @@ var open Open
 // or a bug -- and running the identical suite is the only way to find out which.
 func Run(t *testing.T, factory Open) {
 	t.Helper()
-	previous := open
-	open = factory
-	t.Cleanup(func() { open = previous })
-
-	for _, tc := range suite {
+	s := suite{open: factory}
+	// Named so a failure says which behaviour broke rather than which line.
+	tests := []struct {
+		name string
+		run  func(*testing.T)
+	}{
+		{"CreateReadRoundTrip", s.testCreateReadRoundTrip},
+		{"CreateRejectsDuplicate", s.testCreateRejectsDuplicate},
+		{"UpdateVersionsAndCreates", s.testUpdateVersionsAndCreates},
+		{"OptimisticConcurrency", s.testOptimisticConcurrency},
+		{"DeleteIsATombstoneAndIdempotent", s.testDeleteIsATombstoneAndIdempotent},
+		{"VReadReachesOldVersions", s.testVReadReachesOldVersions},
+		{"HistoryIsNewestFirstAndScoped", s.testHistoryIsNewestFirstAndScoped},
+		{"SearchByIndexedParameters", s.testSearchByIndexedParameters},
+		{"SearchByDateRange", s.testSearchByDateRange},
+		{"IndexesFollowTheCurrentVersion", s.testIndexesFollowTheCurrentVersion},
+		{"SearchPagingAndSort", s.testSearchPagingAndSort},
+		{"CursorPagingIsStableUnderWrites", s.testCursorPagingIsStableUnderWrites},
+		{"CursorRejectsMismatchedSort", s.testCursorRejectsMismatchedSort},
+		{"SkipTotal", s.testSkipTotal},
+		{"TxCommitsAndRollsBack", s.testTxCommitsAndRollsBack},
+		{"FullText", s.testFullText},
+		{"Include", s.testInclude},
+		{"Composite", s.testComposite},
+	}
+	for _, tc := range tests {
 		t.Run(tc.name, tc.run)
 	}
 }
 
-// suite is every test in this package, named so a failure says which behaviour
-// broke rather than which line.
-var suite = []struct {
-	name string
-	run  func(*testing.T)
-}{
-	{"CreateReadRoundTrip", testCreateReadRoundTrip},
-	{"CreateRejectsDuplicate", testCreateRejectsDuplicate},
-	{"UpdateVersionsAndCreates", testUpdateVersionsAndCreates},
-	{"OptimisticConcurrency", testOptimisticConcurrency},
-	{"DeleteIsATombstoneAndIdempotent", testDeleteIsATombstoneAndIdempotent},
-	{"VReadReachesOldVersions", testVReadReachesOldVersions},
-	{"HistoryIsNewestFirstAndScoped", testHistoryIsNewestFirstAndScoped},
-	{"SearchByIndexedParameters", testSearchByIndexedParameters},
-	{"SearchByDateRange", testSearchByDateRange},
-	{"IndexesFollowTheCurrentVersion", testIndexesFollowTheCurrentVersion},
-	{"SearchPagingAndSort", testSearchPagingAndSort},
-	{"CursorPagingIsStableUnderWrites", testCursorPagingIsStableUnderWrites},
-	{"CursorRejectsMismatchedSort", testCursorRejectsMismatchedSort},
-	{"SkipTotal", testSkipTotal},
-	{"TxCommitsAndRollsBack", testTxCommitsAndRollsBack},
-	{"FullText", testFullText},
-	{"Include", testInclude},
-	{"Composite", testComposite},
-}
-
-func newStore(t *testing.T) storage.Backend {
+// store opens a fresh backend for one test.
+func (s suite) store(t *testing.T) storage.Backend {
 	t.Helper()
-	return open(t)
+	return s.open(t)
 }
 
 func doc(t *testing.T, body string) *resource.Node {
@@ -99,9 +99,9 @@ func patient(t *testing.T, id, family string) *resource.Node {
 	}`, id, id, family))
 }
 
-func testCreateReadRoundTrip(t *testing.T) {
+func (s suite) testCreateReadRoundTrip(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 
 	res, err := store.Create(ctx, patient(t, "p1", "Chalmers"))
 	if err != nil {
@@ -126,9 +126,9 @@ func testCreateReadRoundTrip(t *testing.T) {
 	}
 }
 
-func testCreateRejectsDuplicate(t *testing.T) {
+func (s suite) testCreateRejectsDuplicate(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -137,9 +137,9 @@ func testCreateRejectsDuplicate(t *testing.T) {
 	}
 }
 
-func testUpdateVersionsAndCreates(t *testing.T) {
+func (s suite) testUpdateVersionsAndCreates(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 
 	// A PUT to an unused id creates the resource; the specification permits it.
 	created, res, err := store.Update(ctx, patient(t, "p1", "A"), "")
@@ -159,9 +159,9 @@ func testUpdateVersionsAndCreates(t *testing.T) {
 	}
 }
 
-func testOptimisticConcurrency(t *testing.T) {
+func (s suite) testOptimisticConcurrency(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -179,9 +179,9 @@ func testOptimisticConcurrency(t *testing.T) {
 	}
 }
 
-func testDeleteIsATombstoneAndIdempotent(t *testing.T) {
+func (s suite) testDeleteIsATombstoneAndIdempotent(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -214,9 +214,9 @@ func testDeleteIsATombstoneAndIdempotent(t *testing.T) {
 	}
 }
 
-func testVReadReachesOldVersions(t *testing.T) {
+func (s suite) testVReadReachesOldVersions(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "First")); err != nil {
 		t.Fatal(err)
 	}
@@ -237,9 +237,9 @@ func testVReadReachesOldVersions(t *testing.T) {
 	}
 }
 
-func testHistoryIsNewestFirstAndScoped(t *testing.T) {
+func (s suite) testHistoryIsNewestFirstAndScoped(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -285,9 +285,9 @@ func testHistoryIsNewestFirstAndScoped(t *testing.T) {
 	}
 }
 
-func testSearchByIndexedParameters(t *testing.T) {
+func (s suite) testSearchByIndexedParameters(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "Chalmers")); err != nil {
 		t.Fatal(err)
 	}
@@ -353,9 +353,9 @@ func testSearchByIndexedParameters(t *testing.T) {
 
 // A date parameter indexes the interval a partial date denotes, so a search for
 // the year finds a resource dated to the day.
-func testSearchByDateRange(t *testing.T) {
+func (s suite) testSearchByDateRange(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -391,9 +391,9 @@ func testSearchByDateRange(t *testing.T) {
 
 // Indexes describe the current version only: an updated resource stops matching
 // its old values, and a deleted one stops matching entirely.
-func testIndexesFollowTheCurrentVersion(t *testing.T) {
+func (s suite) testIndexesFollowTheCurrentVersion(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "Chalmers")); err != nil {
 		t.Fatal(err)
 	}
@@ -429,9 +429,9 @@ func testIndexesFollowTheCurrentVersion(t *testing.T) {
 	}
 }
 
-func testSearchPagingAndSort(t *testing.T) {
+func (s suite) testSearchPagingAndSort(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	for _, family := range []string{"Delta", "Alpha", "Charlie", "Bravo"} {
 		if _, err := store.Create(ctx, patient(t, "p-"+family, family)); err != nil {
 			t.Fatal(err)
@@ -476,9 +476,9 @@ func testSearchPagingAndSort(t *testing.T) {
 // the whole reason for cursors: with an offset, inserting a row that sorts
 // inside the first page pushes one past the boundary and the client never sees
 // it.
-func testCursorPagingIsStableUnderWrites(t *testing.T) {
+func (s suite) testCursorPagingIsStableUnderWrites(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	for _, family := range []string{"Alpha", "Charlie", "Echo", "Golf"} {
 		if _, err := store.Create(ctx, patient(t, "p-"+family, family)); err != nil {
 			t.Fatal(err)
@@ -527,9 +527,9 @@ func testCursorPagingIsStableUnderWrites(t *testing.T) {
 
 // A cursor made for one sort order cannot be replayed against another: its
 // values would be compared against the wrong expressions.
-func testCursorRejectsMismatchedSort(t *testing.T) {
+func (s suite) testCursorRejectsMismatchedSort(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	for i := 0; i < 3; i++ {
 		if _, err := store.Create(ctx, patient(t, fmt.Sprintf("p%d", i), fmt.Sprintf("F%d", i))); err != nil {
 			t.Fatal(err)
@@ -555,9 +555,9 @@ func testCursorRejectsMismatchedSort(t *testing.T) {
 }
 
 // _total=none skips the count, which is a second evaluation of the predicate.
-func testSkipTotal(t *testing.T) {
+func (s suite) testSkipTotal(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
@@ -576,9 +576,9 @@ func testSkipTotal(t *testing.T) {
 // Tx is the transaction bundle's atomicity: every write inside it lands, or
 // none does. The failure case is the one that matters -- a half-applied
 // transaction leaves a client with no way to find out what happened.
-func testTxCommitsAndRollsBack(t *testing.T) {
+func (s suite) testTxCommitsAndRollsBack(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 
 	err := store.Tx(ctx, func(ctx context.Context, tx storage.Backend) error {
 		if _, err := tx.Create(ctx, patient(t, "kept-1", "Kept")); err != nil {
@@ -657,9 +657,9 @@ func observation(t *testing.T, id, code, narrative, subject string, value float6
 // tsvector on the other -- which makes it the part of the parity gate most
 // worth having. _text searches the narrative alone; _content searches every
 // text value in the resource.
-func testFullText(t *testing.T) {
+func (s suite) testFullText(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, observation(t, "o1", "29463-7", "Body Weight Measured", "", 70)); err != nil {
 		t.Fatal(err)
 	}
@@ -716,9 +716,9 @@ func testFullText(t *testing.T) {
 	}
 }
 
-func testInclude(t *testing.T) {
+func (s suite) testInclude(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, patient(t, "p1", "Chalmers")); err != nil {
 		t.Fatal(err)
 	}
@@ -759,9 +759,9 @@ func testInclude(t *testing.T) {
 // the same component. Matching them independently is the classic way this
 // returns a confidently wrong answer, and the join that prevents it is on
 // (pid, seq) -- which both engines have to render the same way.
-func testComposite(t *testing.T) {
+func (s suite) testComposite(t *testing.T) {
 	ctx := context.Background()
-	store := newStore(t)
+	store := s.store(t)
 	if _, err := store.Create(ctx, doc(t, `{
 	  "resourceType": "Observation",
 	  "id": "bp",
