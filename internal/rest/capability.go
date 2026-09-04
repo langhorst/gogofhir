@@ -44,8 +44,8 @@ func (s *Server) handleCapabilities(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
-	resources := make([]any, 0, len(s.Index.ResourceTypes()))
-	for _, typeName := range s.Index.ResourceTypes() {
+	resources := make([]any, 0, len(s.index.ResourceTypes()))
+	for _, typeName := range s.index.ResourceTypes() {
 		resources = append(resources, s.capabilityForType(typeName))
 	}
 
@@ -62,7 +62,7 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 			"description": "gogofhir development and conformance server",
 			"url":         s.base(r),
 		},
-		"fhirVersion": s.Index.FHIRVersion,
+		"fhirVersion": s.index.FHIRVersion,
 		"format":      []any{"application/fhir+json", "application/fhir+xml"},
 		"rest": []any{map[string]any{
 			"mode":     "server",
@@ -87,7 +87,7 @@ func (s *Server) capabilityStatement(r *http.Request) (*resource.Node, error) {
 			},
 		}},
 	}
-	return resource.New(s.Index, statement)
+	return resource.New(s.index, statement)
 }
 
 // capabilityForType describes one resource type: the interactions implemented
@@ -116,7 +116,7 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 			"documentation": "Full-text search over the resource's text values."},
 	}
 	var includes []any
-	for _, sp := range s.Index.SearchParamsFor(typeName) {
+	for _, sp := range s.index.SearchParamsFor(typeName) {
 		if _, indexed := index.KindFor(sp.Type); !indexed && sp.Type != "composite" {
 			// The "special" parameters -- near, and the like -- are declared by
 			// the specification but not indexed here. Advertising them would
@@ -172,7 +172,7 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 // is not looking for those.
 func (s *Server) profilesFor(typeName string) []any {
 	var urls []string
-	for url, profile := range s.Index.Profiles {
+	for url, profile := range s.index.Profiles {
 		if profile.Type == typeName {
 			urls = append(urls, url)
 		}
@@ -194,7 +194,7 @@ func (s *Server) profilesFor(typeName string) []any {
 // nothing, because a client cannot tell an open server from one whose
 // CapabilityStatement is merely incomplete.
 func (s *Server) security() map[string]any {
-	if s.SMART == nil {
+	if s.auth == nil {
 		return map[string]any{
 			"cors":        true,
 			"description": "no authorization: this server is open, which is the default for development",
@@ -211,8 +211,8 @@ func (s *Server) security() map[string]any {
 		"extension": []any{map[string]any{
 			"url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
 			"extension": []any{
-				map[string]any{"url": "authorize", "valueUri": s.SMART.AuthorizeURL()},
-				map[string]any{"url": "token", "valueUri": s.SMART.TokenURL()},
+				map[string]any{"url": "authorize", "valueUri": s.auth.AuthorizeURL()},
+				map[string]any{"url": "token", "valueUri": s.auth.TokenURL()},
 			},
 		}},
 	}

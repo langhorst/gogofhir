@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -26,14 +27,15 @@ const (
 	maxBodyBytes = 32 << 20
 )
 
-// Server is the FHIR RESTful API.
-type Server struct {
+// Config is what a Server is built from.
+type Config struct {
 	Index *conformance.Index
 	Store storage.Backend
 	// BaseURL is the server's own address, used to build fullUrl and Location
 	// headers. Empty means derive it from each request.
 	BaseURL string
-	Log     *slog.Logger
+	// Log defaults to slog's default logger.
+	Log *slog.Logger
 
 	// StrictTerminology promotes a binding this server cannot check offline
 	// from a warning to an error.
@@ -49,29 +51,71 @@ type Server struct {
 	// the same reason validation is off: a developer should not have to
 	// negotiate an OAuth flow before their first GET.
 	SMART *smart.Server
-
-	// validator is built by Handler and shared by every request, including the
-	// scoped servers a transaction runs its entries through -- it caches
-	// compiled expressions and patterns, and is safe for concurrent use.
-	validator *validate.Validator
 }
 
-// Handler builds the route table.
+// Server is the FHIR RESTful API.
+//
+// It is built once by New and not changed afterwards: the router, the
+// validator and the configuration are fixed for its lifetime, and every
+// request reads them. What varies per request -- the authorization grant, and
+// the transaction-scoped store a bundle's entries run against -- travels in
+// the request's context rather than in a copy of the server.
+type Server struct {
+	index          *conformance.Index
+	store          storage.Backend
+	baseURL        string
+	log            *slog.Logger
+	validateWrites bool
+	auth           *smart.Server
+
+	// validator caches compiled expressions and patterns and is safe for
+	// concurrent use, so one serves every request.
+	validator *validate.Validator
+	handler   http.Handler
+}
+
+// New builds a server. It fails on a configuration that cannot serve, rather
+// than serving errors later: a server with no index or no store has nothing to
+// answer with.
+func New(cfg Config) (*Server, error) {
+	if cfg.Index == nil {
+		return nil, errors.New("rest: a conformance index is required")
+	}
+	if cfg.Store == nil {
+		return nil, errors.New("rest: a storage backend is required")
+	}
+	log := cfg.Log
+	if log == nil {
+		log = slog.Default()
+	}
+	validator := validate.New(cfg.Index)
+	validator.StrictTerminology = cfg.StrictTerminology
+
+	s := &Server{
+		index:          cfg.Index,
+		store:          cfg.Store,
+		baseURL:        cfg.BaseURL,
+		log:            log,
+		validateWrites: cfg.ValidateWrites,
+		auth:           cfg.SMART,
+		validator:      validator,
+	}
+	s.handler = s.routes()
+	return s, nil
+}
+
+// Handler is the server's HTTP handler.
+func (s *Server) Handler() http.Handler { return s.handler }
+
+// routes builds the route table.
 //
 // The patterns rely on Go's own specificity rules: "/{type}/_history" is more
 // specific than "/{type}/{id}", so history routes win without ordering tricks
 // or a regexp table.
-func (s *Server) Handler() http.Handler {
-	if s.Log == nil {
-		s.Log = slog.Default()
-	}
-	if s.validator == nil {
-		s.validator = validate.New(s.Index)
-		s.validator.StrictTerminology = s.StrictTerminology
-	}
+func (s *Server) routes() http.Handler {
 	mux := http.NewServeMux()
-	if s.SMART != nil {
-		s.SMART.Routes(mux)
+	if s.auth != nil {
+		s.auth.Routes(mux)
 	}
 
 	mux.HandleFunc("GET /metadata", s.handleCapabilities)
@@ -110,6 +154,29 @@ func (s *Server) handleUnknownRoute(w http.ResponseWriter, r *http.Request) {
 	s.fail(w, r, http.StatusNotFound, "no interaction at %s %s", r.Method, r.URL.Path)
 }
 
+// ---- the store a request runs against ----
+
+type backendKey struct{}
+
+// backend returns the store a request runs against: the transaction-scoped one
+// a bundle's entries were given, or the server's own.
+//
+// Carrying it in the context is what lets one router serve both a request from
+// a client and the requests a transaction makes of itself. The alternative --
+// a copy of the server with a different store and its own router -- is what
+// this replaced.
+func (s *Server) backend(ctx context.Context) storage.Backend {
+	if store, ok := ctx.Value(backendKey{}).(storage.Backend); ok {
+		return store
+	}
+	return s.store
+}
+
+// withBackend scopes a context to a store.
+func withBackend(ctx context.Context, store storage.Backend) context.Context {
+	return context.WithValue(ctx, backendKey{}, store)
+}
+
 // ---- responses ----
 
 // write serializes a document in the client's chosen format.
@@ -128,7 +195,7 @@ func (s *Server) write(w http.ResponseWriter, r *http.Request, status int, node 
 		body, err = node.JSON(indent)
 	}
 	if err != nil {
-		s.Log.Error("serializing response", "error", err)
+		s.log.Error("serializing response", "error", err)
 		http.Error(w, "serialization failed", http.StatusInternalServerError)
 		return
 	}
@@ -149,10 +216,10 @@ func (s *Server) write(w http.ResponseWriter, r *http.Request, status int, node 
 func (s *Server) fail(w http.ResponseWriter, r *http.Request, status int, format string, args ...any) {
 	diagnostics := fmt.Sprintf(format, args...)
 	if status >= 500 {
-		s.Log.Error("request failed", "status", status, "detail", diagnostics,
+		s.log.Error("request failed", "status", status, "detail", diagnostics,
 			"method", r.Method, "path", r.URL.Path)
 	}
-	s.write(w, r, status, outcome(s.Index, Issue{
+	s.write(w, r, status, outcome(s.index, Issue{
 		Severity:    severityError,
 		Code:        issueCodeForStatus(status),
 		Diagnostics: diagnostics,
@@ -185,7 +252,7 @@ func (s *Server) failStorage(w http.ResponseWriter, r *http.Request, err error) 
 // served, so an unknown type is a clean 404 rather than an empty search.
 func (s *Server) resourceType(w http.ResponseWriter, r *http.Request) (string, bool) {
 	name := r.PathValue("type")
-	if !s.Index.IsResource(name) {
+	if !s.index.IsResource(name) {
 		s.fail(w, r, http.StatusNotFound, "unknown resource type %q", name)
 		return "", false
 	}
@@ -194,8 +261,8 @@ func (s *Server) resourceType(w http.ResponseWriter, r *http.Request) (string, b
 
 // base returns the server's external base URL.
 func (s *Server) base(r *http.Request) string {
-	if s.BaseURL != "" {
-		return strings.TrimSuffix(s.BaseURL, "/")
+	if s.baseURL != "" {
+		return strings.TrimSuffix(s.baseURL, "/")
 	}
 	scheme := "http"
 	if r.TLS != nil {
@@ -244,9 +311,9 @@ func (s *Server) readResource(w http.ResponseWriter, r *http.Request) (*resource
 	}
 	var node *resource.Node
 	if f == formatXML {
-		node, err = resource.FromXML(s.Index, body)
+		node, err = resource.FromXML(s.index, body)
 	} else {
-		node, err = resource.FromJSON(s.Index, body)
+		node, err = resource.FromJSON(s.index, body)
 	}
 	if err != nil {
 		s.fail(w, r, http.StatusBadRequest, "cannot parse resource: %v", err)
@@ -257,7 +324,7 @@ func (s *Server) readResource(w http.ResponseWriter, r *http.Request) (*resource
 
 // stored turns a stored resource back into a document for serialization.
 func (s *Server) stored(res *storage.Resource) (*resource.Node, error) {
-	return resource.FromJSON(s.Index, res.Content)
+	return resource.FromJSON(s.index, res.Content)
 }
 
 // resourceHeaders are the headers every single-resource response carries.

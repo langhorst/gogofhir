@@ -100,7 +100,7 @@ func runServe(args []string) int {
 	}
 	defer store.Close()
 
-	server := &rest.Server{
+	cfg := rest.Config{
 		Index: idx, Store: store, BaseURL: *baseURL, Log: log,
 		StrictTerminology: *strictTerminology,
 		ValidateWrites:    *validateWrites,
@@ -118,7 +118,7 @@ func runServe(args []string) int {
 			log.Error("generating the signing key", "error", err)
 			return 1
 		}
-		server.SMART = smart.New(smart.Config{
+		cfg.SMART = smart.New(smart.Config{
 			Issuer: strings.TrimSuffix(issuer, "/"),
 			Keys:   keys,
 			Clients: map[string]smart.Client{*smartClient: {
@@ -131,6 +131,11 @@ func runServe(args []string) int {
 		log.Info("SMART App Launch enabled",
 			"client", *smartClient, "confidential", *smartSecret != "",
 			"launchPatient", *smartPatient)
+	}
+	server, err := rest.New(cfg)
+	if err != nil {
+		log.Error("building the server", "error", err)
+		return 1
 	}
 	httpServer := &http.Server{
 		Addr:    *addr,

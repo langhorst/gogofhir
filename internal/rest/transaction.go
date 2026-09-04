@@ -24,7 +24,7 @@ import (
 // rejected one, because the client has no way to find out what landed.
 //
 // Entries are executed by dispatching them back through the server's own
-// handler against a transaction-scoped store. That is the point: a create
+// router against a transaction-scoped store. That is the point: a create
 // inside a bundle is the same create, with the same conditional handling,
 // status codes, and OperationOutcomes, rather than a second implementation that
 // drifts from the first.
@@ -164,7 +164,7 @@ func parseEntries(s *Server, obj map[string]any) ([]*txEntry, error) {
 		entry.resourceType, _, _ = strings.Cut(entry.path, "/")
 
 		if nested, ok := item["resource"].(map[string]any); ok {
-			node, err := resource.New(s.Index, nested)
+			node, err := resource.New(s.index, nested)
 			if err != nil {
 				return nil, &searchError{fmt.Sprintf("entry %d holds an unreadable resource: %v", i, err)}
 			}
@@ -188,9 +188,8 @@ func parseEntries(s *Server, obj map[string]any) ([]*txEntry, error) {
 // specification is explicit that they do not depend on each other. A failing
 // entry carries its own status into the response; the batch itself succeeds.
 func (s *Server) runBatch(w http.ResponseWriter, r *http.Request, entries []*txEntry) {
-	handler := s.Handler()
 	for _, entry := range entries {
-		s.dispatch(r, handler, entry)
+		s.dispatch(r.Context(), r, entry)
 	}
 	s.writeBundleResponse(w, r, "batch-response", entries)
 }
@@ -199,21 +198,20 @@ func (s *Server) runBatch(w http.ResponseWriter, r *http.Request, entries []*txE
 
 func (s *Server) runTransaction(w http.ResponseWriter, r *http.Request, entries []*txEntry) {
 	var failed *txEntry
-	err := s.Store.Tx(r.Context(), func(ctx context.Context, store storage.Backend) error {
+	err := s.backend(r.Context()).Tx(r.Context(), func(ctx context.Context, store storage.Backend) error {
 		// Everything below runs against the transaction's own store, so the
 		// resolution searches see earlier entries' writes and nothing escapes if
-		// a later entry fails.
-		scoped := *s
-		scoped.Store = store
-		handler := scoped.Handler()
+		// a later entry fails. The store travels in the context, which is what
+		// lets the same router serve the entries.
+		ctx = withBackend(ctx, store)
 
-		if err := scoped.resolveTargets(ctx, entries); err != nil {
+		if err := s.resolveTargets(ctx, entries); err != nil {
 			return err
 		}
 		if err := checkDuplicates(entries); err != nil {
 			return err
 		}
-		if err := scoped.resolveReferences(ctx, entries); err != nil {
+		if err := s.resolveReferences(ctx, entries); err != nil {
 			return err
 		}
 
@@ -221,7 +219,7 @@ func (s *Server) runTransaction(w http.ResponseWriter, r *http.Request, entries 
 			if entry.done {
 				continue
 			}
-			scoped.dispatch(r, handler, entry)
+			s.dispatch(ctx, r, entry)
 			if entry.status >= http.StatusBadRequest {
 				// One failure rolls the whole transaction back. Returning the
 				// entry rather than a message keeps its OperationOutcome, which
@@ -272,7 +270,7 @@ func outcomeDiagnostics(s *Server, body []byte) string {
 	if len(body) == 0 {
 		return ""
 	}
-	node, err := resource.FromJSON(s.Index, body)
+	node, err := resource.FromJSON(s.index, body)
 	if err != nil || node.FHIRType() != "OperationOutcome" {
 		return ""
 	}
@@ -305,7 +303,7 @@ func (s *Server) resolveTargets(ctx context.Context, entries []*txEntry) error {
 			continue // reads act on whatever the URL names
 
 		case http.MethodPost:
-			if len(segments) != 1 || !s.Index.IsResource(entry.resourceType) {
+			if len(segments) != 1 || !s.index.IsResource(entry.resourceType) {
 				return &searchError{fmt.Sprintf(
 					"entry %d posts to %q, which is not a resource type", entry.position, entry.path)}
 			}
@@ -333,7 +331,7 @@ func (s *Server) resolveTargets(ctx context.Context, entries []*txEntry) error {
 			entry.node.SetID(entry.id)
 
 		case http.MethodPut:
-			if !s.Index.IsResource(entry.resourceType) {
+			if !s.index.IsResource(entry.resourceType) {
 				return &searchError{fmt.Sprintf(
 					"entry %d targets %q, which is not a resource type", entry.position, entry.path)}
 			}
@@ -361,7 +359,7 @@ func (s *Server) resolveTargets(ctx context.Context, entries []*txEntry) error {
 			entry.node.SetID(entry.id)
 
 		case http.MethodDelete:
-			if !s.Index.IsResource(entry.resourceType) {
+			if !s.index.IsResource(entry.resourceType) {
 				return &searchError{fmt.Sprintf(
 					"entry %d targets %q, which is not a resource type", entry.position, entry.path)}
 			}
@@ -478,7 +476,7 @@ func (s *Server) resolveReferences(ctx context.Context, entries []*txEntry) erro
 			}
 			// A conditional reference is search criteria in place of an id.
 			resourceType, criteria, ok := strings.Cut(reference, "?")
-			if !ok || criteria == "" || !s.Index.IsResource(resourceType) {
+			if !ok || criteria == "" || !s.index.IsResource(resourceType) {
 				return "", false
 			}
 			existing, err := s.matchOne(ctx, resourceType, criteria)
@@ -553,7 +551,7 @@ func executionOrder(entries []*txEntry) []*txEntry {
 // same OperationOutcome on failure. The alternative -- a second implementation
 // of each interaction for bundles -- is a reliable source of divergence between
 // what a server does directly and what it does in a transaction.
-func (s *Server) dispatch(outer *http.Request, handler http.Handler, entry *txEntry) {
+func (s *Server) dispatch(ctx context.Context, outer *http.Request, entry *txEntry) {
 	var body []byte
 	if entry.node != nil {
 		encoded, err := entry.node.MarshalJSON()
@@ -565,7 +563,7 @@ func (s *Server) dispatch(outer *http.Request, handler http.Handler, entry *txEn
 	}
 
 	target := "/" + entry.requestURL()
-	req, err := http.NewRequestWithContext(outer.Context(), entry.dispatchMethod(), target, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, entry.dispatchMethod(), target, bytes.NewReader(body))
 	if err != nil {
 		entry.status = http.StatusBadRequest
 		return
@@ -598,7 +596,7 @@ func (s *Server) dispatch(outer *http.Request, handler http.Handler, entry *txEn
 	req = withGrant(req, grantFrom(outer))
 
 	rec := &recorder{header: http.Header{}}
-	handler.ServeHTTP(rec, req)
+	s.handler.ServeHTTP(rec, req)
 
 	entry.status = rec.status
 	entry.location = strings.TrimPrefix(rec.header.Get("Location"), s.base(outer)+"/")
@@ -714,7 +712,7 @@ func (s *Server) writeBundleResponse(w http.ResponseWriter, r *http.Request, bun
 		}
 		built = append(built, out)
 	}
-	bundle, err := buildBundle(s.Index, bundleType, nil, built, nil, searchOptions{})
+	bundle, err := buildBundle(s.index, bundleType, nil, built, nil, searchOptions{})
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the %s bundle failed: %v", bundleType, err)
 		return

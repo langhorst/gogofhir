@@ -26,7 +26,7 @@ func (s *Server) handleRead(w http.ResponseWriter, r *http.Request) {
 		s.outOfCompartment(w, r, resourceType, id)
 		return
 	}
-	res, err := s.Store.Read(r.Context(), resourceType, id)
+	res, err := s.backend(r.Context()).Read(r.Context(), resourceType, id)
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -74,7 +74,7 @@ func (s *Server) handleVRead(w http.ResponseWriter, r *http.Request) {
 		s.outOfCompartment(w, r, resourceType, id)
 		return
 	}
-	res, err := s.Store.VRead(r.Context(), resourceType, id, r.PathValue("vid"))
+	res, err := s.backend(r.Context()).VRead(r.Context(), resourceType, id, r.PathValue("vid"))
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -136,7 +136,7 @@ func (s *Server) handleCreate(w http.ResponseWriter, r *http.Request) {
 	// The server assigns the id on a create: any id the client sent is ignored,
 	// since POST means "you choose".
 	node.SetID(newID())
-	res, err := s.Store.Create(r.Context(), node)
+	res, err := s.backend(r.Context()).Create(r.Context(), node)
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -186,7 +186,7 @@ func (s *Server) handleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, res, err := s.Store.Update(r.Context(), node, parseETag(r.Header.Get("If-Match")))
+	created, res, err := s.backend(r.Context()).Update(r.Context(), node, parseETag(r.Header.Get("If-Match")))
 	if err != nil {
 		// A failed If-Match is Precondition Failed when the client stated one,
 		// and Conflict otherwise.
@@ -221,7 +221,7 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {
 		s.outOfCompartment(w, r, resourceType, id)
 		return
 	}
-	_, res, err := s.Store.Delete(r.Context(), resourceType, id,
+	_, res, err := s.backend(r.Context()).Delete(r.Context(), resourceType, id,
 		parseETag(r.Header.Get("If-Match")))
 	if err != nil {
 		if errors.Is(err, storage.ErrConflict) && r.Header.Get("If-Match") != "" {
@@ -276,7 +276,7 @@ func (s *Server) handleConditionalUpdate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	created, res, err := s.Store.Update(r.Context(), node, "")
+	created, res, err := s.backend(r.Context()).Update(r.Context(), node, "")
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -316,7 +316,7 @@ func (s *Server) handleConditionalDelete(w http.ResponseWriter, r *http.Request)
 		s.failStorage(w, r, err)
 		return
 	}
-	if _, _, err := s.Store.Delete(r.Context(), resourceType, existing.ID, ""); err != nil {
+	if _, _, err := s.backend(r.Context()).Delete(r.Context(), resourceType, existing.ID, ""); err != nil {
 		s.failStorage(w, r, err)
 		return
 	}
@@ -331,14 +331,14 @@ func (s *Server) matchOne(ctx context.Context, resourceType, rawQuery string) (*
 	if err != nil {
 		return nil, &searchError{"malformed search criteria"}
 	}
-	q, _, err := parseSearch(s.Index, resourceType, values)
+	q, _, err := parseSearch(s.index, resourceType, values)
 	if err != nil {
 		return nil, err
 	}
 	// Two is enough to know the criteria are ambiguous, and the total is not
 	// needed to find that out.
 	q.Count, q.SkipTotal = 2, true
-	result, err := s.Store.Search(ctx, q)
+	result, err := s.backend(ctx).Search(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +386,7 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 			resourceType)
 		return
 	}
-	q, opts, err := parseSearch(s.Index, resourceType, values)
+	q, opts, err := parseSearch(s.index, resourceType, values)
 	if err != nil {
 		var se *searchError
 		if errors.As(err, &se) {
@@ -396,7 +396,7 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 		s.fail(w, r, http.StatusInternalServerError, "search failed: %v", err)
 		return
 	}
-	result, err := s.Store.Search(r.Context(), q)
+	result, err := s.backend(r.Context()).Search(r.Context(), q)
 	if err != nil {
 		var se *searchError
 		if errors.As(err, &se) {
@@ -416,14 +416,14 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 	// of every resource that matched.
 	var included []*storage.Resource
 	if len(opts.includes) > 0 && len(result.Matches) > 0 {
-		included, err = s.Store.Include(r.Context(), result.Matches, opts.includes)
+		included, err = s.backend(r.Context()).Include(r.Context(), result.Matches, opts.includes)
 		if err != nil {
 			s.failStorage(w, r, err)
 			return
 		}
 	}
 
-	bundle, err := searchBundle(s.Index, bundleContext{
+	bundle, err := searchBundle(s.index, bundleContext{
 		base:     s.base(r),
 		request:  r.URL,
 		total:    result.Total,
@@ -488,7 +488,7 @@ func (s *Server) history(w http.ResponseWriter, r *http.Request, q storage.Histo
 		q.Since = since
 	}
 
-	versions, err := s.Store.History(r.Context(), q)
+	versions, err := s.backend(r.Context()).History(r.Context(), q)
 	if err != nil {
 		s.failStorage(w, r, err)
 		return
@@ -496,12 +496,12 @@ func (s *Server) history(w http.ResponseWriter, r *http.Request, q storage.Histo
 	if len(versions) == 0 && q.ID != "" {
 		// History for a resource that never existed is a 404, while an existing
 		// resource with no matching versions is an empty bundle.
-		if _, err := s.Store.Read(r.Context(), q.Type, q.ID); errors.Is(err, storage.ErrNotFound) {
+		if _, err := s.backend(r.Context()).Read(r.Context(), q.Type, q.ID); errors.Is(err, storage.ErrNotFound) {
 			s.fail(w, r, http.StatusNotFound, "resource not found")
 			return
 		}
 	}
-	bundle, err := historyBundle(s.Index, s.base(r), versions)
+	bundle, err := historyBundle(s.index, s.base(r), versions)
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the history bundle failed: %v", err)
 		return

@@ -34,16 +34,16 @@ type client struct {
 	store storage.Backend
 }
 
-// option adjusts a server before it starts.
-type option func(*rest.Server)
+// option adjusts a server's configuration before it is built.
+type option func(*rest.Config)
 
 // validateWrites makes the server refuse resources with validation errors, as
 // -validate-writes does.
-func validateWrites(s *rest.Server) { s.ValidateWrites = true }
+func validateWrites(cfg *rest.Config) { cfg.ValidateWrites = true }
 
 // withSMART puts the server behind an authorization server, as -smart does.
 func withSMART(auth *smart.Server) option {
-	return func(s *rest.Server) { s.SMART = auth }
+	return func(cfg *rest.Config) { cfg.SMART = auth }
 }
 
 // newServer starts a server on a fresh backend.
@@ -70,9 +70,13 @@ func (c *client) restart(t *testing.T, options ...option) *client {
 
 func start(t *testing.T, idx *conformance.Index, store storage.Backend, options []option) *client {
 	t.Helper()
-	server := &rest.Server{Index: idx, Store: store}
+	cfg := rest.Config{Index: idx, Store: store}
 	for _, apply := range options {
-		apply(server)
+		apply(&cfg)
+	}
+	server, err := rest.New(cfg)
+	if err != nil {
+		t.Fatalf("building the server: %v", err)
 	}
 	srv := httptest.NewServer(server.Handler())
 	t.Cleanup(srv.Close)

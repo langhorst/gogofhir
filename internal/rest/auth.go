@@ -51,7 +51,7 @@ func permissionForMethod(r *http.Request, instance bool) rune {
 // token before it will answer GET /Patient is one a developer spends the first
 // afternoon working around.
 func (s *Server) authorize(w http.ResponseWriter, r *http.Request, resourceType string, instance bool) (*smart.Grant, bool) {
-	if s.SMART == nil {
+	if s.auth == nil {
 		return nil, true
 	}
 
@@ -60,7 +60,7 @@ func (s *Server) authorize(w http.ResponseWriter, r *http.Request, resourceType 
 		s.unauthorized(w, r, "invalid_token", "this server requires a SMART access token")
 		return nil, false
 	}
-	grant, err := s.SMART.Verify(token)
+	grant, err := s.auth.Verify(token)
 	if err != nil {
 		reason := "the access token is not valid"
 		if errors.Is(err, smart.ErrTokenExpired) {
@@ -98,14 +98,14 @@ func (s *Server) authorize(w http.ResponseWriter, r *http.Request, resourceType 
 // compartment at all, so the search returns nothing rather than everything --
 // the failure mode has to be closed.
 func (s *Server) confine(values url.Values, resourceType string, grant *smart.Grant) (url.Values, bool) {
-	if s.SMART == nil || grant == nil || grant.Patient == "" {
+	if s.auth == nil || grant == nil || grant.Patient == "" {
 		return values, true
 	}
 	context, allowed := grant.Allows(resourceType, smart.PermSearch)
 	if !allowed || context != "patient" {
 		return values, true
 	}
-	filter, ok := smart.CompartmentFilter(s.Index, resourceType, grant.Patient)
+	filter, ok := smart.CompartmentFilter(s.index, resourceType, grant.Patient)
 	if !ok {
 		return values, false
 	}
@@ -122,26 +122,26 @@ func (s *Server) confine(values url.Values, resourceType string, grant *smart.Gr
 // It is answered by searching the compartment for that one id, which is the
 // same question the confined search asks and therefore cannot disagree with it.
 func (s *Server) permits(r *http.Request, resourceType, id string, grant *smart.Grant) bool {
-	if s.SMART == nil || grant == nil || grant.Patient == "" {
+	if s.auth == nil || grant == nil || grant.Patient == "" {
 		return true
 	}
 	context, allowed := grant.Allows(resourceType, smart.PermRead)
 	if !allowed || context != "patient" {
 		return true
 	}
-	filter, ok := smart.CompartmentFilter(s.Index, resourceType, grant.Patient)
+	filter, ok := smart.CompartmentFilter(s.index, resourceType, grant.Patient)
 	if !ok {
 		return false
 	}
 	values := url.Values{}
 	values.Set("_id", id)
 	values.Add("_filter", filter)
-	q, _, err := parseSearch(s.Index, resourceType, values)
+	q, _, err := parseSearch(s.index, resourceType, values)
 	if err != nil {
 		return false
 	}
 	q.Count, q.SkipTotal = 1, true
-	result, err := s.Store.Search(r.Context(), q)
+	result, err := s.backend(r.Context()).Search(r.Context(), q)
 	return err == nil && len(result.Matches) == 1
 }
 
@@ -168,7 +168,7 @@ func bearerToken(r *http.Request) (string, bool) {
 func (s *Server) unauthorized(w http.ResponseWriter, r *http.Request, code, description string) {
 	w.Header().Set("WWW-Authenticate",
 		`Bearer realm="gogofhir", error="`+code+`", error_description="`+description+`"`)
-	s.write(w, r, http.StatusUnauthorized, outcome(s.Index, Issue{
+	s.write(w, r, http.StatusUnauthorized, outcome(s.index, Issue{
 		Severity: severityError, Code: "login", Diagnostics: description,
 	}), nil)
 }
@@ -176,7 +176,7 @@ func (s *Server) unauthorized(w http.ResponseWriter, r *http.Request, code, desc
 // forbidden answers a valid token that does not cover this request. It names
 // the scope that would have, because "forbidden" without that is a puzzle.
 func (s *Server) forbidden(w http.ResponseWriter, r *http.Request, resourceType string, permission rune) {
-	s.write(w, r, http.StatusForbidden, outcome(s.Index, Issue{
+	s.write(w, r, http.StatusForbidden, outcome(s.index, Issue{
 		Severity: severityError, Code: "forbidden",
 		Diagnostics: "the access token does not grant " + string(permission) +
 			" on " + resourceType + "; a scope such as user/" + resourceType +
@@ -196,7 +196,7 @@ type grantKey struct{}
 // check is a bug; a forgotten authorization check is a breach.
 func (s *Server) guard(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if s.SMART == nil || openPath(r.URL.Path) {
+		if s.auth == nil || openPath(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -242,7 +242,7 @@ func routeTarget(s *Server, path string) (resourceType string, instance bool) {
 	if len(segments) == 0 || segments[0] == "" {
 		return "", false
 	}
-	if !s.Index.IsResource(segments[0]) {
+	if !s.index.IsResource(segments[0]) {
 		return "", false
 	}
 	if len(segments) == 1 {

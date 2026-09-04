@@ -47,7 +47,7 @@ func (s *Server) validateRequest(w http.ResponseWriter, r *http.Request, resourc
 	case "delete":
 		// Deleting needs no document, and what the server would check is
 		// referential integrity it does not track.
-		s.write(w, r, http.StatusOK, outcome(s.Index, Issue{
+		s.write(w, r, http.StatusOK, outcome(s.index, Issue{
 			Severity: severityInformation, Code: "informational",
 			Diagnostics: "this server places no constraints on deletion, so mode=delete always passes",
 		}), nil)
@@ -63,7 +63,7 @@ func (s *Server) validateRequest(w http.ResponseWriter, r *http.Request, resourc
 		return
 	}
 	if node.FHIRType() != resourceType {
-		s.write(w, r, http.StatusOK, outcome(s.Index, Issue{
+		s.write(w, r, http.StatusOK, outcome(s.index, Issue{
 			Severity: severityError, Code: "invalid",
 			Diagnostics: fmt.Sprintf("the resource is a %s but was sent to %s/$validate",
 				node.FHIRType(), resourceType),
@@ -80,10 +80,10 @@ func (s *Server) validateRequest(w http.ResponseWriter, r *http.Request, resourc
 		}
 	}
 
-	issues := s.checker().Validate(node, opts)
+	issues := s.validator.Validate(node, opts)
 	// The operation succeeded whatever it found; the outcome carries the
 	// verdict. A 400 here would say the *request* was wrong, which it was not.
-	s.write(w, r, http.StatusOK, outcome(s.Index, translateIssues(issues)...), nil)
+	s.write(w, r, http.StatusOK, outcome(s.index, translateIssues(issues)...), nil)
 }
 
 // validationTarget reads the document to validate, from the request body or,
@@ -96,7 +96,7 @@ func (s *Server) validationTarget(w http.ResponseWriter, r *http.Request, resour
 		s.fail(w, r, http.StatusBadRequest, "$validate needs a resource to validate")
 		return nil, false
 	}
-	res, err := s.Store.Read(r.Context(), resourceType, id)
+	res, err := s.backend(r.Context()).Read(r.Context(), resourceType, id)
 	if err != nil {
 		s.failStorage(w, r, err)
 		return nil, false
@@ -134,18 +134,6 @@ func translateIssues(issues []validate.Issue) []Issue {
 	return out
 }
 
-// checker returns the server's validator.
-//
-// Handler builds it, which every served request has been through; the fallback
-// covers a Server used directly in a test.
-func (s *Server) checker() *validate.Validator {
-	if s.validator == nil {
-		s.validator = validate.New(s.Index)
-		s.validator.StrictTerminology = s.StrictTerminology
-	}
-	return s.validator
-}
-
 // validateOnWrite checks a resource being stored, when the server is configured
 // to.
 //
@@ -155,15 +143,15 @@ func (s *Server) checker() *validate.Validator {
 // rather than with. Turning it on makes the server a stricter target, which is
 // exactly what a conformance run wants.
 func (s *Server) validateOnWrite(w http.ResponseWriter, r *http.Request, node *resource.Node) bool {
-	if !s.ValidateWrites {
+	if !s.validateWrites {
 		return true
 	}
-	issues := s.checker().Validate(node, validate.Options{})
+	issues := s.validator.Validate(node, validate.Options{})
 	if !validate.HasErrors(issues) {
 		return true
 	}
 	// 422 rather than 400: the request was well-formed and understood, and the
 	// content is what failed.
-	s.write(w, r, http.StatusUnprocessableEntity, outcome(s.Index, translateIssues(issues)...), nil)
+	s.write(w, r, http.StatusUnprocessableEntity, outcome(s.index, translateIssues(issues)...), nil)
 	return false
 }
