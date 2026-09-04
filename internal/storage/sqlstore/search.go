@@ -702,19 +702,12 @@ func renderChain(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 		args = append(args, p.Chain.TargetType)
 	}
 
-	inner := sc.nested(target)
-	for _, nested := range p.Chain.Params {
-		clause, clauseArgs, err := renderParam(nested, inner)
-		if err != nil {
-			return "", nil, err
-		}
-		if clause == "" {
-			continue
-		}
-		conditions = append(conditions, clause)
-		args = append(args, clauseArgs...)
+	nested, nestedArgs, err := renderNested(p.Chain.Params, sc, target)
+	if err != nil {
+		return "", nil, err
 	}
-	sc.n = inner.n
+	conditions = append(conditions, nested...)
+	args = append(args, nestedArgs...)
 
 	clause := f("EXISTS (SELECT 1 FROM idx_reference %s"+
 		" JOIN resource %s ON %s.resource_type = %s.target_type AND %s.fhir_id = %s.target_id"+
@@ -724,6 +717,31 @@ func renderChain(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 		clause = "NOT " + clause
 	}
 	return clause, args, nil
+}
+
+// renderNested renders the far side's parameters against a joined row.
+//
+// Chains and reverse chains differ in how they join, not in what they ask of
+// the row they reach: the same predicate renderers run against it in a nested
+// scope. The alias counter is carried back out so aliases minted inside stay
+// unique for whatever the caller renders next.
+func renderNested(params []storage.ParamMatch, sc *renderScope, alias string) ([]string, []any, error) {
+	inner := sc.nested(alias)
+	var clauses []string
+	var args []any
+	for _, p := range params {
+		clause, clauseArgs, err := renderParam(p, inner)
+		if err != nil {
+			return nil, nil, err
+		}
+		if clause == "" {
+			continue
+		}
+		clauses = append(clauses, clause)
+		args = append(args, clauseArgs...)
+	}
+	sc.n = inner.n
+	return clauses, args, nil
 }
 
 // renderHas is the reverse join: some resource points at this one and matches.
@@ -746,19 +764,12 @@ func renderHas(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	}
 	args := []any{p.Has.SourceType, p.Has.Code}
 
-	inner := sc.nested(source)
-	for _, nested := range p.Has.Params {
-		clause, clauseArgs, err := renderParam(nested, inner)
-		if err != nil {
-			return "", nil, err
-		}
-		if clause == "" {
-			continue
-		}
-		conditions = append(conditions, clause)
-		args = append(args, clauseArgs...)
+	nested, nestedArgs, err := renderNested(p.Has.Params, sc, source)
+	if err != nil {
+		return "", nil, err
 	}
-	sc.n = inner.n
+	conditions = append(conditions, nested...)
+	args = append(args, nestedArgs...)
 
 	clause := f("EXISTS (SELECT 1 FROM resource %s JOIN idx_reference %s ON %s.pid = %s.pid WHERE %s)",
 		source, ref, ref, source, strings.Join(conditions, " AND "))
