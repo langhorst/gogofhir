@@ -25,7 +25,7 @@ import (
 // and joining would multiply rows and need a DISTINCT to undo.
 
 // Search returns matching resources, the total, and a cursor for the next page.
-func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.Resource, int, string, error) {
+func (s *Store) Search(ctx context.Context, q storage.SearchQuery) (storage.SearchResult, error) {
 	where := []string{"r.deleted = FALSE"}
 	var args []any
 	if q.Type != "" {
@@ -36,7 +36,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	for _, p := range q.Params {
 		clause, clauseArgs, err := renderParam(p, scope)
 		if err != nil {
-			return nil, 0, "", err
+			return storage.SearchResult{}, err
 		}
 		if clause == "" {
 			continue
@@ -47,7 +47,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	if q.Filter != nil {
 		clause, clauseArgs, err := renderFilter(q.Filter, scope)
 		if err != nil {
-			return nil, 0, "", err
+			return storage.SearchResult{}, err
 		}
 		if clause != "" {
 			where = append(where, clause)
@@ -56,13 +56,13 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	}
 	condition := strings.Join(where, " AND ")
 
-	total := -1
+	total := 0
 	if !q.SkipTotal {
 		// Counting is a second evaluation of the predicate, so _total=none
 		// skips it. A client paging through results rarely needs it twice.
 		if err := s.queryRow(ctx,
 			"SELECT COUNT(*) FROM resource r WHERE "+condition, args...).Scan(&total); err != nil {
-			return nil, 0, "", err
+			return storage.SearchResult{}, err
 		}
 	}
 
@@ -74,7 +74,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 	if q.Cursor != "" {
 		values, err := decodeCursor(q.Cursor, len(sorts))
 		if err != nil {
-			return nil, 0, "", err
+			return storage.SearchResult{}, err
 		}
 		clause, cursorArgs := keysetPredicate(sorts, q.SortBy, values)
 		condition += " AND " + clause
@@ -100,7 +100,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 
 	rows, err := s.query(ctx, query, pageArgs...)
 	if err != nil {
-		return nil, 0, "", err
+		return storage.SearchResult{}, err
 	}
 	defer rows.Close()
 
@@ -122,7 +122,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 			scanTargets = append(scanTargets, &sortValues[i])
 		}
 		if err := rows.Scan(scanTargets...); err != nil {
-			return nil, 0, "", err
+			return storage.SearchResult{}, err
 		}
 		res.LastUpdated = time.UnixMicro(micros).UTC()
 		out = append(out, &res)
@@ -130,7 +130,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		rowCount++
 	}
 	if err := rows.Err(); err != nil {
-		return nil, 0, "", err
+		return storage.SearchResult{}, err
 	}
 
 	next := ""
@@ -140,7 +140,7 @@ func (s *Store) Search(ctx context.Context, q storage.SearchQuery) ([]*storage.R
 		// value: a resource inserted meanwhile cannot shift what follows.
 		next = encodeCursor(lastSorts, lastPID)
 	}
-	return out, total, next, nil
+	return storage.SearchResult{Matches: out, Total: total, HasTotal: !q.SkipTotal, Next: next}, nil
 }
 
 func pageLimit(count int) int {

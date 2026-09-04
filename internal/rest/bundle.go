@@ -42,9 +42,12 @@ type bundleEntry struct {
 type bundleContext struct {
 	base    string
 	request *url.URL
-	total   int
-	cursor  string
-	options searchOptions
+	// total is reported only when hasTotal is set; a search that skipped the
+	// count has no number to report.
+	total    int
+	hasTotal bool
+	cursor   string
+	options  searchOptions
 	// included are the resources _include and _revinclude pulled in. They are
 	// kept separate from the matches so the bundle can mark them, which is the
 	// whole point: a client must be able to tell what answered its query from
@@ -70,7 +73,7 @@ func searchBundle(idx *conformance.Index, ctx bundleContext, results []*storage.
 		})
 	}
 	var total *int
-	if ctx.total >= 0 {
+	if ctx.hasTotal {
 		// The total counts matches only. Included resources are context, not
 		// results, and counting them would make paging arithmetic nonsense.
 		total = &ctx.total

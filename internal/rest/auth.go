@@ -141,8 +141,8 @@ func (s *Server) permits(r *http.Request, resourceType, id string, grant *smart.
 		return false
 	}
 	q.Count, q.SkipTotal = 1, true
-	results, _, _, err := s.Store.Search(r.Context(), q)
-	return err == nil && len(results) == 1
+	result, err := s.Store.Search(r.Context(), q)
+	return err == nil && len(result.Matches) == 1
 }
 
 func cloneValues(values url.Values) url.Values {

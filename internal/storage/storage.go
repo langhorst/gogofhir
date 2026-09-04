@@ -119,6 +119,19 @@ const (
 	FilterNot FilterOp = "not"
 )
 
+// SearchResult is one page of matches.
+type SearchResult struct {
+	// Matches are the current versions on this page.
+	Matches []*Resource
+	// Total is the number of matches irrespective of paging, and is only
+	// meaningful when HasTotal is set: a query with SkipTotal never counts,
+	// and a zero there would be a number that means nothing.
+	Total    int
+	HasTotal bool
+	// Next resumes the following page; empty on the last one.
+	Next string
+}
+
 // IncludeSpec is one _include or _revinclude request.
 type IncludeSpec struct {
 	// Reverse distinguishes _revinclude (find resources pointing at the
@@ -351,11 +364,8 @@ type Backend interface {
 	// History returns versions newest first.
 	History(ctx context.Context, q HistoryQuery) ([]*Resource, error)
 
-	// Search returns the current versions matching a query, the total number of
-	// matches irrespective of paging, and a cursor for the next page (empty
-	// when there is none). Total is -1 when the query asked for it to be
-	// skipped.
-	Search(ctx context.Context, q SearchQuery) (matches []*Resource, total int, nextCursor string, err error)
+	// Search returns one page of the current versions matching a query.
+	Search(ctx context.Context, q SearchQuery) (SearchResult, error)
 
 	// Tx runs fn against a backend whose writes commit together: every Create,
 	// Update, and Delete fn performs either lands or none of them do.

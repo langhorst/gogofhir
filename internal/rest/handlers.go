@@ -338,15 +338,15 @@ func (s *Server) matchOne(ctx context.Context, resourceType, rawQuery string) (*
 	// Two is enough to know the criteria are ambiguous, and the total is not
 	// needed to find that out.
 	q.Count, q.SkipTotal = 2, true
-	results, _, _, err := s.Store.Search(ctx, q)
+	result, err := s.Store.Search(ctx, q)
 	if err != nil {
 		return nil, err
 	}
-	switch len(results) {
+	switch len(result.Matches) {
 	case 0:
 		return nil, storage.ErrNotFound
 	case 1:
-		return results[0], nil
+		return result.Matches[0], nil
 	default:
 		return nil, storage.ErrMultipleMatches
 	}
@@ -396,7 +396,7 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 		s.fail(w, r, http.StatusInternalServerError, "search failed: %v", err)
 		return
 	}
-	results, total, cursor, err := s.Store.Search(r.Context(), q)
+	result, err := s.Store.Search(r.Context(), q)
 	if err != nil {
 		var se *searchError
 		if errors.As(err, &se) {
@@ -408,15 +408,15 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 	}
 	if opts.countOnly {
 		// _summary=count wants the number and nothing else.
-		results, cursor = nil, ""
+		result.Matches, result.Next = nil, ""
 	}
 
 	// Includes resolve against the matches, after paging: a client asking for
 	// twenty results and their subjects wants the subjects of those twenty, not
 	// of every resource that matched.
 	var included []*storage.Resource
-	if len(opts.includes) > 0 && len(results) > 0 {
-		included, err = s.Store.Include(r.Context(), results, opts.includes)
+	if len(opts.includes) > 0 && len(result.Matches) > 0 {
+		included, err = s.Store.Include(r.Context(), result.Matches, opts.includes)
 		if err != nil {
 			s.failStorage(w, r, err)
 			return
@@ -426,11 +426,12 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request, resourceType str
 	bundle, err := searchBundle(s.Index, bundleContext{
 		base:     s.base(r),
 		request:  r.URL,
-		total:    total,
-		cursor:   cursor,
+		total:    result.Total,
+		hasTotal: result.HasTotal,
+		cursor:   result.Next,
 		options:  opts,
 		included: included,
-	}, results)
+	}, result.Matches)
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the search bundle failed: %v", err)
 		return

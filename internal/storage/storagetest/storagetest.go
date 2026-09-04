@@ -340,12 +340,12 @@ func testSearchByIndexedParameters(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, total, _, err := store.Search(ctx, tc.query)
+			result, err := store.Search(ctx, tc.query)
 			if err != nil {
 				t.Fatalf("Search: %v", err)
 			}
-			if len(got) != tc.want || total != tc.want {
-				t.Errorf("got %d results (total %d), want %d", len(got), total, tc.want)
+			if len(result.Matches) != tc.want || result.Total != tc.want {
+				t.Errorf("got %d results (total %d), want %d", len(result.Matches), result.Total, tc.want)
 			}
 		})
 	}
@@ -364,28 +364,28 @@ func testSearchByDateRange(t *testing.T) {
 		DateLow:  time.Date(1974, 1, 1, 0, 0, 0, 0, time.UTC).UnixMicro(),
 		DateHigh: time.Date(1974, 12, 31, 23, 59, 59, 0, time.UTC).UnixMicro(),
 	}
-	_, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+	result, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{year},
 	}}})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if total != 1 {
-		t.Errorf("searching 1974 found %d, want 1", total)
+	if result.Total != 1 {
+		t.Errorf("searching 1974 found %d, want 1", result.Total)
 	}
 
 	otherYear := storage.MatchValue{
 		DateLow:  time.Date(1980, 1, 1, 0, 0, 0, 0, time.UTC).UnixMicro(),
 		DateHigh: time.Date(1980, 12, 31, 0, 0, 0, 0, time.UTC).UnixMicro(),
 	}
-	_, total, _, err = store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+	result, err = store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{otherYear},
 	}}})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if total != 0 {
-		t.Errorf("searching 1980 found %d, want 0", total)
+	if result.Total != 0 {
+		t.Errorf("searching 1980 found %d, want 0", result.Total)
 	}
 }
 
@@ -400,13 +400,13 @@ func testIndexesFollowTheCurrentVersion(t *testing.T) {
 
 	byFamily := func(text string) int {
 		t.Helper()
-		_, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
+		result, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString, Values: []storage.MatchValue{{Text: text}},
 		}}})
 		if err != nil {
 			t.Fatal(err)
 		}
-		return total
+		return result.Total
 	}
 
 	if byFamily("chal") != 1 {
@@ -443,24 +443,24 @@ func testSearchPagingAndSort(t *testing.T) {
 		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
 		Count:  2,
 	}
-	page1, total, cursor, err := store.Search(ctx, q)
+	first, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if total != 4 {
-		t.Errorf("total = %d, want 4 (the count ignores paging)", total)
+	if first.Total != 4 {
+		t.Errorf("total = %d, want 4 (the count ignores paging)", first.Total)
 	}
-	if cursor == "" {
+	if first.Next == "" {
 		t.Fatal("a full page returned no cursor")
 	}
-	q.Cursor = cursor
-	page2, _, _, err := store.Search(ctx, q)
+	q.Cursor = first.Next
+	second, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var order []string
-	for _, r := range append(page1, page2...) {
+	for _, r := range append(first.Matches, second.Matches...) {
 		order = append(order, eval(t, doc(t, string(r.Content)), "Patient.name.family"))
 	}
 	want := []string{"Alpha", "Bravo", "Charlie", "Delta"}
@@ -490,7 +490,7 @@ func testCursorPagingIsStableUnderWrites(t *testing.T) {
 		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
 		Count:  2,
 	}
-	page1, _, cursor, err := store.Search(ctx, q)
+	first, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -500,15 +500,15 @@ func testCursorPagingIsStableUnderWrites(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	q.Cursor = cursor
-	page2, _, _, err := store.Search(ctx, q)
+	q.Cursor = first.Next
+	second, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	counts := map[string]int{}
 	var seen []string
-	for _, r := range append(page1, page2...) {
+	for _, r := range append(first.Matches, second.Matches...) {
 		family := eval(t, doc(t, string(r.Content)), "Patient.name.family")
 		counts[family]++
 		seen = append(seen, family)
@@ -540,16 +540,16 @@ func testCursorRejectsMismatchedSort(t *testing.T) {
 		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
 		Count:  1,
 	}
-	_, _, cursor, err := store.Search(ctx, q)
+	first, err := store.Search(ctx, q)
 	if err != nil {
 		t.Fatal(err)
 	}
 	q.SortBy = nil
-	q.Cursor = cursor
-	if _, _, _, err := store.Search(ctx, q); err == nil {
+	q.Cursor = first.Next
+	if _, err := store.Search(ctx, q); err == nil {
 		t.Error("a cursor from a different sort order was accepted")
 	}
-	if _, _, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Cursor: "not-base64!"}); err == nil {
+	if _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Cursor: "not-base64!"}); err == nil {
 		t.Error("a malformed cursor was accepted")
 	}
 }
@@ -561,15 +561,15 @@ func testSkipTotal(t *testing.T) {
 	if _, err := store.Create(ctx, patient(t, "p1", "A")); err != nil {
 		t.Fatal(err)
 	}
-	results, total, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", SkipTotal: true})
+	result, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", SkipTotal: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(results) != 1 {
-		t.Errorf("results = %d, want 1", len(results))
+	if len(result.Matches) != 1 {
+		t.Errorf("results = %d, want 1", len(result.Matches))
 	}
-	if total != -1 {
-		t.Errorf("total = %d, want -1 to mean it was not computed", total)
+	if result.HasTotal {
+		t.Errorf("HasTotal is set on a query that asked for no count")
 	}
 }
 
@@ -617,7 +617,7 @@ func testTxCommitsAndRollsBack(t *testing.T) {
 
 	// The index has to roll back with the content; a row left behind would make
 	// a deleted resource keep matching searches.
-	matches, _, _, err := store.Search(ctx, storage.SearchQuery{
+	result, err := store.Search(ctx, storage.SearchQuery{
 		Type: "Patient",
 		Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString,
@@ -627,8 +627,8 @@ func testTxCommitsAndRollsBack(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
-	if len(matches) != 0 {
-		t.Errorf("a rolled-back write left %d index rows behind", len(matches))
+	if len(result.Matches) != 0 {
+		t.Errorf("a rolled-back write left %d index rows behind", len(result.Matches))
 	}
 }
 
@@ -669,7 +669,7 @@ func testFullText(t *testing.T) {
 
 	search := func(code, terms string) int {
 		t.Helper()
-		got, _, _, err := store.Search(ctx, storage.SearchQuery{
+		result, err := store.Search(ctx, storage.SearchQuery{
 			Type: "Observation",
 			Params: []storage.ParamMatch{{
 				Code: code, Kind: storage.IndexFullText,
@@ -679,7 +679,7 @@ func testFullText(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Search %s=%q: %v", code, terms, err)
 		}
-		return len(got)
+		return len(result.Matches)
 	}
 
 	cases := []struct {
@@ -725,12 +725,12 @@ func testInclude(t *testing.T) {
 	if _, err := store.Create(ctx, observation(t, "o1", "29463-7", "Weight", "p1", 70)); err != nil {
 		t.Fatal(err)
 	}
-	matches, _, _, err := store.Search(ctx, storage.SearchQuery{Type: "Observation"})
+	observations, err := store.Search(ctx, storage.SearchQuery{Type: "Observation"})
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
 
-	forward, err := store.Include(ctx, matches, []storage.IncludeSpec{
+	forward, err := store.Include(ctx, observations.Matches, []storage.IncludeSpec{
 		{SourceType: "Observation", Code: "subject"},
 	})
 	if err != nil {
@@ -740,11 +740,11 @@ func testInclude(t *testing.T) {
 		t.Errorf("_include returned %v, want the referenced Patient/p1", forward)
 	}
 
-	patients, _, _, err := store.Search(ctx, storage.SearchQuery{Type: "Patient"})
+	patients, err := store.Search(ctx, storage.SearchQuery{Type: "Patient"})
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
-	reverse, err := store.Include(ctx, patients, []storage.IncludeSpec{
+	reverse, err := store.Include(ctx, patients.Matches, []storage.IncludeSpec{
 		{Reverse: true, SourceType: "Observation", Code: "subject"},
 	})
 	if err != nil {
@@ -813,12 +813,12 @@ func testComposite(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, _, _, err := store.Search(ctx, tc.query)
+			result, err := store.Search(ctx, tc.query)
 			if err != nil {
 				t.Fatalf("Search: %v", err)
 			}
-			if len(got) != tc.want {
-				t.Errorf("got %d results, want %d", len(got), tc.want)
+			if len(result.Matches) != tc.want {
+				t.Errorf("got %d results, want %d", len(result.Matches), tc.want)
 			}
 		})
 	}
