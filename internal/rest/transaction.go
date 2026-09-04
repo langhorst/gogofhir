@@ -714,7 +714,7 @@ func (s *Server) writeBundleResponse(w http.ResponseWriter, r *http.Request, bun
 		}
 		built = append(built, out)
 	}
-	bundle, err := buildBundle(s.Index, bundleType, nil, built, nil, searchOptions{}, s.Index)
+	bundle, err := buildBundle(s.Index, bundleType, nil, built, nil, searchOptions{})
 	if err != nil {
 		s.fail(w, r, http.StatusInternalServerError, "building the %s bundle failed: %v", bundleType, err)
 		return

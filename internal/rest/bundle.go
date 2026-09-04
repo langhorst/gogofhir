@@ -1,11 +1,9 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
@@ -78,7 +76,7 @@ func searchBundle(idx *conformance.Index, ctx bundleContext, results []*storage.
 		// results, and counting them would make paging arithmetic nonsense.
 		total = &ctx.total
 	}
-	return buildBundle(idx, "searchset", total, entries, pagingLinks(ctx), ctx.options, idx)
+	return buildBundle(idx, "searchset", total, entries, pagingLinks(ctx), ctx.options)
 }
 
 // historyBundle builds a history Bundle. Its entries carry request and response
@@ -105,11 +103,11 @@ func historyBundle(idx *conformance.Index, base string, versions []*storage.Reso
 		}
 		entries = append(entries, entry)
 	}
-	return buildBundle(idx, "history", nil, entries, nil, searchOptions{}, idx)
+	return buildBundle(idx, "history", nil, entries, nil, searchOptions{})
 }
 
 func buildBundle(idx *conformance.Index, bundleType string, total *int, entries []bundleEntry,
-	links []any, opts searchOptions, subsetIdx *conformance.Index) (*resource.Node, error) {
+	links []any, opts searchOptions) (*resource.Node, error) {
 	obj := map[string]any{
 		"resourceType": "Bundle",
 		"type":         bundleType,
@@ -128,33 +126,23 @@ func buildBundle(idx *conformance.Index, bundleType string, total *int, entries 
 			entry["fullUrl"] = e.fullURL
 		}
 		if len(e.content) > 0 {
-			// The stored content is already canonical JSON; decoding it back
+			// The stored content is already canonical JSON; reading it back
 			// into the document tree keeps one serialization path, so an XML
 			// response is produced by the same writer as a JSON one.
-			var nested map[string]any
-			dec := json.NewDecoder(strings.NewReader(string(e.content)))
-			dec.UseNumber()
-			if err := dec.Decode(&nested); err != nil {
+			node, err := resource.FromJSON(idx, e.content)
+			if err != nil {
 				return nil, fmt.Errorf("rest: reading stored resource: %w", err)
-			}
-			converted, ok := resource.ConvertNumbers(nested).(map[string]any)
-			if !ok {
-				return nil, fmt.Errorf("rest: stored resource is not an object")
 			}
 			// _summary and _elements trim each entry, and mark it SUBSETTED so
 			// a client cannot mistake a filtered resource for a sparse one.
 			if opts.summary != "" || len(opts.elements) > 0 {
-				node, err := resource.New(subsetIdx, converted)
-				if err != nil {
-					return nil, fmt.Errorf("rest: subsetting a bundle entry: %w", err)
-				}
-				trimmed, err := nodeObject(opts.subset(node))
-				if err != nil {
-					return nil, err
-				}
-				converted = trimmed
+				node = opts.subset(node)
 			}
-			entry["resource"] = converted
+			obj, ok := node.Object()
+			if !ok {
+				return nil, fmt.Errorf("rest: stored resource is not an object")
+			}
+			entry["resource"] = obj
 		}
 		if e.mode != "" {
 			entry["search"] = map[string]any{"mode": e.mode}
@@ -183,23 +171,6 @@ func buildBundle(idx *conformance.Index, bundleType string, total *int, entries 
 		obj["entry"] = built
 	}
 	return resource.New(idx, obj)
-}
-
-// nodeObject unwraps a document back to its underlying map, for embedding one
-// document inside another.
-func nodeObject(node *resource.Node) (map[string]any, error) {
-	raw, err := node.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	var out map[string]any
-	dec := json.NewDecoder(strings.NewReader(string(raw)))
-	dec.UseNumber()
-	if err := dec.Decode(&out); err != nil {
-		return nil, err
-	}
-	converted, _ := resource.ConvertNumbers(out).(map[string]any)
-	return converted, nil
 }
 
 // pagingLinks builds self and, when there is more to fetch, next.
