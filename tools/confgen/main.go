@@ -319,8 +319,8 @@ func compileType(res map[string]any) (*model.TypeDef, bool) {
 		return nil, false
 	}
 	// Profiles (derivation "constraint") constrain a base type rather than
-	// defining one. They matter for profile validation at M6 and are compiled
-	// separately then; the type system is built only from specializations.
+	// defining one; compileProfile handles them, and the type system is built
+	// from specializations alone.
 	if str(res, "derivation") == "constraint" {
 		return nil, false
 	}

@@ -17,7 +17,7 @@ import (
 // engines in step is to give them one body of code.
 //
 // The list is short, and it is the same list the storage package doc has
-// carried since M2:
+// carried since the first backend:
 //
 //   - Placeholder syntax: "?" here, "$n" there.
 //   - The surrogate key of an inserted row: last_insert_rowid, or RETURNING.

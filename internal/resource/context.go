@@ -61,8 +61,9 @@ func conformsTo(idx *conformance.Index, node fhirpath.Node, profile string) (boo
 	const base = "http://hl7.org/fhir/StructureDefinition/"
 	name, isBase := strings.CutPrefix(profile, base)
 	if !isBase {
-		// A profile outside the core namespace needs the profile registry that
-		// arrives with validation.
+		// A profile outside the core namespace needs full profile validation,
+		// which lives in internal/validate and is not reachable from inside a
+		// FHIRPath evaluation.
 		return false, false
 	}
 	if _, known := idx.Type(name); !known {

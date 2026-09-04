@@ -13,12 +13,12 @@ import (
 )
 
 // Bundles carry every multi-resource response: search results, history, and
-// later transactions.
+// transaction and batch responses.
 //
 // A search bundle distinguishes matches from resources pulled in alongside them
-// through entry.search.mode. Nothing in M2 pulls anything in yet, but the
-// distinction is mandatory and easy to omit, so it is set from the start rather
-// than retrofitted when _include arrives.
+// through entry.search.mode. The distinction is mandatory and easy to omit: a
+// client that cannot tell them apart cannot tell which resources answered its
+// query.
 
 // bundleEntry is one entry under construction.
 type bundleEntry struct {

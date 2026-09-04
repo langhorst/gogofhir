@@ -7,7 +7,7 @@
 // Everything but this file lives in internal/storage/sqlstore, shared with
 // SQLite. What is here is the whole of the difference -- placeholder syntax,
 // how an insert reports its surrogate key, full-text search, and the DDL. That
-// the list is this short is the point: the schema was built portable from M2,
+// the list is this short is the point: the schema was built portable from the first migration,
 // and this port is a translation rather than a rewrite.
 package postgres
 

@@ -15,9 +15,9 @@ import (
 //
 // The layering matters: this file understands query strings and nothing about
 // SQL, and the backend understands the plan and nothing about query strings.
-// M2 covers the value syntax -- token systems, prefixes, alternatives, :exact
-// and :missing -- while chaining, _has, _include, and composite parameters
-// arrive with the rest of search.
+// The value syntax -- token systems, prefixes, alternatives, modifiers -- is
+// here; chaining, _has and includes are in chain.go, composites in
+// composite.go, and _filter in filter.go.
 
 // controlParams are the query parameters that shape the response rather than
 // filter it.

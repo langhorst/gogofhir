@@ -1,9 +1,8 @@
 // Command gogofhir is the FHIR server daemon.
 //
-// The RESTful surface arrives at milestone M2; today the binary exists to
-// prove the foundation end to end — that a release's conformance index is
-// embedded, loadable, and complete — and to give `make build` something to
-// build.
+// "serve" runs the RESTful server on SQLite or PostgreSQL; "conformance"
+// summarizes the embedded index for a release, which is the smoke test that
+// the generated data survived embedding.
 //
 // Usage:
 //
