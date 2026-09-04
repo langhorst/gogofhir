@@ -45,210 +45,257 @@ func run(release model.Release, src, out string) error {
 		return fmt.Errorf("unknown release %q (have %v)", release, model.Releases())
 	}
 	pkgDir := filepath.Join(src, string(release))
-	entries, err := os.ReadDir(pkgDir)
-	if err != nil {
-		return fmt.Errorf("reading package %s (run `make vendor`): %w", pkgDir, err)
+
+	c := newCompiler(release)
+	if err := c.readSupplements(src, release); err != nil {
+		return err
 	}
-	// Every package vendored alongside the core one: the HL7 terminology, and
-	// any implementation guide. They contribute profiles and terminology; the
-	// type system comes from core alone.
-	//
-	// Terminology matters more than it sounds. R5 moved most of its code
-	// systems out of core and into THO, so without that package two thirds of
-	// R5's required bindings would be uncheckable purely because the codes live
-	// somewhere that was not read.
-	supplements, err := supplementaryPackages(src, release)
+	if err := c.readCore(pkgDir); err != nil {
+		return err
+	}
+	if err := c.finish(pkgDir); err != nil {
+		return err
+	}
+	encoded, err := writeIndex(c.idx, out, release)
 	if err != nil {
 		return err
 	}
+	c.report(len(encoded))
+	return nil
+}
 
-	idx := &model.Index{
-		Release:      release,
-		Types:        map[string]*model.TypeDef{},
-		SearchParams: map[string][]*model.SearchParam{},
-		Compartments: map[string]*model.Compartment{},
-		Profiles:     map[string]*model.Profile{},
-	}
-
-	terms := newTerminology()
-	var pending []map[string]any
-	var stats struct {
+// compiler accumulates one release's index as its packages are read.
+//
+// Reading and compiling are separate steps because some things can only be
+// decided once everything has been seen: which value sets are worth expanding
+// depends on every binding, and what a profile constrains is only visible
+// against the type it constrains.
+type compiler struct {
+	idx   *model.Index
+	terms *terminology
+	// pending holds profiles until the type system is complete.
+	pending []map[string]any
+	stats   struct {
 		types, params, compartments, invariants, profiles, valueSets int
 		unresolvable, supplemented, skipped                          int
 	}
+}
 
-	// Supplements are read first so a core definition of the same URL wins: the
-	// release's own value sets are authoritative for the release.
-	for _, dir := range supplements {
-		entries, err := os.ReadDir(dir)
+func newCompiler(release model.Release) *compiler {
+	return &compiler{
+		idx: &model.Index{
+			Release:      release,
+			Types:        map[string]*model.TypeDef{},
+			SearchParams: map[string][]*model.SearchParam{},
+			Compartments: map[string]*model.Compartment{},
+			Profiles:     map[string]*model.Profile{},
+		},
+		terms: newTerminology(),
+	}
+}
+
+// readSupplements reads every package vendored alongside the core one: the
+// HL7 terminology, and any implementation guide. They contribute profiles and
+// terminology; the type system comes from core alone.
+//
+// Terminology matters more than it sounds. R5 moved most of its code systems
+// out of core and into THO, so without that package two thirds of R5's
+// required bindings would be uncheckable purely because the codes live
+// somewhere that was not read. Supplements are read before core so a core
+// definition of the same URL wins: the release's own value sets are
+// authoritative for the release.
+func (c *compiler) readSupplements(src string, release model.Release) error {
+	dirs, err := supplementaryPackages(src, release)
+	if err != nil {
+		return err
+	}
+	for _, dir := range dirs {
+		err := eachResource(dir, []string{"ValueSet-", "CodeSystem-", "StructureDefinition-"},
+			func(name string, res map[string]any) error {
+				switch str(res, "resourceType") {
+				case "ValueSet", "CodeSystem":
+					c.terms.add(res)
+				case "StructureDefinition":
+					// Only profiles: a guide does not redefine the type system,
+					// and one that shipped a base type would silently replace
+					// the release's own.
+					if str(res, "derivation") == "constraint" {
+						c.pending = append(c.pending, res)
+						c.stats.supplemented++
+					}
+				}
+				return nil
+			})
 		if err != nil {
 			return err
 		}
-		for _, e := range entries {
-			name := e.Name()
-			if e.IsDir() || !strings.HasSuffix(name, ".json") {
-				continue
+	}
+	return nil
+}
+
+// readCore reads the release's own package: the type system, the search
+// parameters, the compartments, and its terminology.
+func (c *compiler) readCore(pkgDir string) error {
+	// The filename prefix is the resource type, which is enough to skip the
+	// thousands of examples without parsing them.
+	prefixes := []string{"StructureDefinition-", "SearchParameter-", "CompartmentDefinition-",
+		"ValueSet-", "CodeSystem-"}
+	err := eachResource(pkgDir, prefixes, func(name string, res map[string]any) error {
+		switch str(res, "resourceType") {
+		case "ValueSet", "CodeSystem":
+			// Held aside: which value sets are worth expanding is only known
+			// once every binding has been seen.
+			c.terms.add(res)
+		case "StructureDefinition":
+			if str(res, "derivation") == "constraint" {
+				c.pending = append(c.pending, res)
+				return nil
 			}
-			switch {
-			case strings.HasPrefix(name, "ValueSet-"),
-				strings.HasPrefix(name, "CodeSystem-"),
-				strings.HasPrefix(name, "StructureDefinition-"):
-			default:
-				continue
+			td, keep := compileType(res)
+			if !keep {
+				c.stats.skipped++
+				return nil
 			}
-			raw, err := os.ReadFile(filepath.Join(dir, name))
-			if err != nil {
-				return err
+			if prev, dup := c.idx.Types[td.Name]; dup {
+				return fmt.Errorf("%s: duplicate definition of type %q (kind %s and %s)",
+					name, td.Name, prev.Kind, td.Kind)
 			}
-			var res map[string]any
-			if err := json.Unmarshal(raw, &res); err != nil {
-				return fmt.Errorf("parsing %s: %w", name, err)
+			c.idx.Types[td.Name] = td
+			c.stats.types++
+			c.stats.invariants += len(td.Invariants)
+		case "SearchParameter":
+			sp, keep := compileSearchParam(res)
+			if !keep {
+				c.stats.skipped++
+				return nil
 			}
-			switch str(res, "resourceType") {
-			case "ValueSet", "CodeSystem":
-				terms.add(res)
-			case "StructureDefinition":
-				// Only profiles: a guide does not redefine the type system, and
-				// one that shipped a base type would silently replace the
-				// release's own.
-				if str(res, "derivation") == "constraint" {
-					pending = append(pending, res)
-					stats.supplemented++
-				}
+			for _, base := range sp.Base {
+				c.idx.SearchParams[base] = append(c.idx.SearchParams[base], sp)
 			}
+			c.stats.params++
+		case "CompartmentDefinition":
+			comp := compileCompartment(res)
+			if comp == nil {
+				c.stats.skipped++
+				return nil
+			}
+			if _, dup := c.idx.Compartments[comp.Code]; dup {
+				return fmt.Errorf("%s: duplicate compartment %q", name, comp.Code)
+			}
+			c.idx.Compartments[comp.Code] = comp
+			c.stats.compartments++
 		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("reading package %s (run `make vendor`): %w", pkgDir, err)
+	}
+	if c.stats.types == 0 {
+		return fmt.Errorf("no type definitions found in %s", pkgDir)
+	}
+	return nil
+}
+
+// finish compiles what could only be compiled once everything was read, and
+// puts the index in a stable order.
+func (c *compiler) finish(pkgDir string) error {
+	for _, res := range c.pending {
+		profile, keep := compileProfile(res, c.idx)
+		if !keep {
+			c.stats.skipped++
+			continue
+		}
+		if _, dup := c.idx.Profiles[profile.URL]; dup {
+			return fmt.Errorf("duplicate profile %q", profile.URL)
+		}
+		c.idx.Profiles[profile.URL] = profile
+		c.stats.profiles++
 	}
 
+	c.idx.ValueSets = c.terms.compile(boundValueSets(c.idx))
+	c.stats.valueSets = len(c.idx.ValueSets)
+	for _, vs := range c.idx.ValueSets {
+		if vs.Unresolvable != "" {
+			c.stats.unresolvable++
+		}
+	}
+	c.idx.FHIRVersion, c.idx.PackageID = packageMeta(pkgDir, c.idx)
+
+	// Sort every slice so the committed output is byte-stable across runs and
+	// filesystem orderings — a generated file whose diff is noise is a
+	// generated file nobody reviews.
+	for _, params := range c.idx.SearchParams {
+		slices.SortFunc(params, func(a, b *model.SearchParam) int {
+			return strings.Compare(a.Code, b.Code)
+		})
+	}
+	return nil
+}
+
+// report prints the one-line summary a regeneration ends with.
+func (c *compiler) report(size int) {
+	s := c.stats
+	fmt.Printf("  %s (%s): %d types, %d search parameters, %d compartments, %d invariants,\n"+
+		"      %d profiles (%d from vendored guides), %d value sets (%d unresolvable offline),\n"+
+		"      (%d resources skipped), %d KiB\n",
+		c.idx.Release, c.idx.FHIRVersion, s.types, s.params, s.compartments, s.invariants,
+		s.profiles, s.supplemented, s.valueSets, s.unresolvable, s.skipped, size/1024)
+}
+
+// eachResource calls fn with every JSON resource in a directory whose filename
+// starts with one of the prefixes.
+func eachResource(dir string, prefixes []string, fn func(name string, res map[string]any) error) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
 	for _, e := range entries {
 		name := e.Name()
 		if e.IsDir() || !strings.HasSuffix(name, ".json") {
 			continue
 		}
-		// The filename prefix is the resource type, which is enough to skip the
-		// thousands of examples and terminology resources without parsing them.
-		switch {
-		case strings.HasPrefix(name, "StructureDefinition-"),
-			strings.HasPrefix(name, "SearchParameter-"),
-			strings.HasPrefix(name, "CompartmentDefinition-"),
-			strings.HasPrefix(name, "ValueSet-"),
-			strings.HasPrefix(name, "CodeSystem-"):
-		default:
+		wanted := false
+		for _, prefix := range prefixes {
+			if strings.HasPrefix(name, prefix) {
+				wanted = true
+				break
+			}
+		}
+		if !wanted {
 			continue
 		}
-
-		var res map[string]any
-		raw, err := os.ReadFile(filepath.Join(pkgDir, name))
+		raw, err := os.ReadFile(filepath.Join(dir, name))
 		if err != nil {
 			return err
 		}
+		var res map[string]any
 		if err := json.Unmarshal(raw, &res); err != nil {
 			return fmt.Errorf("parsing %s: %w", name, err)
 		}
-
-		switch str(res, "resourceType") {
-		case "ValueSet", "CodeSystem":
-			// Terminology is held aside: which value sets are worth expanding
-			// is only known once every binding has been seen.
-			terms.add(res)
-		case "StructureDefinition":
-			if str(res, "derivation") == "constraint" {
-				// Profiles are held until the type system is complete: what a
-				// profile constrains is only visible against the type it
-				// constrains.
-				pending = append(pending, res)
-				continue
-			}
-			td, keep := compileType(res)
-			if !keep {
-				stats.skipped++
-				continue
-			}
-			if prev, dup := idx.Types[td.Name]; dup {
-				return fmt.Errorf("%s: duplicate definition of type %q (kind %s and %s)",
-					name, td.Name, prev.Kind, td.Kind)
-			}
-			idx.Types[td.Name] = td
-			stats.types++
-			stats.invariants += len(td.Invariants)
-		case "SearchParameter":
-			sp, keep := compileSearchParam(res)
-			if !keep {
-				stats.skipped++
-				continue
-			}
-			for _, base := range sp.Base {
-				idx.SearchParams[base] = append(idx.SearchParams[base], sp)
-			}
-			stats.params++
-		case "CompartmentDefinition":
-			c := compileCompartment(res)
-			if c == nil {
-				stats.skipped++
-				continue
-			}
-			if _, dup := idx.Compartments[c.Code]; dup {
-				return fmt.Errorf("%s: duplicate compartment %q", name, c.Code)
-			}
-			idx.Compartments[c.Code] = c
-			stats.compartments++
+		if err := fn(name, res); err != nil {
+			return err
 		}
 	}
+	return nil
+}
 
-	if stats.types == 0 {
-		return fmt.Errorf("no type definitions found in %s", pkgDir)
-	}
-	for _, res := range pending {
-		profile, keep := compileProfile(res, idx)
-		if !keep {
-			stats.skipped++
-			continue
-		}
-		if _, dup := idx.Profiles[profile.URL]; dup {
-			return fmt.Errorf("duplicate profile %q", profile.URL)
-		}
-		idx.Profiles[profile.URL] = profile
-		stats.profiles++
-	}
-
-	idx.ValueSets = terms.compile(boundValueSets(idx))
-	stats.valueSets = len(idx.ValueSets)
-	for _, vs := range idx.ValueSets {
-		if vs.Unresolvable != "" {
-			stats.unresolvable++
-		}
-	}
-	idx.FHIRVersion, idx.PackageID = packageMeta(pkgDir, idx)
-
-	// Sort every slice so the committed output is byte-stable across runs and
-	// filesystem orderings — a generated file whose diff is noise is a
-	// generated file nobody reviews.
-	for _, params := range idx.SearchParams {
-		slices.SortFunc(params, func(a, b *model.SearchParam) int {
-			return strings.Compare(a.Code, b.Code)
-		})
-	}
-
+// writeIndex serializes the index into the release's data directory and
+// returns what it wrote.
+func writeIndex(idx *model.Index, out string, release model.Release) ([]byte, error) {
 	dir := filepath.Join(out, string(release))
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
+		return nil, err
 	}
 	// Indented, so the diff of a regeneration is reviewable line by line.
 	encoded, err := json.MarshalIndent(idx, "", " ")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	encoded = append(encoded, '\n')
 	if err := os.WriteFile(filepath.Join(dir, "index.json"), encoded, 0o644); err != nil {
-		return err
+		return nil, err
 	}
-
-	fmt.Printf("  %s (%s): %d types, %d search parameters, %d compartments, %d invariants,\n"+
-		"      %d profiles (%d from vendored guides), %d value sets (%d unresolvable offline),\n"+
-		"      (%d resources skipped), %d KiB\n",
-		release, idx.FHIRVersion, stats.types, stats.params, stats.compartments, stats.invariants,
-		stats.profiles, stats.supplemented, stats.valueSets, stats.unresolvable,
-		stats.skipped, len(encoded)/1024)
-	return nil
+	return encoded, nil
 }
 
 // supplementaryPackages lists the vendored packages that go with a release: any
