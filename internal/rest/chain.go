@@ -6,6 +6,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Chained search, reverse chaining, and includes.
@@ -56,7 +57,7 @@ func parseChained(idx *conformance.Index, resourceType, rawName string, leaf lea
 
 	match := storage.ParamMatch{
 		Code:  sp.Code,
-		Kind:  storage.IndexReference,
+		Kind:  index.Reference,
 		Chain: &storage.Chain{TargetType: targetType},
 	}
 	nested, err := parseNamedParam(idx, targetType, rest, leaf)
@@ -146,7 +147,7 @@ func parseHas(idx *conformance.Index, resourceType, name string, leaf leafBuilde
 	}
 	return storage.ParamMatch{
 		Code: refParam.Code,
-		Kind: storage.IndexReference,
+		Kind: index.Reference,
 		Has: &storage.Has{
 			SourceType: sourceType,
 			Code:       refParam.Code,

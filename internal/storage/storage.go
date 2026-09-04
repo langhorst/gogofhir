@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/langhorst/gogofhir/internal/resource"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Errors the REST layer maps onto status codes.
@@ -156,7 +157,7 @@ type ParamMatch struct {
 	// Code is the search parameter's name, as it appears in a query string.
 	Code string
 	// Kind is the index the match runs against.
-	Kind IndexKind
+	Kind index.Kind
 	// Values are alternatives: a match succeeds if any of them does, which is
 	// how FHIR's comma-separated "or" works.
 	Values []MatchValue
@@ -266,75 +267,8 @@ const (
 // SortKey is one ordering term.
 type SortKey struct {
 	Code       string
-	Kind       IndexKind
+	Kind       index.Kind
 	Descending bool
-}
-
-// IndexKind names one of the search index tables.
-//
-// FHIR defines nine search parameter types, and each is indexed differently:
-// a token needs a system and a code, a date needs a range, a reference needs a
-// target type and id. Splitting them into typed tables -- rather than one
-// stringly-typed table or engine-specific JSON indexes -- is what keeps the
-// schema portable and the queries ordinary B-tree lookups.
-type IndexKind string
-
-const (
-	IndexString    IndexKind = "string"
-	IndexToken     IndexKind = "token"
-	IndexReference IndexKind = "reference"
-	IndexDate      IndexKind = "date"
-	IndexQuantity  IndexKind = "quantity"
-	IndexURI       IndexKind = "uri"
-	IndexNumber    IndexKind = "number"
-	// IndexFullText backs _text and _content. It is not a typed index table
-	// like the others but a full-text index, and it is the one place the two
-	// backends genuinely diverge: SQLite uses FTS5 and PostgreSQL will use
-	// tsvector. Everything else is ordinary B-tree lookups on both.
-	IndexFullText IndexKind = "fulltext"
-)
-
-// IndexEntry is one extracted, indexable value.
-type IndexEntry struct {
-	Code string
-	Kind IndexKind
-
-	// Token
-	System string
-	Value  string
-
-	// String: Normalized is folded for matching, Exact keeps the original.
-	Normalized string
-	Exact      string
-
-	// Reference
-	RefType string
-	RefID   string
-	RefURL  string
-
-	// DateLow and DateHigh bound the instant range a date covers, in
-	// microseconds since the epoch.
-	//
-	// Dates are ranges because "2024" denotes a year rather than an instant:
-	// storing a point makes every prefix comparison subtly wrong, and it is the
-	// single most common way FHIR date search goes astray. Microseconds keep
-	// the column an ordinary integer, which both engines index identically.
-	DateLow, DateHigh int64
-
-	// NumLow and NumHigh bound a number or quantity, which are ranges for the
-	// same reason: a result recorded as 1.1 means [1.05, 1.15).
-	NumLow, NumHigh float64
-
-	// Quantity
-	QuantitySystem string
-	QuantityCode   string
-
-	// URI
-	URI string
-
-	// Seq groups the rows that came from the same occurrence of a composite
-	// parameter's base expression. Ordinary parameters leave it zero.
-	Seq int
 }
 
 // Backend is the persistence contract.

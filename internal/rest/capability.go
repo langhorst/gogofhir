@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/langhorst/gogofhir/internal/resource"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // The CapabilityStatement is generated from the conformance index rather than
@@ -116,7 +117,7 @@ func (s *Server) capabilityForType(typeName string) map[string]any {
 	}
 	var includes []any
 	for _, sp := range s.Index.SearchParamsFor(typeName) {
-		if _, indexed := indexKindFor(sp.Type); !indexed && sp.Type != "composite" {
+		if _, indexed := index.KindFor(sp.Type); !indexed && sp.Type != "composite" {
 			// The "special" parameters -- near, and the like -- are declared by
 			// the specification but not indexed here. Advertising them would
 			// promise searches that return nothing.

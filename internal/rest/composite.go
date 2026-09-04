@@ -5,6 +5,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Composite search parameters.
@@ -27,7 +28,7 @@ func parseComposite(idx *conformance.Index, sp *conformance.SearchParam, modifie
 			"the composite parameter %q declares no components", sp.Code)}
 	}
 
-	kinds := make([]storage.IndexKind, len(sp.Components))
+	kinds := make([]index.Kind, len(sp.Components))
 	for i, component := range sp.Components {
 		target, ok := idx.SearchParamByURL(component.Definition)
 		if !ok {
@@ -35,7 +36,7 @@ func parseComposite(idx *conformance.Index, sp *conformance.SearchParam, modifie
 				"the composite parameter %q names a component this server does not know: %s",
 				sp.Code, component.Definition)}
 		}
-		kind, ok := indexKindFor(target.Type)
+		kind, ok := index.KindFor(target.Type)
 		if !ok {
 			return storage.ParamMatch{}, &searchError{fmt.Sprintf(
 				"component %d of %q is of type %q, which is not supported yet",
@@ -56,7 +57,7 @@ func parseComposite(idx *conformance.Index, sp *conformance.SearchParam, modifie
 		}
 		missing := raw == "true"
 		return storage.ParamMatch{
-			Code:   storage.CompositeComponentCode(sp.Code, 0),
+			Code:   index.CompositeComponentCode(sp.Code, 0),
 			Kind:   kinds[0],
 			Values: []storage.MatchValue{{Missing: &missing}},
 		}, nil
@@ -80,7 +81,7 @@ func parseComposite(idx *conformance.Index, sp *conformance.SearchParam, modifie
 				return match, err
 			}
 			components = append(components, storage.ParamMatch{
-				Code:   storage.CompositeComponentCode(sp.Code, i),
+				Code:   index.CompositeComponentCode(sp.Code, i),
 				Kind:   kinds[i],
 				Values: []storage.MatchValue{value},
 			})

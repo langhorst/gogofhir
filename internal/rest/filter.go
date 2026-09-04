@@ -6,6 +6,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // _filter, the one FHIR search parameter that carries its own query language.
@@ -288,7 +289,7 @@ func filterLeaf(idx *conformance.Index, operator, value string) leafBuilder {
 		if err != nil {
 			return storage.ParamMatch{}, err
 		}
-		if modifier != "" && !(kind == storage.IndexReference && isResourceTypeModifier(sp, modifier)) {
+		if modifier != "" && !(kind == index.Reference && isResourceTypeModifier(sp, modifier)) {
 			return storage.ParamMatch{}, &searchError{fmt.Sprintf(
 				"%q does not reference %s", sp.Code, modifier)}
 		}
@@ -319,10 +320,10 @@ func filterLeaf(idx *conformance.Index, operator, value string) leafBuilder {
 
 // filterValue turns one operator and value into a match value, setting Negate
 // on the enclosing match where the operator is a negation.
-func filterValue(kind storage.IndexKind, sp *conformance.SearchParam,
+func filterValue(kind index.Kind, sp *conformance.SearchParam,
 	operator, value string, match *storage.ParamMatch) (storage.MatchValue, error) {
 	switch kind {
-	case storage.IndexString:
+	case index.String:
 		switch operator {
 		case "eq", "ne":
 			// "eq" on a string is equality, not the prefix match a bare query
@@ -330,14 +331,14 @@ func filterValue(kind storage.IndexKind, sp *conformance.SearchParam,
 			match.Negate = operator == "ne"
 			return storage.MatchValue{Text: value, Match: storage.MatchExact}, nil
 		case "co":
-			return storage.MatchValue{Text: storage.Normalize(value), Match: storage.MatchContains}, nil
+			return storage.MatchValue{Text: index.Normalize(value), Match: storage.MatchContains}, nil
 		case "sw":
-			return storage.MatchValue{Text: storage.Normalize(value), Match: storage.MatchPrefix}, nil
+			return storage.MatchValue{Text: index.Normalize(value), Match: storage.MatchPrefix}, nil
 		case "ew":
-			return storage.MatchValue{Text: storage.Normalize(value), Match: storage.MatchEndsWith}, nil
+			return storage.MatchValue{Text: index.Normalize(value), Match: storage.MatchEndsWith}, nil
 		}
 
-	case storage.IndexFullText:
+	case index.FullText:
 		switch operator {
 		case "eq", "co":
 			return storage.MatchValue{Text: value}, nil
@@ -346,18 +347,18 @@ func filterValue(kind storage.IndexKind, sp *conformance.SearchParam,
 			return storage.MatchValue{Text: value}, nil
 		}
 
-	case storage.IndexToken, storage.IndexReference, storage.IndexURI:
+	case index.Token, index.Reference, index.URI:
 		switch operator {
 		case "eq", "ne":
 			match.Negate = operator == "ne"
 			return parseValue(kind, "", value)
 		case "sw":
-			if kind == storage.IndexURI {
+			if kind == index.URI {
 				return storage.MatchValue{URI: value, URIBelow: true}, nil
 			}
 		}
 
-	case storage.IndexDate, storage.IndexNumber, storage.IndexQuantity:
+	case index.Date, index.Number, index.Quantity:
 		prefix, ok := filterOrderedOps[operator]
 		if !ok {
 			break

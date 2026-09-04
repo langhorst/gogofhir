@@ -1,4 +1,18 @@
-package storage
+// Package index turns resources into search index entries.
+//
+// Every search parameter carries a FHIRPath expression selecting the values it
+// indexes. Extraction evaluates those expressions once per write and produces
+// typed entries -- a token needs a system and a code, a date needs a range, a
+// reference needs a target type and id -- which the backend writes into one
+// table per kind, so a query at read time is an ordinary join rather than a
+// scan that parses documents.
+//
+// It sits beside the storage contract rather than inside it because the two
+// are different things: storage.Backend says what a backend must do, and this
+// package says how a document becomes rows. A backend needs the entries; the
+// REST layer needs the same folding and range rules to build queries that
+// match them; neither needs the other.
+package index
 
 import (
 	"math"
@@ -13,17 +27,77 @@ import (
 	"github.com/langhorst/gogofhir/internal/resource"
 )
 
-// Search index extraction.
-//
-// Every search parameter carries a FHIRPath expression selecting the values it
-// indexes. Extraction evaluates those expressions once per write and writes the
-// results into typed index tables, so a query at read time is an ordinary join
-// rather than a scan that parses documents.
-//
 // The parameter's declared type decides how a selected value is indexed, and
 // the same value can index differently depending on it: a CodeableConcept
 // selected by a token parameter yields one row per coding, while the same
 // element selected by a string parameter yields its text.
+
+// Kind names one of the search index tables.
+//
+// FHIR defines nine search parameter types, and each is indexed differently:
+// a token needs a system and a code, a date needs a range, a reference needs a
+// target type and id. Splitting them into typed tables -- rather than one
+// stringly-typed table or engine-specific JSON indexes -- is what keeps the
+// schema portable and the queries ordinary B-tree lookups.
+type Kind string
+
+const (
+	String    Kind = "string"
+	Token     Kind = "token"
+	Reference Kind = "reference"
+	Date      Kind = "date"
+	Quantity  Kind = "quantity"
+	URI       Kind = "uri"
+	Number    Kind = "number"
+	// FullText backs _text and _content. It is not a typed index table
+	// like the others but a full-text index, and it is the one place the two
+	// backends genuinely diverge: SQLite uses FTS5 and PostgreSQL will use
+	// tsvector. Everything else is ordinary B-tree lookups on both.
+	FullText Kind = "fulltext"
+)
+
+// Entry is one extracted, indexable value.
+type Entry struct {
+	Code string
+	Kind Kind
+
+	// Token
+	System string
+	Value  string
+
+	// String: Normalized is folded for matching, Exact keeps the original.
+	Normalized string
+	Exact      string
+
+	// Reference
+	RefType string
+	RefID   string
+	RefURL  string
+
+	// DateLow and DateHigh bound the instant range a date covers, in
+	// microseconds since the epoch.
+	//
+	// Dates are ranges because "2024" denotes a year rather than an instant:
+	// storing a point makes every prefix comparison subtly wrong, and it is the
+	// single most common way FHIR date search goes astray. Microseconds keep
+	// the column an ordinary integer, which both engines index identically.
+	DateLow, DateHigh int64
+
+	// NumLow and NumHigh bound a number or quantity, which are ranges for the
+	// same reason: a result recorded as 1.1 means [1.05, 1.15).
+	NumLow, NumHigh float64
+
+	// Quantity
+	QuantitySystem string
+	QuantityCode   string
+
+	// URI
+	URI string
+
+	// Seq groups the rows that came from the same occurrence of a composite
+	// parameter's base expression. Ordinary parameters leave it zero.
+	Seq int
+}
 
 // Extractor turns resources into index entries.
 //
@@ -44,8 +118,8 @@ type Extractor struct {
 	unusable map[string]bool
 }
 
-// NewExtractor builds an extractor for a release.
-func NewExtractor(idx *conformance.Index) *Extractor {
+// New builds an extractor for a release.
+func New(idx *conformance.Index) *Extractor {
 	return &Extractor{
 		idx:      idx,
 		compiled: map[string]fhirpath.Expr{},
@@ -54,18 +128,18 @@ func NewExtractor(idx *conformance.Index) *Extractor {
 }
 
 // Extract returns the index entries for a resource.
-func (e *Extractor) Extract(node *resource.Node) []IndexEntry {
+func (e *Extractor) Extract(node *resource.Node) []Entry {
 	resourceType := node.FHIRType()
 	ctx := resource.NewContext(e.idx, node)
 	ctx.ResolveReference = resolveForIndexing
 
-	var out []IndexEntry
+	var out []Entry
 	for _, sp := range e.idx.SearchParamsFor(resourceType) {
 		if sp.Type == "composite" {
 			out = append(out, e.extractComposite(node, ctx, sp)...)
 			continue
 		}
-		kind, ok := indexKindFor(sp.Type)
+		kind, ok := KindFor(sp.Type)
 		if !ok {
 			// The "special" parameters (_text, _content, near) are implemented
 			// by hand rather than by expression.
@@ -97,7 +171,7 @@ func (e *Extractor) Extract(node *resource.Node) []IndexEntry {
 // anywhere in the resource". Without the sequence the two are
 // indistinguishable, and the query degenerates into an AND of unrelated
 // conditions -- which quietly returns wrong results rather than failing.
-func (e *Extractor) extractComposite(node *resource.Node, ctx *fhirpath.Context, sp *conformance.SearchParam) []IndexEntry {
+func (e *Extractor) extractComposite(node *resource.Node, ctx *fhirpath.Context, sp *conformance.SearchParam) []Entry {
 	base := e.expression(sp)
 	if base == nil || len(sp.Components) == 0 {
 		return nil
@@ -107,14 +181,14 @@ func (e *Extractor) extractComposite(node *resource.Node, ctx *fhirpath.Context,
 		return nil
 	}
 
-	var out []IndexEntry
+	var out []Entry
 	for seq, occurrence := range occurrences {
 		for i, component := range sp.Components {
 			target, ok := e.idx.SearchParamByURL(component.Definition)
 			if !ok {
 				continue
 			}
-			kind, ok := indexKindFor(target.Type)
+			kind, ok := KindFor(target.Type)
 			if !ok {
 				continue
 			}
@@ -207,53 +281,54 @@ func (r referenceStub) FHIRType() string                  { return r.typeName }
 func (r referenceStub) Children(string) []fhirpath.Node   { return nil }
 func (r referenceStub) Primitive() (fhirpath.Value, bool) { return nil, false }
 
-// indexKindFor maps a search parameter type onto the index it uses.
-func indexKindFor(paramType string) (IndexKind, bool) {
+// KindFor maps a search parameter type onto the index it uses. Composite and
+// "special" parameters have no index of their own and report false.
+func KindFor(paramType string) (Kind, bool) {
 	switch paramType {
 	case "string":
-		return IndexString, true
+		return String, true
 	case "token":
-		return IndexToken, true
+		return Token, true
 	case "reference":
-		return IndexReference, true
+		return Reference, true
 	case "date":
-		return IndexDate, true
+		return Date, true
 	case "quantity":
-		return IndexQuantity, true
+		return Quantity, true
 	case "uri":
-		return IndexURI, true
+		return URI, true
 	case "number":
-		return IndexNumber, true
+		return Number, true
 	}
 	return "", false
 }
 
 // entriesFor turns one selected value into index rows.
-func entriesFor(sp *conformance.SearchParam, kind IndexKind, v fhirpath.Value) []IndexEntry {
+func entriesFor(sp *conformance.SearchParam, kind Kind, v fhirpath.Value) []Entry {
 	node, isNode := v.(fhirpath.Node)
 	switch kind {
-	case IndexToken:
+	case Token:
 		if !isNode {
 			return tokenEntry(sp.Code, "", v.String())
 		}
 		return tokenEntries(sp.Code, node)
-	case IndexString:
+	case String:
 		if !isNode {
 			return stringEntry(sp.Code, v.String())
 		}
 		return stringEntries(sp.Code, node)
-	case IndexReference:
+	case Reference:
 		if !isNode {
 			return referenceEntry(sp.Code, v.String())
 		}
 		return referenceEntries(sp.Code, node)
-	case IndexURI:
+	case URI:
 		return uriEntry(sp.Code, primitiveString(v))
-	case IndexDate:
+	case Date:
 		return dateEntries(sp.Code, v)
-	case IndexNumber:
+	case Number:
 		return numberEntries(sp.Code, v)
-	case IndexQuantity:
+	case Quantity:
 		return quantityEntries(sp.Code, v)
 	}
 	return nil
@@ -262,16 +337,16 @@ func entriesFor(sp *conformance.SearchParam, kind IndexKind, v fhirpath.Value) [
 // ---- token ----
 
 // tokenEntries indexes the several shapes a token parameter can select.
-func tokenEntries(code string, node fhirpath.Node) []IndexEntry {
+func tokenEntries(code string, node fhirpath.Node) []Entry {
 	switch node.FHIRType() {
 	case "CodeableConcept":
-		var out []IndexEntry
+		var out []Entry
 		for _, coding := range node.Children("coding") {
 			out = append(out, tokenEntries(code, coding)...)
 		}
 		// The concept's own text is searchable through the :text modifier.
 		if text := childString(node, "text"); text != "" {
-			out = append(out, IndexEntry{Code: code, Kind: IndexString,
+			out = append(out, Entry{Code: code, Kind: String,
 				Normalized: normalize(text), Exact: text})
 		}
 		return out
@@ -297,11 +372,11 @@ func tokenEntries(code string, node fhirpath.Node) []IndexEntry {
 	}
 }
 
-func tokenEntry(code, system, value string) []IndexEntry {
+func tokenEntry(code, system, value string) []Entry {
 	if value == "" && system == "" {
 		return nil
 	}
-	return []IndexEntry{{Code: code, Kind: IndexToken, System: system, Value: value}}
+	return []Entry{{Code: code, Kind: Token, System: system, Value: value}}
 }
 
 // ---- string ----
@@ -309,7 +384,7 @@ func tokenEntry(code, system, value string) []IndexEntry {
 // stringEntries indexes the parts of the composite types a string parameter can
 // select. A name is searchable by any of its parts, which is why each becomes
 // its own row rather than one concatenated string.
-func stringEntries(code string, node fhirpath.Node) []IndexEntry {
+func stringEntries(code string, node fhirpath.Node) []Entry {
 	var parts []string
 	switch node.FHIRType() {
 	case "HumanName":
@@ -321,18 +396,18 @@ func stringEntries(code string, node fhirpath.Node) []IndexEntry {
 			parts = []string{p.String()}
 		}
 	}
-	var out []IndexEntry
+	var out []Entry
 	for _, part := range parts {
 		out = append(out, stringEntry(code, part)...)
 	}
 	return out
 }
 
-func stringEntry(code, value string) []IndexEntry {
+func stringEntry(code, value string) []Entry {
 	if value == "" {
 		return nil
 	}
-	return []IndexEntry{{Code: code, Kind: IndexString, Normalized: normalize(value), Exact: value}}
+	return []Entry{{Code: code, Kind: String, Normalized: normalize(value), Exact: value}}
 }
 
 // normalize folds a string for matching. FHIR string search is case- and
@@ -369,7 +444,7 @@ var latinFolding = map[rune]string{
 
 // ---- reference ----
 
-func referenceEntries(code string, node fhirpath.Node) []IndexEntry {
+func referenceEntries(code string, node fhirpath.Node) []Entry {
 	if node.FHIRType() == "Reference" {
 		if ref := childString(node, "reference"); ref != "" {
 			return referenceEntry(code, ref)
@@ -389,13 +464,13 @@ func referenceEntries(code string, node fhirpath.Node) []IndexEntry {
 
 // referenceEntry splits a reference URL into the type and id a chained search
 // joins on, while keeping the original for exact matching.
-func referenceEntry(code, ref string) []IndexEntry {
+func referenceEntry(code, ref string) []Entry {
 	if ref == "" {
 		return nil
 	}
-	entry := IndexEntry{Code: code, Kind: IndexReference, RefURL: ref}
+	entry := Entry{Code: code, Kind: Reference, RefURL: ref}
 	entry.RefType, entry.RefID = splitReference(ref)
-	return []IndexEntry{entry}
+	return []Entry{entry}
 }
 
 // splitReference pulls "Patient" and "123" out of the reference forms FHIR
@@ -418,22 +493,22 @@ func splitReference(ref string) (typeName, id string) {
 
 // ---- uri ----
 
-func uriEntry(code, value string) []IndexEntry {
+func uriEntry(code, value string) []Entry {
 	if value == "" {
 		return nil
 	}
-	return []IndexEntry{{Code: code, Kind: IndexURI, URI: value}}
+	return []Entry{{Code: code, Kind: URI, URI: value}}
 }
 
 // ---- date ----
 
-func dateEntries(code string, v fhirpath.Value) []IndexEntry {
+func dateEntries(code string, v fhirpath.Value) []Entry {
 	if node, ok := v.(fhirpath.Node); ok {
 		switch node.FHIRType() {
 		case "Period":
 			low, hasLow := temporalOf(firstChild(node, "start"))
 			high, hasHigh := temporalOf(firstChild(node, "end"))
-			entry := IndexEntry{Code: code, Kind: IndexDate,
+			entry := Entry{Code: code, Kind: Date,
 				DateLow: math.MinInt64, DateHigh: math.MaxInt64}
 			if hasLow {
 				entry.DateLow, _ = temporalRange(low)
@@ -444,9 +519,9 @@ func dateEntries(code string, v fhirpath.Value) []IndexEntry {
 			if !hasLow && !hasHigh {
 				return nil
 			}
-			return []IndexEntry{entry}
+			return []Entry{entry}
 		case "Timing":
-			var out []IndexEntry
+			var out []Entry
 			for _, when := range node.Children("event") {
 				out = append(out, dateEntries(code, when)...)
 			}
@@ -458,7 +533,7 @@ func dateEntries(code string, v fhirpath.Value) []IndexEntry {
 		return nil
 	}
 	low, high := temporalRange(t)
-	return []IndexEntry{{Code: code, Kind: IndexDate, DateLow: low, DateHigh: high}}
+	return []Entry{{Code: code, Kind: Date, DateLow: low, DateHigh: high}}
 }
 
 // temporalOf extracts a temporal value from a node or value, if it is one.
@@ -525,16 +600,16 @@ func temporalRange(t fhirpath.Temporal) (low, high int64) {
 
 // ---- number and quantity ----
 
-func numberEntries(code string, v fhirpath.Value) []IndexEntry {
+func numberEntries(code string, v fhirpath.Value) []Entry {
 	value, scale, ok := decimalOf(v)
 	if !ok {
 		return nil
 	}
 	low, high := implicitRange(value, scale)
-	return []IndexEntry{{Code: code, Kind: IndexNumber, NumLow: low, NumHigh: high}}
+	return []Entry{{Code: code, Kind: Number, NumLow: low, NumHigh: high}}
 }
 
-func quantityEntries(code string, v fhirpath.Value) []IndexEntry {
+func quantityEntries(code string, v fhirpath.Value) []Entry {
 	node, ok := v.(fhirpath.Node)
 	if !ok {
 		return nil
@@ -544,8 +619,8 @@ func quantityEntries(code string, v fhirpath.Value) []IndexEntry {
 		return nil
 	}
 	low, high := implicitRange(value, scale)
-	return []IndexEntry{{
-		Code: code, Kind: IndexQuantity,
+	return []Entry{{
+		Code: code, Kind: Quantity,
 		NumLow: low, NumHigh: high,
 		QuantitySystem: childString(node, "system"),
 		QuantityCode:   firstNonEmpty(childString(node, "code"), childString(node, "unit")),

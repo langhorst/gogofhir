@@ -20,6 +20,7 @@ import (
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Open is how a suite gets a fresh, empty backend. Each call must return a
@@ -301,36 +302,36 @@ func (s suite) testSearchByIndexedParameters(t *testing.T) {
 		want  int
 	}{
 		{"token by system and code", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "identifier", Kind: storage.IndexToken,
+			Code: "identifier", Kind: index.Token,
 			Values: []storage.MatchValue{{System: "http://example.org/mrn", Code: "p1-mrn"}},
 		}}}, 1},
 		{"token by code alone", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "gender", Kind: storage.IndexToken,
+			Code: "gender", Kind: index.Token,
 			Values: []storage.MatchValue{{Code: "female"}},
 		}}}, 2},
 		{"string prefix, case-folded", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "chal"}},
 		}}}, 1},
 		{"string exact", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "Chalmers", Match: storage.MatchExact}},
 		}}}, 1},
 		{"string exact is case-sensitive", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "chalmers", Match: storage.MatchExact}},
 		}}}, 0},
 		{"string prefix folds case in the query too", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "CHAL"}},
 		}}}, 1},
 		{"alternatives are an or", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "chal"}, {Text: "wind"}},
 		}}}, 2},
 		{"separate parameters are an and", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{
-			{Code: "family", Kind: storage.IndexString, Values: []storage.MatchValue{{Text: "chal"}}},
-			{Code: "gender", Kind: storage.IndexToken, Values: []storage.MatchValue{{Code: "male"}}},
+			{Code: "family", Kind: index.String, Values: []storage.MatchValue{{Text: "chal"}}},
+			{Code: "gender", Kind: index.Token, Values: []storage.MatchValue{{Code: "male"}}},
 		}}, 0},
 		{"_id", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "_id", Values: []storage.MatchValue{{Code: "p2"}},
@@ -365,7 +366,7 @@ func (s suite) testSearchByDateRange(t *testing.T) {
 		DateHigh: time.Date(1974, 12, 31, 23, 59, 59, 0, time.UTC).UnixMicro(),
 	}
 	result, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{year},
+		Code: "birthdate", Kind: index.Date, Values: []storage.MatchValue{year},
 	}}})
 	if err != nil {
 		t.Fatal(err)
@@ -379,7 +380,7 @@ func (s suite) testSearchByDateRange(t *testing.T) {
 		DateHigh: time.Date(1980, 12, 31, 0, 0, 0, 0, time.UTC).UnixMicro(),
 	}
 	result, err = store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-		Code: "birthdate", Kind: storage.IndexDate, Values: []storage.MatchValue{otherYear},
+		Code: "birthdate", Kind: index.Date, Values: []storage.MatchValue{otherYear},
 	}}})
 	if err != nil {
 		t.Fatal(err)
@@ -401,7 +402,7 @@ func (s suite) testIndexesFollowTheCurrentVersion(t *testing.T) {
 	byFamily := func(text string) int {
 		t.Helper()
 		result, err := store.Search(ctx, storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString, Values: []storage.MatchValue{{Text: text}},
+			Code: "family", Kind: index.String, Values: []storage.MatchValue{{Text: text}},
 		}}})
 		if err != nil {
 			t.Fatal(err)
@@ -440,7 +441,7 @@ func (s suite) testSearchPagingAndSort(t *testing.T) {
 
 	q := storage.SearchQuery{
 		Type:   "Patient",
-		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
+		SortBy: []storage.SortKey{{Code: "family", Kind: index.String}},
 		Count:  2,
 	}
 	first, err := store.Search(ctx, q)
@@ -487,7 +488,7 @@ func (s suite) testCursorPagingIsStableUnderWrites(t *testing.T) {
 
 	q := storage.SearchQuery{
 		Type:   "Patient",
-		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
+		SortBy: []storage.SortKey{{Code: "family", Kind: index.String}},
 		Count:  2,
 	}
 	first, err := store.Search(ctx, q)
@@ -537,7 +538,7 @@ func (s suite) testCursorRejectsMismatchedSort(t *testing.T) {
 	}
 	q := storage.SearchQuery{
 		Type:   "Patient",
-		SortBy: []storage.SortKey{{Code: "family", Kind: storage.IndexString}},
+		SortBy: []storage.SortKey{{Code: "family", Kind: index.String}},
 		Count:  1,
 	}
 	first, err := store.Search(ctx, q)
@@ -620,7 +621,7 @@ func (s suite) testTxCommitsAndRollsBack(t *testing.T) {
 	result, err := store.Search(ctx, storage.SearchQuery{
 		Type: "Patient",
 		Params: []storage.ParamMatch{{
-			Code: "family", Kind: storage.IndexString,
+			Code: "family", Kind: index.String,
 			Values: []storage.MatchValue{{Text: "dropped", Match: storage.MatchPrefix}},
 		}},
 	})
@@ -672,7 +673,7 @@ func (s suite) testFullText(t *testing.T) {
 		result, err := store.Search(ctx, storage.SearchQuery{
 			Type: "Observation",
 			Params: []storage.ParamMatch{{
-				Code: code, Kind: storage.IndexFullText,
+				Code: code, Kind: index.FullText,
 				Values: []storage.MatchValue{{Text: terms}},
 			}},
 		})
@@ -784,15 +785,15 @@ func (s suite) testComposite(t *testing.T) {
 			Code: "component-code-value-quantity",
 			Composite: []storage.CompositeMatch{{Components: []storage.ParamMatch{
 				{
-					Code: storage.CompositeComponentCode("component-code-value-quantity", 0),
-					Kind: storage.IndexToken,
+					Code: index.CompositeComponentCode("component-code-value-quantity", 0),
+					Kind: index.Token,
 					Values: []storage.MatchValue{{
 						System: "http://loinc.org", Code: code,
 					}},
 				},
 				{
-					Code:   storage.CompositeComponentCode("component-code-value-quantity", 1),
-					Kind:   storage.IndexQuantity,
+					Code:   index.CompositeComponentCode("component-code-value-quantity", 1),
+					Kind:   index.Quantity,
 					Values: []storage.MatchValue{{Prefix: prefix, NumLow: low, NumHigh: high}},
 				},
 			}}},

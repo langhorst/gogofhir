@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Query execution.
@@ -283,17 +284,17 @@ func renderSort(expressions []string, keys []storage.SortKey) string {
 
 // sortColumn gives the column to order by and the sentinel that stands in for a
 // missing value, chosen so absent values sort before present ones.
-func sortColumn(kind storage.IndexKind) (column, sentinel string) {
+func sortColumn(kind index.Kind) (column, sentinel string) {
 	switch kind {
-	case storage.IndexString:
+	case index.String:
 		return "norm", "''"
-	case storage.IndexToken:
+	case index.Token:
 		return "value", "''"
-	case storage.IndexReference:
+	case index.Reference:
 		return "target_id", "''"
-	case storage.IndexURI:
+	case index.URI:
 		return "value", "''"
-	case storage.IndexDate:
+	case index.Date:
 		return "low", "-9223372036854775808"
 	default:
 		return "low", "-1e308"
@@ -356,7 +357,7 @@ func renderParam(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 		return renderLastUpdated(p, sc)
 	}
 
-	if p.Kind == storage.IndexFullText {
+	if p.Kind == index.FullText {
 		return renderFullText(p, sc)
 	}
 
@@ -364,7 +365,7 @@ func renderParam(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 	if p.TextSearch {
 		// :text looks at the text extraction writes alongside a coded value,
 		// which lives in the string index under the same parameter code.
-		kind = storage.IndexString
+		kind = index.String
 	}
 	spec, ok := indexTables[kind]
 	if !ok {
@@ -405,7 +406,7 @@ func renderParam(p storage.ParamMatch, sc *renderScope) (string, []any, error) {
 // renderAlternatives renders one parameter's values as a disjunction, for use
 // inside an EXISTS over its index table. It returns an empty clause when there
 // is nothing to match, which the caller reads as "no constraint".
-func renderAlternatives(kind storage.IndexKind, values []storage.MatchValue, alias string) (string, []any, error) {
+func renderAlternatives(kind index.Kind, values []storage.MatchValue, alias string) (string, []any, error) {
 	var alternatives []string
 	var args []any
 	for _, v := range values {
@@ -602,9 +603,9 @@ func renderLastUpdated(p storage.ParamMatch, sc *renderScope) (string, []any, er
 }
 
 // renderValue builds the condition for one alternative, inside the EXISTS.
-func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string, []any, error) {
+func renderValue(kind index.Kind, v storage.MatchValue, x string) (string, []any, error) {
 	switch kind {
-	case storage.IndexToken:
+	case index.Token:
 		switch {
 		case v.System != "" && v.Code != "":
 			return f("(%s.system = ? AND %s.value = ?)", x, x), []any{v.System, v.Code}, nil
@@ -615,13 +616,13 @@ func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string
 			return f("%s.value = ?", x), []any{v.Code}, nil
 		}
 
-	case storage.IndexString:
+	case index.String:
 		// The folded column is only ever compared with folded text. Callers
 		// normalize already, but doing it here as well is what makes the
 		// comparison independent of the engine: SQLite's LIKE ignores ASCII
 		// case and PostgreSQL's does not, so a query that reached the column
 		// unfolded would quietly mean different things on the two.
-		folded := escapeLike(storage.Normalize(v.Text))
+		folded := escapeLike(index.Normalize(v.Text))
 		switch v.Match {
 		case storage.MatchExact:
 			return f("%s.exact = ?", x), []any{v.Text}, nil
@@ -634,7 +635,7 @@ func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string
 			return f(`%s.norm LIKE ? ESCAPE '\'`, x), []any{folded + "%"}, nil
 		}
 
-	case storage.IndexReference:
+	case index.Reference:
 		switch {
 		case v.RefType != "" && v.RefID != "":
 			return f("(%s.target_type = ? AND %s.target_id = ?)", x, x), []any{v.RefType, v.RefID}, nil
@@ -645,7 +646,7 @@ func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string
 			return f("%s.url = ?", x), []any{v.RefURL}, nil
 		}
 
-	case storage.IndexURI:
+	case index.URI:
 		switch {
 		case v.URIBelow:
 			// :below matches the value and anything under it.
@@ -660,13 +661,13 @@ func renderValue(kind storage.IndexKind, v storage.MatchValue, x string) (string
 			return f("%s.value = ?", x), []any{v.URI}, nil
 		}
 
-	case storage.IndexDate:
+	case index.Date:
 		clause, args := rangeComparison(x+".low", x+".high", v.Prefix, v.DateLow, v.DateHigh)
 		return clause, args, nil
 
-	case storage.IndexNumber, storage.IndexQuantity:
+	case index.Number, index.Quantity:
 		clause, args := rangeComparisonFloat(x+".low", x+".high", v.Prefix, v.NumLow, v.NumHigh)
-		if kind == storage.IndexQuantity && v.QuantityCode != "" {
+		if kind == index.Quantity && v.QuantityCode != "" {
 			clause = f("(%s AND (%s.unit = ? OR %s.system = ?))", clause, x, x)
 			args = append(args, v.QuantityCode, v.QuantitySystem)
 		}

@@ -9,6 +9,7 @@ import (
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Parsing the FHIR search syntax into a storage query plan.
@@ -113,47 +114,27 @@ func queryLeaf(idx *conformance.Index, raw string) leafBuilder {
 // resolveParam finds a search parameter and the index it uses. _id and
 // _lastUpdated are properties of the resource itself rather than indexed
 // values, so they resolve without consulting the index.
-func resolveParam(idx *conformance.Index, resourceType, name string) (*conformance.SearchParam, storage.IndexKind, error) {
+func resolveParam(idx *conformance.Index, resourceType, name string) (*conformance.SearchParam, index.Kind, error) {
 	switch name {
 	case "_id":
-		return &conformance.SearchParam{Code: "_id", Type: "token"}, storage.IndexToken, nil
+		return &conformance.SearchParam{Code: "_id", Type: "token"}, index.Token, nil
 	case "_lastUpdated":
-		return &conformance.SearchParam{Code: "_lastUpdated", Type: "date"}, storage.IndexDate, nil
+		return &conformance.SearchParam{Code: "_lastUpdated", Type: "date"}, index.Date, nil
 	case "_text", "_content":
 		// Full-text over the narrative and over the whole resource. Both are
 		// "special" parameters: the specification gives them no FHIRPath
 		// expression because they are not extracted from one element.
-		return &conformance.SearchParam{Code: name, Type: "special"}, storage.IndexFullText, nil
+		return &conformance.SearchParam{Code: name, Type: "special"}, index.FullText, nil
 	}
 	sp, ok := idx.SearchParam(resourceType, name)
 	if !ok {
 		return nil, "", &searchError{fmt.Sprintf("%s does not support the search parameter %q", resourceType, name)}
 	}
-	kind, ok := indexKindFor(sp.Type)
+	kind, ok := index.KindFor(sp.Type)
 	if !ok {
 		return nil, "", &searchError{fmt.Sprintf("search parameter %q is of type %q, which is not supported yet", name, sp.Type)}
 	}
 	return sp, kind, nil
-}
-
-func indexKindFor(paramType string) (storage.IndexKind, bool) {
-	switch paramType {
-	case "string":
-		return storage.IndexString, true
-	case "token":
-		return storage.IndexToken, true
-	case "reference":
-		return storage.IndexReference, true
-	case "date":
-		return storage.IndexDate, true
-	case "quantity":
-		return storage.IndexQuantity, true
-	case "uri":
-		return storage.IndexURI, true
-	case "number":
-		return storage.IndexNumber, true
-	}
-	return "", false
 }
 
 // searchError is a client mistake in a query, reported as 400 rather than 500.
@@ -163,7 +144,7 @@ func (e *searchError) Error() string { return e.msg }
 
 // parseParam builds one parameter match. A comma-separated value list is an
 // "or"; that is why Values is a slice.
-func parseParam(sp *conformance.SearchParam, kind storage.IndexKind, modifier, raw string) (storage.ParamMatch, error) {
+func parseParam(sp *conformance.SearchParam, kind index.Kind, modifier, raw string) (storage.ParamMatch, error) {
 	match := storage.ParamMatch{Code: sp.Code, Kind: kind}
 
 	if modifier == "missing" {
@@ -188,7 +169,7 @@ func parseParam(sp *conformance.SearchParam, kind storage.IndexKind, modifier, r
 	// A reference parameter may be modified by a target type -- subject:Patient
 	// -- which restricts rather than transforms the match.
 	refType := ""
-	if kind == storage.IndexReference && isResourceTypeModifier(sp, modifier) {
+	if kind == index.Reference && isResourceTypeModifier(sp, modifier) {
 		refType = modifier
 		modifier = ""
 	}
@@ -227,12 +208,12 @@ func isResourceTypeModifier(sp *conformance.SearchParam, modifier string) bool {
 // a code system hierarchy to answer. Accepting them and returning nothing would
 // be worse than refusing: a client would read an empty result as "no matching
 // resources" rather than "this server cannot answer that".
-var modifiersByKind = map[storage.IndexKind]map[string]bool{
-	storage.IndexFullText:  {"not": true},
-	storage.IndexString:    {"exact": true, "contains": true},
-	storage.IndexToken:     {"not": true, "text": true, "of-type": true},
-	storage.IndexReference: {"identifier": true},
-	storage.IndexURI:       {"above": true, "below": true},
+var modifiersByKind = map[index.Kind]map[string]bool{
+	index.FullText:  {"not": true},
+	index.String:    {"exact": true, "contains": true},
+	index.Token:     {"not": true, "text": true, "of-type": true},
+	index.Reference: {"identifier": true},
+	index.URI:       {"above": true, "below": true},
 }
 
 // unsupportedModifiers are recognized by the specification but need
@@ -244,14 +225,14 @@ var unsupportedModifiers = map[string]string{
 	"below":  "a code system hierarchy",
 }
 
-func checkModifier(sp *conformance.SearchParam, kind storage.IndexKind, modifier string) error {
+func checkModifier(sp *conformance.SearchParam, kind index.Kind, modifier string) error {
 	if modifier == "" {
 		return nil
 	}
 	if modifiersByKind[kind][modifier] {
 		return nil
 	}
-	if kind == storage.IndexReference && isResourceTypeModifier(sp, modifier) {
+	if kind == index.Reference && isResourceTypeModifier(sp, modifier) {
 		return nil
 	}
 	if need, known := unsupportedModifiers[modifier]; known {
@@ -309,13 +290,13 @@ func unescapeValue(raw string) string {
 	return b.String()
 }
 
-func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValue, error) {
+func parseValue(kind index.Kind, modifier, raw string) (storage.MatchValue, error) {
 	switch kind {
-	case storage.IndexToken:
+	case index.Token:
 		if modifier == "text" {
 			// :text redirects to the string index, so the value is a string
 			// match rather than a coded one.
-			return storage.MatchValue{Text: storage.Normalize(raw), Match: storage.MatchPrefix}, nil
+			return storage.MatchValue{Text: index.Normalize(raw), Match: storage.MatchPrefix}, nil
 		}
 		if modifier == "of-type" {
 			// "system|code|value": the identifier's type, then its value.
@@ -332,17 +313,17 @@ func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValu
 		}
 		return storage.MatchValue{Code: raw}, nil
 
-	case storage.IndexString:
+	case index.String:
 		switch modifier {
 		case "exact":
 			return storage.MatchValue{Text: raw, Match: storage.MatchExact}, nil
 		case "contains":
-			return storage.MatchValue{Text: storage.Normalize(raw), Match: storage.MatchContains}, nil
+			return storage.MatchValue{Text: index.Normalize(raw), Match: storage.MatchContains}, nil
 		default:
-			return storage.MatchValue{Text: storage.Normalize(raw), Match: storage.MatchPrefix}, nil
+			return storage.MatchValue{Text: index.Normalize(raw), Match: storage.MatchPrefix}, nil
 		}
 
-	case storage.IndexReference:
+	case index.Reference:
 		if modifier == "identifier" {
 			// :identifier matches the reference's own identifier, which
 			// extraction indexes as a token under the same code.
@@ -360,33 +341,33 @@ func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValu
 		}
 		return storage.MatchValue{RefID: raw}, nil
 
-	case storage.IndexURI:
+	case index.URI:
 		return storage.MatchValue{
 			URI:      raw,
 			URIAbove: modifier == "above",
 			URIBelow: modifier == "below",
 		}, nil
 
-	case storage.IndexDate:
+	case index.Date:
 		prefix, rest := splitPrefix(raw)
-		low, high, err := storage.DateRange(rest)
+		low, high, err := index.DateRange(rest)
 		if err != nil {
 			return storage.MatchValue{}, &searchError{fmt.Sprintf("invalid date %q", rest)}
 		}
 		return storage.MatchValue{Prefix: prefix, DateLow: low, DateHigh: high}, nil
 
-	case storage.IndexNumber:
+	case index.Number:
 		prefix, rest := splitPrefix(raw)
-		low, high, err := storage.NumberRange(rest)
+		low, high, err := index.NumberRange(rest)
 		if err != nil {
 			return storage.MatchValue{}, &searchError{fmt.Sprintf("invalid number %q", rest)}
 		}
 		return storage.MatchValue{Prefix: prefix, NumLow: low, NumHigh: high}, nil
 
-	case storage.IndexFullText:
+	case index.FullText:
 		return storage.MatchValue{Text: raw}, nil
 
-	case storage.IndexQuantity:
+	case index.Quantity:
 		// "[prefix]number|system|code"
 		prefix, rest := splitPrefix(raw)
 		number, system, code := rest, "", ""
@@ -394,7 +375,7 @@ func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValu
 			number = n
 			system, code, _ = strings.Cut(remainder, "|")
 		}
-		low, high, err := storage.NumberRange(number)
+		low, high, err := index.NumberRange(number)
 		if err != nil {
 			return storage.MatchValue{}, &searchError{fmt.Sprintf("invalid quantity %q", raw)}
 		}

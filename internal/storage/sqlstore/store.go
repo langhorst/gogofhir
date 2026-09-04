@@ -32,6 +32,7 @@ import (
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/resource"
 	"github.com/langhorst/gogofhir/internal/storage"
+	"github.com/langhorst/gogofhir/internal/storage/index"
 )
 
 // Store is the SQL-backed storage.Backend.
@@ -44,7 +45,7 @@ type Store struct {
 	q         Querier
 	dialect   Dialect
 	idx       *conformance.Index
-	extractor *storage.Extractor
+	extractor *index.Extractor
 	// now is the clock, replaceable in tests so lastUpdated is predictable.
 	now func() time.Time
 }
@@ -66,7 +67,7 @@ func Open(driverName, dsn string, idx *conformance.Index, dialect Dialect, tune 
 	}
 	s := &Store{
 		db: db, q: db, dialect: dialect, idx: idx,
-		extractor: storage.NewExtractor(idx), now: time.Now,
+		extractor: index.New(idx), now: time.Now,
 	}
 	if err := s.migrate(); err != nil {
 		db.Close()
@@ -393,17 +394,17 @@ func (s *Store) deleteIn(ctx context.Context, tx Querier, resourceType, id, ifMa
 
 // indexTables maps each index kind to its table and columns, so writing and
 // clearing stay in step with the schema in one place.
-var indexTables = map[storage.IndexKind]struct {
+var indexTables = map[index.Kind]struct {
 	table   string
 	columns []string
 }{
-	storage.IndexString:    {"idx_string", []string{"code", "seq", "norm", "exact"}},
-	storage.IndexToken:     {"idx_token", []string{"code", "seq", "system", "value"}},
-	storage.IndexReference: {"idx_reference", []string{"code", "seq", "target_type", "target_id", "url"}},
-	storage.IndexDate:      {"idx_date", []string{"code", "seq", "low", "high"}},
-	storage.IndexQuantity:  {"idx_quantity", []string{"code", "seq", "low", "high", "system", "unit"}},
-	storage.IndexURI:       {"idx_uri", []string{"code", "seq", "value"}},
-	storage.IndexNumber:    {"idx_number", []string{"code", "seq", "low", "high"}},
+	index.String:    {"idx_string", []string{"code", "seq", "norm", "exact"}},
+	index.Token:     {"idx_token", []string{"code", "seq", "system", "value"}},
+	index.Reference: {"idx_reference", []string{"code", "seq", "target_type", "target_id", "url"}},
+	index.Date:      {"idx_date", []string{"code", "seq", "low", "high"}},
+	index.Quantity:  {"idx_quantity", []string{"code", "seq", "low", "high", "system", "unit"}},
+	index.URI:       {"idx_uri", []string{"code", "seq", "value"}},
+	index.Number:    {"idx_number", []string{"code", "seq", "low", "high"}},
 }
 
 func (s *Store) reindex(ctx context.Context, tx Querier, pid int64, node *resource.Node) error {
@@ -434,21 +435,21 @@ func (s *Store) reindex(ctx context.Context, tx Querier, pid int64, node *resour
 
 // indexValues returns an entry's column values in the order indexTables lists
 // them.
-func indexValues(e storage.IndexEntry) []any {
+func indexValues(e index.Entry) []any {
 	switch e.Kind {
-	case storage.IndexString:
+	case index.String:
 		return []any{e.Code, e.Seq, e.Normalized, e.Exact}
-	case storage.IndexToken:
+	case index.Token:
 		return []any{e.Code, e.Seq, e.System, e.Value}
-	case storage.IndexReference:
+	case index.Reference:
 		return []any{e.Code, e.Seq, e.RefType, e.RefID, e.RefURL}
-	case storage.IndexDate:
+	case index.Date:
 		return []any{e.Code, e.Seq, e.DateLow, e.DateHigh}
-	case storage.IndexQuantity:
+	case index.Quantity:
 		return []any{e.Code, e.Seq, e.NumLow, e.NumHigh, e.QuantitySystem, e.QuantityCode}
-	case storage.IndexURI:
+	case index.URI:
 		return []any{e.Code, e.Seq, e.URI}
-	case storage.IndexNumber:
+	case index.Number:
 		return []any{e.Code, e.Seq, e.NumLow, e.NumHigh}
 	}
 	return nil
