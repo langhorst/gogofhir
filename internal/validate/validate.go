@@ -122,8 +122,13 @@ type run struct {
 	issues []Issue
 }
 
+// add records one finding. Every issue passes through here, whichever helper
+// phrased it, so there is one place to look for what a run reports.
+func (r *run) add(issue Issue) { r.issues = append(r.issues, issue) }
+
+// report records a finding with a formatted message.
 func (r *run) report(severity, code, path, format string, args ...any) {
-	r.issues = append(r.issues, Issue{
+	r.add(Issue{
 		Severity: severity, Code: code, Path: path,
 		Details: fmt.Sprintf(format, args...),
 	})

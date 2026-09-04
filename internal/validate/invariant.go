@@ -66,7 +66,7 @@ func (r *run) evaluate(node *resource.Node, path string, inv *conformance.Invari
 		// An expression that fails at runtime usually means it calls something
 		// this engine does not provide. Saying so is the honest answer; saying
 		// nothing would let it pass as satisfied.
-		r.issues = append(r.issues, Issue{
+		r.add(Issue{
 			Severity: SeverityInformation, Code: "not-supported", Path: path, Key: inv.Key,
 			Details: "the invariant " + inv.Key + " could not be evaluated, so it was not checked: " + err.Error(),
 		})
@@ -75,7 +75,7 @@ func (r *run) evaluate(node *resource.Node, path string, inv *conformance.Invari
 
 	satisfied, known := singletonBoolean(values)
 	if !known {
-		r.issues = append(r.issues, Issue{
+		r.add(Issue{
 			Severity: SeverityInformation, Code: "not-supported", Path: path, Key: inv.Key,
 			Details: "the invariant " + inv.Key + " did not evaluate to a single boolean, so it was not checked",
 		})
@@ -88,7 +88,7 @@ func (r *run) evaluate(node *resource.Node, path string, inv *conformance.Invari
 	if inv.Severity == "warning" {
 		severity = SeverityWarning
 	}
-	r.issues = append(r.issues, Issue{
+	r.add(Issue{
 		Severity: severity, Code: "invariant", Path: path, Key: inv.Key,
 		Details: inv.Key + ": " + strings.TrimSpace(inv.Human),
 	})
