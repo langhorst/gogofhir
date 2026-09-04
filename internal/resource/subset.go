@@ -168,13 +168,13 @@ func summaryElement(idx *conformance.Index, def *conformance.TypeDef, path, name
 	if def == nil {
 		return nil, false
 	}
-	elDef, _, _, _ := lookupChild(idx, def, path, name)
-	if elDef == nil {
+	step, ok := idx.Step(conformance.Cursor{Def: def, Path: path}, name)
+	if !ok {
 		return nil, false
 	}
 	// A mandatory element stays regardless: omitting it would produce a
 	// document that does not satisfy its own definition.
-	return elDef, elDef.Summary || elDef.Required()
+	return step.Element, step.Element.Summary || step.Element.Required()
 }
 
 // markSubsetted adds the SUBSETTED tag, creating meta if needed.

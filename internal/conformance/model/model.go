@@ -243,6 +243,9 @@ type TypeDef struct {
 
 	byPath map[string]*ElementDef
 	once   sync.Once
+
+	childrenOnce sync.Once
+	children     map[string][]Child
 }
 
 // ElementDef is one ElementDefinition from a snapshot.

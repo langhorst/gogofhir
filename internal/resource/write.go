@@ -62,7 +62,8 @@ func orderedKeys(idx *conformance.Index, def *conformance.TypeDef, path string, 
 	next++
 
 	if def != nil {
-		d, p := followContentReference(idx, def, path)
+		resolved := idx.Resolve(conformance.Cursor{Def: def, Path: path})
+		d, p := resolved.Def, resolved.Path
 		prefix := ""
 		if p != "" {
 			prefix = p + "."
@@ -170,19 +171,12 @@ func childLocation(idx *conformance.Index, def *conformance.TypeDef, path, name 
 	if def == nil {
 		return nil, ""
 	}
-	elDef, childType, childPath, childDef := lookupChild(idx, def, path, name)
-	if elDef == nil {
-		return nil, ""
-	}
-	switch childType {
-	case "Resource", "DomainResource":
+	step, ok := idx.Step(conformance.Cursor{Def: def, Path: path}, name)
+	if !ok || step.Nested {
 		// A nested resource names its own type in the document.
 		return nil, ""
 	}
-	if childDef != nil {
-		return childDef, childPath
-	}
-	return def, childPath
+	return step.Child.Def, step.Child.Path
 }
 
 // ---- XML ----
@@ -282,7 +276,8 @@ func (w *xmlWriter) childKeys(def *conformance.TypeDef, path string, obj map[str
 }
 
 func (w *xmlWriter) child(def *conformance.TypeDef, path, key string, obj map[string]any, depth int) error {
-	elDef, childType, childPath, childDef := lookupChild(w.idx, def, path, key)
+	step, _ := w.idx.Step(conformance.Cursor{Def: def, Path: path}, key)
+	elDef, childType, childPath, childDef := step.Element, step.Type, step.Child.Path, step.Child.Def
 	values := []any{obj[key]}
 	if arr, isArr := obj[key].([]any); isArr {
 		values = arr

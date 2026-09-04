@@ -14,7 +14,6 @@ package resource
 
 import (
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/langhorst/gogofhir/internal/conformance"
@@ -155,24 +154,29 @@ func (n *Node) Children(name string) []fhirpath.Node {
 		return nil
 	}
 	var out []fhirpath.Node
-	for _, el := range n.childElements() {
-		if name != "" && el.Path != name {
+	for _, child := range n.idx.Children(n.cursor()) {
+		if name != "" && child.Name != name {
 			// A choice element may also be addressed by one of its expanded
 			// names: "Observation.valueQuantity" rather than
 			// "Observation.value.ofType(Quantity)". Strict mode rejects that
 			// spelling, but it is widespread and reads unambiguously.
-			if !el.def.Choice || !slices.Contains(el.def.Expansions, name) {
+			if !child.Def.Choice || !slices.Contains(child.Def.Expansions, name) {
 				continue
 			}
-			out = append(out, n.choiceChild(obj, el, name)...)
+			out = append(out, n.occurrences(obj, []string{name})...)
 			continue
 		}
-		out = append(out, n.childrenFor(obj, el)...)
+		out = append(out, n.occurrences(obj, documentKeys(child))...)
 	}
 	if n.primitiveExt != nil {
 		out = append(out, n.extensionChildren(name)...)
 	}
 	return out
+}
+
+// cursor is the node's position in the type system.
+func (n *Node) cursor() conformance.Cursor {
+	return conformance.Cursor{Def: n.def, Path: n.path}
 }
 
 // extensionChildren serves the id and extension entries carried in a
@@ -199,81 +203,21 @@ func (n *Node) extensionChildren(name string) []fhirpath.Node {
 	return out
 }
 
-// childElements lists the element definitions one level below this node's path,
-// in snapshot order.
-func (n *Node) childElements() []childElement {
-	def, path := n.resolveDefinition()
-	if def == nil {
-		return nil
-	}
-	prefix := ""
-	if path != "" {
-		prefix = path + "."
-	}
-	var out []childElement
-	for _, el := range def.Elements {
-		rest, ok := strings.CutPrefix(el.Path, prefix)
-		if !ok || rest == "" || strings.Contains(rest, ".") {
-			continue // not a direct child
-		}
-		out = append(out, childElement{Path: rest, def: el, owner: def, ownerPath: el.Path})
-	}
-	return out
-}
-
-// childElement is one element definition relative to its parent node.
-type childElement struct {
-	// Path is the element's name relative to the parent, with any "[x]" already
-	// stripped by the generator.
-	Path      string
-	def       *conformance.ElementDef
-	owner     *conformance.TypeDef
-	ownerPath string
-}
-
-// resolveDefinition follows a contentReference when the node's own path carries
-// one. FHIR expresses recursive structures that way -- Questionnaire.item.item
-// points back at "#Questionnaire.item" -- and without following it, navigation
-// stops one level deep.
-func (n *Node) resolveDefinition() (*conformance.TypeDef, string) {
-	if n.def == nil {
-		return nil, ""
-	}
-	if el, ok := n.def.Element(n.path); ok && el.ContentReference != "" {
-		target := strings.TrimPrefix(el.ContentReference, "#")
-		typeName, rest, _ := strings.Cut(target, ".")
-		if def, ok := n.idx.Type(typeName); ok {
-			return def, rest
-		}
-	}
-	return n.def, n.path
-}
-
-// childrenFor materializes the nodes for one element definition, handling
-// choice-type expansion, repetition, and the parallel "_name" object that
-// carries a primitive's extensions.
-func (n *Node) childrenFor(obj map[string]any, el childElement) []fhirpath.Node {
-	// A choice element appears in the document under one of its expansions.
-	keys := []string{el.Path}
-	types := el.def.Types
-	if el.def.Choice {
-		keys = el.def.Expansions
-	}
-
+// occurrences materializes the nodes found under the given document keys --
+// an element's own name, or a choice element's expansions -- handling
+// repetition and the parallel "_name" object that carries a primitive's
+// extensions.
+func (n *Node) occurrences(obj map[string]any, keys []string) []fhirpath.Node {
 	var out []fhirpath.Node
-	for i, key := range keys {
+	for _, key := range keys {
 		raw, present := obj[key]
 		ext, hasExt := obj["_"+key].(map[string]any)
 		extList, hasExtList := obj["_"+key].([]any)
 		if !present && !hasExt && !hasExtList {
 			continue
 		}
-		childType := ""
-		if el.def.Choice && i < len(types) {
-			childType = types[i].Code
-		} else if len(types) > 0 {
-			childType = types[0].Code
-		}
+		step, _ := n.idx.Step(n.cursor(), key)
+		repeats := step.Element != nil && step.Element.IsArray()
 
 		// When the element itself is absent, its occurrences come from the
 		// "_name" sidecar alone; running the value loop as well would emit a
@@ -286,11 +230,11 @@ func (n *Node) childrenFor(obj map[string]any, el childElement) []fhirpath.Node 
 			}
 		}
 		for j, item := range items {
-			child := n.newChild(el, key, childType, item)
+			child := n.newChild(step, key, item)
 			// Attach the matching "_name" entry so extensions on a primitive
 			// remain reachable.
 			switch {
-			case hasExt && !el.def.IsArray():
+			case hasExt && !repeats:
 				child.primitiveExt = ext
 			case hasExtList && j < len(extList):
 				if m, ok := extList[j].(map[string]any); ok {
@@ -308,7 +252,7 @@ func (n *Node) childrenFor(obj map[string]any, el childElement) []fhirpath.Node 
 			}
 			for _, e := range extItems {
 				m, _ := e.(map[string]any)
-				child := n.newChild(el, key, childType, nil)
+				child := n.newChild(step, key, nil)
 				child.primitiveExt = m
 				out = append(out, child)
 			}
@@ -317,63 +261,20 @@ func (n *Node) childrenFor(obj map[string]any, el childElement) []fhirpath.Node 
 	return out
 }
 
-// choiceChild materializes just one expansion of a choice element, for
-// navigation that names it directly.
-func (n *Node) choiceChild(obj map[string]any, el childElement, expansion string) []fhirpath.Node {
-	raw, present := obj[expansion]
-	if !present {
-		return nil
-	}
-	childType := ""
-	for i, exp := range el.def.Expansions {
-		if exp == expansion && i < len(el.def.Types) {
-			childType = el.def.Types[i].Code
-		}
-	}
-	items := []any{raw}
-	if arr, isArr := raw.([]any); isArr {
-		items = arr
-	}
-	out := make([]fhirpath.Node, 0, len(items))
-	for _, item := range items {
-		out = append(out, n.newChild(el, expansion, childType, item))
-	}
-	return out
-}
-
-// newChild builds the node for one occurrence of an element, deciding whether
-// it continues inside the current type (a backbone) or moves to another.
-func (n *Node) newChild(el childElement, key, childType string, item any) *Node {
-	def, _ := n.resolveDefinition()
-	child := &Node{idx: n.idx, name: key, value: item, fhirType: childType}
-
-	// An element defined purely by a contentReference (Questionnaire.item.item)
-	// declares no type of its own; it is a backbone whose shape lives at the
-	// referenced path.
-	if childType == "" && el.def.ContentReference != "" {
-		childType = "BackboneElement"
-		child.fhirType = childType
-	}
-
-	switch {
-	case childType == "BackboneElement" || childType == "Element":
-		// Backbones are defined inline in the owning type, so stay put and
-		// extend the path.
-		child.def, child.path = def, el.ownerPath
-	case childType == "Resource" || childType == "DomainResource":
+// newChild builds the node for one occurrence of an element at the position
+// the step resolved: inside the owning type for a backbone, at a datatype's
+// root otherwise.
+func (n *Node) newChild(step conformance.Step, key string, item any) *Node {
+	child := &Node{idx: n.idx, name: key, value: item, fhirType: step.Type}
+	if step.Nested {
 		// A contained or bundled resource carries its own type.
-		child.def, child.path = n.resourceDefFor(item), ""
+		child.def = n.resourceDefFor(item)
 		if child.def != nil {
 			child.fhirType = child.def.Name
 		}
-	default:
-		if td, ok := n.idx.Type(childType); ok {
-			child.def, child.path = td, ""
-		} else {
-			// Unknown type: keep the node navigable but definition-less.
-			child.def, child.path = def, el.ownerPath
-		}
+		return child
 	}
+	child.def, child.path = step.Child.Def, step.Child.Path
 	return child
 }
 

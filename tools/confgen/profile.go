@@ -123,7 +123,7 @@ func narrowAgainstBase(pe *model.ProfileElement, idx *model.Index, base *model.T
 	if pe.Max == "*" {
 		pe.Max = ""
 	}
-	baseEl := baseElement(idx, base, pe.Path)
+	baseEl, _ := idx.Walk(model.Cursor{Def: base}, pe.Path)
 	if baseEl == nil {
 		// No base element to compare against -- an element the profile added,
 		// or a type outside this index. Types are still only interesting where
@@ -147,77 +147,6 @@ func narrowAgainstBase(pe *model.ProfileElement, idx *model.Index, base *model.T
 	if sameTypes(pe.Types, baseEl.Types) {
 		pe.Types = nil
 	}
-}
-
-// baseElement resolves an element path against the type system, descending into
-// datatypes as it goes.
-//
-// A snapshot does not recurse into datatypes -- Observation's stops at
-// Observation.category, typed CodeableConcept -- but a profile's does, and
-// names elements like "category.coding.system". Without following the datatype
-// there is no base element to compare against, and every such element would be
-// kept as if it narrowed something.
-func baseElement(idx *model.Index, def *model.TypeDef, path string) *model.ElementDef {
-	if def == nil || path == "" {
-		return nil
-	}
-	segments := strings.Split(path, ".")
-	prefix := ""
-	for i, segment := range segments {
-		if prefix != "" {
-			prefix += "."
-		}
-		prefix += segment
-		last := i == len(segments)-1
-
-		el, ok := def.Element(prefix)
-		if !ok {
-			// The segment may be a choice element written out in full, as
-			// "valueQuantity" for "value[x]".
-			code, found := def.ExpansionType(segment)
-			if !found || last {
-				return nil
-			}
-			next, ok := idx.Type(code)
-			if !ok {
-				return nil
-			}
-			def, prefix = next, ""
-			continue
-		}
-		if last {
-			return el
-		}
-		if el.ContentReference != "" {
-			// A recursive structure: Questionnaire.item.item points back at
-			// "#Questionnaire.item".
-			target := strings.TrimPrefix(el.ContentReference, "#")
-			typeName, rest, _ := strings.Cut(target, ".")
-			next, ok := idx.Type(typeName)
-			if !ok {
-				return nil
-			}
-			def, prefix = next, rest
-			continue
-		}
-		if len(el.Types) != 1 {
-			// A choice element addressed by its base name: which type the next
-			// segment belongs to is not something the path says.
-			return nil
-		}
-		code := el.Types[0].Code
-		if code == "BackboneElement" || code == "Element" {
-			// A backbone element stays inside the owning type, with the path
-			// simply extended.
-			continue
-		}
-		next, ok := idx.Type(code)
-		if !ok {
-			return nil
-		}
-		def, prefix = next, ""
-	}
-	return nil
 }
 
 // sameTypes reports whether a profile's declared types are the base's,

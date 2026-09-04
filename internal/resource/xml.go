@@ -127,14 +127,14 @@ func elementToMap(idx *conformance.Index, def *conformance.TypeDef, path string,
 
 	for _, name := range order {
 		children := groups[name]
-		elDef, childType, childPath, childDef := lookupChild(idx, def, path, name)
+		step, _ := idx.Step(conformance.Cursor{Def: def, Path: path}, name)
 
 		values := make([]any, 0, len(children))
 		for _, child := range children {
-			values = append(values, xmlValue(idx, child, childType, childDef, childPath))
+			values = append(values, xmlValue(idx, child, step.Type, step.Child.Def, step.Child.Path))
 		}
 
-		isArray := elDef != nil && elDef.IsArray()
+		isArray := step.Element != nil && step.Element.IsArray()
 		if isArray {
 			obj[name] = values
 		} else {
@@ -143,7 +143,7 @@ func elementToMap(idx *conformance.Index, def *conformance.TypeDef, path string,
 
 		// A primitive's extensions arrive as children in XML but belong in the
 		// parallel "_name" object in the JSON shape.
-		if exts := primitiveSidecars(idx, children, childType); exts != nil {
+		if exts := primitiveSidecars(idx, children, step.Type); exts != nil {
 			if isArray {
 				obj["_"+name] = exts
 			} else {
@@ -152,64 +152,6 @@ func elementToMap(idx *conformance.Index, def *conformance.TypeDef, path string,
 		}
 	}
 	return obj
-}
-
-// lookupChild resolves an element name against the current type and path,
-// returning its definition, its FHIR type, and where its own children are
-// defined.
-func lookupChild(idx *conformance.Index, def *conformance.TypeDef, path, name string) (
-	elDef *conformance.ElementDef, childType, childPath string, childDef *conformance.TypeDef) {
-	if def == nil {
-		return nil, "", "", nil
-	}
-	// Follow a contentReference before looking up children. Recursive
-	// structures -- Questionnaire.item.item points back at "#Questionnaire.item"
-	// -- otherwise stop converting at the depth the definition itself spells
-	// out, silently truncating deeply nested documents.
-	def, path = followContentReference(idx, def, path)
-	prefix := ""
-	if path != "" {
-		prefix = path + "."
-	}
-	// Try the name directly, then as an expansion of a choice element.
-	if el, ok := def.Element(prefix + name); ok {
-		elDef = el
-		if len(el.Types) > 0 {
-			childType = el.Types[0].Code
-		}
-	} else if code, ok := def.ExpansionType(name); ok {
-		childType = code
-		// The choice element's own definition governs repetition.
-		for _, e := range def.Elements {
-			if e.Choice {
-				for _, exp := range e.Expansions {
-					if exp == name {
-						elDef = e
-					}
-				}
-			}
-		}
-	} else {
-		return nil, "", "", nil
-	}
-
-	// An element defined only by a contentReference declares no type; it is a
-	// backbone whose shape lives at the referenced path.
-	if childType == "" && elDef != nil && elDef.ContentReference != "" {
-		childType = "BackboneElement"
-	}
-
-	switch childType {
-	case "BackboneElement", "Element":
-		return elDef, childType, prefix + name, def
-	case "Resource", "DomainResource":
-		return elDef, childType, "", nil
-	default:
-		if td, ok := idx.Type(childType); ok {
-			return elDef, childType, "", td
-		}
-		return elDef, childType, prefix + name, def
-	}
 }
 
 // xmlValue converts one child element to its JSON-shaped value.
@@ -242,24 +184,6 @@ func xmlValue(idx *conformance.Index, el *xmlElement, childType string, childDef
 		childDef = idx.Types[childType]
 	}
 	return elementToMap(idx, childDef, childPath, el)
-}
-
-// followContentReference resolves a path whose element defers its definition to
-// another location, returning the type and path that actually define it.
-func followContentReference(idx *conformance.Index, def *conformance.TypeDef, path string) (*conformance.TypeDef, string) {
-	if def == nil || path == "" {
-		return def, path
-	}
-	el, ok := def.Element(path)
-	if !ok || el.ContentReference == "" {
-		return def, path
-	}
-	target := strings.TrimPrefix(el.ContentReference, "#")
-	typeName, rest, _ := strings.Cut(target, ".")
-	if target, ok := idx.Type(typeName); ok {
-		return target, rest
-	}
-	return def, path
 }
 
 func isPrimitiveType(idx *conformance.Index, name string) bool {

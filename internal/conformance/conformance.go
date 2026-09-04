@@ -38,6 +38,9 @@ type (
 	ProfileContext       = model.ProfileContext
 	Slicing              = model.Slicing
 	Discriminator        = model.Discriminator
+	Cursor               = model.Cursor
+	Child                = model.Child
+	Step                 = model.Step
 	Release              = model.Release
 )
 

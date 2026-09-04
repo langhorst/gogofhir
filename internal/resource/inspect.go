@@ -36,19 +36,19 @@ func (n *Node) Fields() []Field {
 	if !ok {
 		return nil
 	}
-	elements := n.childElements()
-	out := make([]Field, 0, len(elements))
-	for _, el := range elements {
-		field := Field{Name: el.Path, Def: el.def}
-		for _, key := range documentKeys(el) {
+	children := n.idx.Children(n.cursor())
+	out := make([]Field, 0, len(children))
+	for _, child := range children {
+		field := Field{Name: child.Name, Def: child.Def}
+		for _, key := range documentKeys(child) {
 			_, present := obj[key]
 			_, hasExt := obj["_"+key]
 			if present || hasExt {
 				field.Keys = append(field.Keys, key)
 			}
 		}
-		for _, child := range n.childrenFor(obj, el) {
-			if node, ok := child.(*Node); ok {
+		for _, occurrence := range n.occurrences(obj, documentKeys(child)) {
+			if node, ok := occurrence.(*Node); ok {
 				field.Values = append(field.Values, node)
 			}
 		}
@@ -82,11 +82,11 @@ func (n *Node) UnknownKeys() []string {
 	known := map[string]bool{}
 	// "resourceType" is the document's own discriminator, and only a resource
 	// root has one.
-	if def, path := n.resolveDefinition(); def != nil && def.Kind == "resource" && path == "" {
+	if c := n.idx.Resolve(n.cursor()); c.Def != nil && c.Def.Kind == "resource" && c.Path == "" {
 		known["resourceType"] = true
 	}
-	for _, el := range n.childElements() {
-		for _, key := range documentKeys(el) {
+	for _, child := range n.idx.Children(n.cursor()) {
+		for _, key := range documentKeys(child) {
 			known[key], known["_"+key] = true, true
 		}
 	}
@@ -103,11 +103,11 @@ func (n *Node) UnknownKeys() []string {
 
 // documentKeys are the names an element may appear under: its own, or a choice
 // element's expansions.
-func documentKeys(el childElement) []string {
-	if el.def.Choice {
-		return el.def.Expansions
+func documentKeys(child conformance.Child) []string {
+	if child.Def.Choice {
+		return child.Def.Expansions
 	}
-	return []string{el.Path}
+	return []string{child.Name}
 }
 
 // Name returns the element name this node arrived under, empty at a resource
