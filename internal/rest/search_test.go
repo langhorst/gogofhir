@@ -25,9 +25,11 @@ func (c *client) createObservation(code, display, narrative string, value float6
 	return id
 }
 
-func (c *client) total(query string) float64 {
+// total reads a search bundle's total. Headers are passed through for the
+// searches that carry a token.
+func (c *client) total(query string, headers ...string) float64 {
 	c.t.Helper()
-	bundle := c.expect(http.StatusOK, "GET", query, "").json(c.t)
+	bundle := c.expect(http.StatusOK, "GET", query, "", headers...).json(c.t)
 	total, _ := bundle["total"].(float64)
 	return total
 }

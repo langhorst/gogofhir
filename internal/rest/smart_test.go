@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/langhorst/gogofhir/internal/rest"
 	"github.com/langhorst/gogofhir/internal/smart"
 )
 
@@ -51,7 +50,7 @@ func smartServer(t *testing.T) (*client, string) {
 		Patient: patient,
 	})
 	// The same store, now behind authorization.
-	guarded := serveOn(t, seed, &rest.Server{SMART: authorization})
+	guarded := seed.restart(t, withSMART(authorization))
 	return guarded, patient
 }
 
@@ -185,10 +184,10 @@ func TestSMARTPatientCompartment(t *testing.T) {
 	auth := []string{"Authorization", "Bearer " + token}
 
 	// Two patients and two observations exist; this token sees one of each.
-	if got := c.totalAuth(t, "/Patient", auth); got != 1 {
+	if got := c.total("/Patient", auth...); got != 1 {
 		t.Errorf("a patient-scoped search returned %v patients, want only the one in context", got)
 	}
-	if got := c.totalAuth(t, "/Observation", auth); got != 1 {
+	if got := c.total("/Observation", auth...); got != 1 {
 		t.Errorf("a patient-scoped search returned %v observations, want only the compartment's", got)
 	}
 
@@ -203,10 +202,10 @@ func TestSMARTPatientCompartment(t *testing.T) {
 	// performer, so the confinement is a disjunction over every parameter the
 	// compartment names -- taking only the first would hide a patient's own
 	// records from an app entitled to see them.
-	if got := c.totalAuth(t, "/Observation?code=29463-7", auth); got != 1 {
+	if got := c.total("/Observation?code=29463-7", auth...); got != 1 {
 		t.Errorf("the client's own criteria and the compartment must both apply: got %v", got)
 	}
-	if got := c.totalAuth(t, "/Observation?code=nonesuch", auth); got != 0 {
+	if got := c.total("/Observation?code=nonesuch", auth...); got != 0 {
 		t.Errorf("the compartment must narrow the client's criteria, not replace them: got %v", got)
 	}
 }
@@ -215,7 +214,7 @@ func TestSMARTPatientCompartment(t *testing.T) {
 // through an unauthenticated view of the same data.
 func (c *client) otherPatient(t *testing.T, exclude string) string {
 	t.Helper()
-	bundle := c.unguarded(t).expect(http.StatusOK, "GET", "/Patient", "").json(t)
+	bundle := c.restart(t).expect(http.StatusOK, "GET", "/Patient", "").json(t)
 	entries, _ := bundle["entry"].([]any)
 	for _, raw := range entries {
 		entry, _ := raw.(map[string]any)

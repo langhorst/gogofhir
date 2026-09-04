@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strings"
 	"testing"
-
-	"github.com/langhorst/gogofhir/internal/rest"
 )
 
 // $validate, and validation on write.
@@ -129,7 +127,7 @@ func TestValidateWrites(t *testing.T) {
 	lenient := newServer(t)
 	lenient.expect(http.StatusCreated, "POST", "/Patient", broken)
 
-	strict := newValidatingServer(t)
+	strict := newServer(t, validateWrites)
 	resp := strict.expect(http.StatusUnprocessableEntity, "POST", "/Patient", broken)
 	if !hasIssue(resp.issues(t), "error", "administrative-gender") {
 		t.Errorf("the 422 does not say what was wrong: %v", resp.issues(t))
@@ -142,13 +140,6 @@ func TestValidateWrites(t *testing.T) {
 		`{"resourceType":"Patient","id":"ok","gender":"male"}`)
 	strict.expect(http.StatusUnprocessableEntity, "PUT", "/Patient/ok",
 		`{"resourceType":"Patient","id":"ok","gender":"lady"}`)
-}
-
-// newValidatingServer is a server that refuses resources with validation
-// errors, as -validate-writes does.
-func newValidatingServer(t *testing.T) *client {
-	t.Helper()
-	return serve(t, &rest.Server{ValidateWrites: true})
 }
 
 // The CapabilityStatement has to advertise $validate, or a client has no way to

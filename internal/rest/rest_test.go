@@ -13,6 +13,7 @@ import (
 
 	"github.com/langhorst/gogofhir/internal/conformance"
 	"github.com/langhorst/gogofhir/internal/rest"
+	"github.com/langhorst/gogofhir/internal/smart"
 	"github.com/langhorst/gogofhir/internal/storage"
 	"github.com/langhorst/gogofhir/internal/storage/postgres"
 	"github.com/langhorst/gogofhir/internal/storage/sqlite"
@@ -33,12 +34,19 @@ type client struct {
 	store storage.Backend
 }
 
-func newServer(t *testing.T) *client {
-	t.Helper()
-	return serve(t, &rest.Server{})
+// option adjusts a server before it starts.
+type option func(*rest.Server)
+
+// validateWrites makes the server refuse resources with validation errors, as
+// -validate-writes does.
+func validateWrites(s *rest.Server) { s.ValidateWrites = true }
+
+// withSMART puts the server behind an authorization server, as -smart does.
+func withSMART(auth *smart.Server) option {
+	return func(s *rest.Server) { s.SMART = auth }
 }
 
-// serve wires a server onto a fresh backend and starts it.
+// newServer starts a server on a fresh backend.
 //
 // Which backend depends on GOGOFHIR_TEST_POSTGRES: unset, every test runs on an
 // in-memory SQLite database, and set, the identical suite runs against
@@ -46,33 +54,29 @@ func newServer(t *testing.T) *client {
 // alone but the whole server, since a divergence that only shows through a
 // search parameter or a transaction is exactly the kind a storage-level suite
 // can miss.
-func serve(t *testing.T, server *rest.Server) *client {
+func newServer(t *testing.T, options ...option) *client {
 	t.Helper()
 	idx := conformance.MustLoad(conformance.R5)
-	store := newBackend(t, idx)
+	return start(t, idx, newBackend(t, idx), options)
+}
 
-	server.Index, server.Store = idx, store
+// restart starts another server over the same data. It is how a test seeds
+// resources on an open server and then exercises them behind authorization,
+// or inspects a fixture from outside the token it is exercising.
+func (c *client) restart(t *testing.T, options ...option) *client {
+	t.Helper()
+	return start(t, c.index, c.store, options)
+}
+
+func start(t *testing.T, idx *conformance.Index, store storage.Backend, options []option) *client {
+	t.Helper()
+	server := &rest.Server{Index: idx, Store: store}
+	for _, apply := range options {
+		apply(server)
+	}
 	srv := httptest.NewServer(server.Handler())
 	t.Cleanup(srv.Close)
 	return &client{t: t, base: srv.URL, index: idx, store: store}
-}
-
-// serveOn starts a second server over an existing one's store, so a test can
-// seed data unauthenticated and then exercise the same data behind
-// authorization.
-func serveOn(t *testing.T, existing *client, server *rest.Server) *client {
-	t.Helper()
-	server.Index, server.Store = existing.index, existing.store
-	srv := httptest.NewServer(server.Handler())
-	t.Cleanup(srv.Close)
-	return &client{t: t, base: srv.URL, index: existing.index, store: existing.store}
-}
-
-// unguarded serves the same data with no authorization, for the fixture
-// inspection a test needs to do outside the token it is exercising.
-func (c *client) unguarded(t *testing.T) *client {
-	t.Helper()
-	return serveOn(t, c, &rest.Server{})
 }
 
 // form posts an application/x-www-form-urlencoded body, which is what the
@@ -84,15 +88,6 @@ func (c *client) form(want int, path, body string) *response {
 		c.t.Fatalf("POST %s: status %d, want %d\nbody: %s", path, resp.status, want, resp.body)
 	}
 	return resp
-}
-
-// totalAuth reads a search bundle's total with headers, for the authorized
-// searches.
-func (c *client) totalAuth(t *testing.T, query string, headers []string) float64 {
-	t.Helper()
-	bundle := c.expect(http.StatusOK, "GET", query, "", headers...).json(t)
-	total, _ := bundle["total"].(float64)
-	return total
 }
 
 // schemaCounter names a private schema per test, so a PostgreSQL run starts
