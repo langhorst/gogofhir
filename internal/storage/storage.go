@@ -204,11 +204,9 @@ type MatchValue struct {
 	// System and Code together match a token; Code alone matches any system.
 	System string
 	Code   string
-	// Text matches a string index. Match says how.
+	// Text matches a string index; Match says how. A prefix or contains match
+	// is compared on the folded form, an exact one on the value as written.
 	Text  string
-	Exact bool
-	// Match selects the string comparison: prefix (the default), exact, or
-	// contains.
 	Match StringMatch
 	// Reference matches a reference index by target type and id, or by the
 	// reference URL when the query gives an absolute one.

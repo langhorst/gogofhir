@@ -335,7 +335,7 @@ func parseValue(kind storage.IndexKind, modifier, raw string) (storage.MatchValu
 	case storage.IndexString:
 		switch modifier {
 		case "exact":
-			return storage.MatchValue{Text: raw, Exact: true, Match: storage.MatchExact}, nil
+			return storage.MatchValue{Text: raw, Match: storage.MatchExact}, nil
 		case "contains":
 			return storage.MatchValue{Text: storage.Normalize(raw), Match: storage.MatchContains}, nil
 		default:

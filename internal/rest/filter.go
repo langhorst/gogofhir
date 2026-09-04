@@ -328,7 +328,7 @@ func filterValue(kind storage.IndexKind, sp *conformance.SearchParam,
 			// "eq" on a string is equality, not the prefix match a bare query
 			// parameter performs -- the operator says what it means.
 			match.Negate = operator == "ne"
-			return storage.MatchValue{Text: value, Exact: true, Match: storage.MatchExact}, nil
+			return storage.MatchValue{Text: value, Match: storage.MatchExact}, nil
 		case "co":
 			return storage.MatchValue{Text: storage.Normalize(value), Match: storage.MatchContains}, nil
 		case "sw":

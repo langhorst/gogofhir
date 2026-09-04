@@ -314,11 +314,11 @@ func testSearchByIndexedParameters(t *testing.T) {
 		}}}, 1},
 		{"string exact", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString,
-			Values: []storage.MatchValue{{Text: "Chalmers", Exact: true, Match: storage.MatchExact}},
+			Values: []storage.MatchValue{{Text: "Chalmers", Match: storage.MatchExact}},
 		}}}, 1},
 		{"string exact is case-sensitive", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString,
-			Values: []storage.MatchValue{{Text: "chalmers", Exact: true, Match: storage.MatchExact}},
+			Values: []storage.MatchValue{{Text: "chalmers", Match: storage.MatchExact}},
 		}}}, 0},
 		{"string prefix folds case in the query too", storage.SearchQuery{Type: "Patient", Params: []storage.ParamMatch{{
 			Code: "family", Kind: storage.IndexString,
